@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 755,
+  "counter": 758,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-19T23:30:08Z",
   "job_id": "d70a38f0",
@@ -1554,7 +1554,7 @@
     {
       "symbol": "W75",
       "title": "Let a claim cite a gate that must deny, without sitting red forever",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W82"
       ],
@@ -1562,13 +1562,17 @@
         "file:scripts/opa_gate.py!w",
         "file:catalog/worklist/warrants.bib!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W756",
+        "W757",
+        "W758"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "mint the next three slices from opa_gate --denies, preferring a policy whose check already takes a file operand; each slice: FIXTURE operand, a known-bad fixture, an --expect warrant, a selftest arm",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building. | 2026-10-19: READ 2026-10-19 with the tool: opa_gate.py already has --expect denied:RULE (selftest arms for admitted, other rule, superset, raising measurer, bad JSON, absent fixture, absent opa, undefined package) and --denies. --denies reads 5 of 78 gated policies carrying an end-to-end negative claim: consumers, deps, embedded_markup, font_compiler and serial (@SERIAL-DENIES is the noise-only.log S0 claim). So the tool and the S0 half are done; what remains is the U1 half (use_of_colour reads NONE) and the other 73. | 2026-10-19: paperkit:W537 carded (github-8f, 2026-10-19) for bibstruct.py --add --apply dying on import tools.edit_snapshot; this card does not block on it because warrants.bib may be edited directly. | 2026-10-19: SLICE LANDED 2026-10-19 as fab5a88 (land_template printed it): use_of_colour --json FIXTURE, the colour-only fixture and @USE-OF-COLOUR-DENIES; the card is NOT done, since the other gated policies still carry no end-to-end negative claim (73 of 78 before this slice, 72 after). | 2026-10-19: READ 2026-10-19 after fab5a88: opa_gate --denies reads 6 of 78 policies with a negative claim (consumers, deps, embedded_markup, font_compiler, serial, use_of_colour); routes is the next candidate because W738 edits check_routes and its fixture is a skill file with a sibling-path row (R4 deny) so the operand and the W738 change can land together | 2026-10-19: BUILT 2026-10-19 in scratch el-openglo-W738 on top of the W738 change (not landed): check_routes --json takes one FIXTURE skill, catalog/fixtures/routes/outside-root.md names ../paperkit/tools/bibstruct.py, opa_gate routes FIXTURE --expect denied:R4 fires, @ROUTES-DENIES in warrants.bib (edited directly, bibstruct --apply still dies on tools.edit_snapshot), worklist_gate --project regenerated, selftest 9 arms pass; lands after W738 prints its sha | 2026-10-19: SLICES LANDED 2026-10-19: routes and mark as 9916055 (W740, W741), license as 9ef9292 (W742); opa_gate --denies now reads 9 of 78 (measured on main after the license landing); 69 policies still carry no negative claim, so the card stays open | 2026-10-28: 2026-10-27: slice W756-class: tokens gate shown to DENY end to end: check_tokens --json takes one fixture file (catalog/fixtures/tokens/bad-leaf.txt), @DTCG-DENIES cites opa_gate tokens with --expect denied:D1,D2,D3,D4,D5, selftest arm 7; opa_gate --denies 13 -> 14 of 78 once landed.",
+      "next_bounded_step": "Slices landed or queued: tokens (7ed6163), standards and css (bt0vvz6jt). The path-taking measures are used up; gtk, firefox and union main() call measure() with no argument and render live content, so each next slice needs measure to take the document (or text) first, then the fixture operand, the warrant and an --expect. Take them one policy per entry in a single stack.",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building. | 2026-10-19: READ 2026-10-19 with the tool: opa_gate.py already has --expect denied:RULE (selftest arms for admitted, other rule, superset, raising measurer, bad JSON, absent fixture, absent opa, undefined package) and --denies. --denies reads 5 of 78 gated policies carrying an end-to-end negative claim: consumers, deps, embedded_markup, font_compiler and serial (@SERIAL-DENIES is the noise-only.log S0 claim). So the tool and the S0 half are done; what remains is the U1 half (use_of_colour reads NONE) and the other 73. | 2026-10-19: paperkit:W537 carded (github-8f, 2026-10-19) for bibstruct.py --add --apply dying on import tools.edit_snapshot; this card does not block on it because warrants.bib may be edited directly. | 2026-10-19: SLICE LANDED 2026-10-19 as fab5a88 (land_template printed it): use_of_colour --json FIXTURE, the colour-only fixture and @USE-OF-COLOUR-DENIES; the card is NOT done, since the other gated policies still carry no end-to-end negative claim (73 of 78 before this slice, 72 after). | 2026-10-19: READ 2026-10-19 after fab5a88: opa_gate --denies reads 6 of 78 policies with a negative claim (consumers, deps, embedded_markup, font_compiler, serial, use_of_colour); routes is the next candidate because W738 edits check_routes and its fixture is a skill file with a sibling-path row (R4 deny) so the operand and the W738 change can land together | 2026-10-19: BUILT 2026-10-19 in scratch el-openglo-W738 on top of the W738 change (not landed): check_routes --json takes one FIXTURE skill, catalog/fixtures/routes/outside-root.md names ../paperkit/tools/bibstruct.py, opa_gate routes FIXTURE --expect denied:R4 fires, @ROUTES-DENIES in warrants.bib (edited directly, bibstruct --apply still dies on tools.edit_snapshot), worklist_gate --project regenerated, selftest 9 arms pass; lands after W738 prints its sha | 2026-10-19: SLICES LANDED 2026-10-19: routes and mark as 9916055 (W740, W741), license as 9ef9292 (W742); opa_gate --denies now reads 9 of 78 (measured on main after the license landing); 69 policies still carry no negative claim, so the card stays open | 2026-10-28: 2026-10-27: slice W756-class: tokens gate shown to DENY end to end: check_tokens --json takes one fixture file (catalog/fixtures/tokens/bad-leaf.txt), @DTCG-DENIES cites opa_gate tokens with --expect denied:D1,D2,D3,D4,D5, selftest arm 7; opa_gate --denies 13 -> 14 of 78 once landed. | 2026-10-28: landed as 7ed6163 (2026-10-27): the tokens gate DENIES bad-leaf.txt with D1-D5 (@DTCG-DENIES). The queue file carrying W755 with its flake: touches tag was not refused by the commit gate. Next: standards + css slice queued as bt0vvz6jt. | 2026-10-28: landed as 7ddc548 (2026-10-27): standards gate denies absent-applier.md with T2 (@STANDARDS-DENIES), css gate denies no-variant-blocks.txt with K1,K4 (@CSS-DENIES); the denies census should read 16 of 78 (re-measure). Remaining policies are atomized as W756 gtk, W757 firefox, W758 union.",
       "issued_at": "2026-09-23T14:55:01+00:00",
-      "last_worked": "2026-10-28T02:04:15Z",
+      "last_worked": "2026-10-28T03:43:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -18371,7 +18375,7 @@
     {
       "symbol": "W719",
       "title": "Map each literal colour in the Air SVGZ to the nearest palette role, as a table measured by check_plasma_air",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W245"
       ],
@@ -18380,18 +18384,19 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read make_plasma.py and run check_plasma_air --theme air --json; map each of the 49 literal colours to the nearest palette role as a table. WITNESS: check_plasma_air lists every literal colour with its role.",
-      "evidence": "",
+      "next_bounded_step": "Map each of the 325 distinct literal colours to the nearest palette role: read the roles from the palette authority (make_preview.parse_scheme / make_schemes.GRID) and take the distance from cvd_gate rather than a new metric; emit it as check_plasma_air --roles, with a selftest arm and the n of m (colours mapped of 325).",
+      "evidence": "2026-10-28: 2026-10-28: measured with the new check_plasma_air --colors: the Air theme paints 325 DISTINCT literal #hex colours, 3254 uses, in 50 svgs; the card 49 was the count of SVGS with literals (49 of 50), not of colours. Top: #ffffff x1118, #000000 x910, #008000 x179, #4e9a06 x106, #f0f0f0 x100, #ff00ff x84, #1a1a1a x75. rgb() literals are counted by measure_svg and not named.",
       "issued_at": "2026-10-19T05:27:56Z",
       "minted_during": "tick",
       "caused_by": "W245",
-      "last_worked": "2026-10-19T05:28:01Z",
+      "last_worked": "2026-10-28T04:18:19Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_plasma_air.py",
         "make_plasma.py"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W720",
@@ -19309,7 +19314,7 @@
     {
       "symbol": "W754",
       "title": "Answer nemik:W879: repin mikemol-paths-forward and the mtools pins so nemik:W516 withholding at the source reaches this repo",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "nemik:W879"
       ],
@@ -19317,12 +19322,13 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "After W752 lands, read nemik:W879 and nemik:W516 for the sha they want; if it is newer than 4c8e73cc, repin to it alone, else reply citing the W752 sha.",
-      "evidence": "2026-10-28: 2026-10-27: the installed writer (4c8e73cc) REFUSES --check on W755 because the touches tag flake:040a91b156c3 has an unknown prefix, so the flake: tag github-8f asked for is accepted only by a newer mtools pin; this is the repin nemik:W879 / mtools:W2008 want. Repin alone after the W75 tokens stack (b92c1webo) lands.",
+      "evidence": "2026-10-28: 2026-10-27: the installed writer (4c8e73cc) REFUSES --check on W755 because the touches tag flake:040a91b156c3 has an unknown prefix, so the flake: tag github-8f asked for is accepted only by a newer mtools pin; this is the repin nemik:W879 / mtools:W2008 want. Repin alone after the W75 tokens stack (b92c1webo) lands. | 2026-10-28: 2026-10-28: nemik:W879 asks for mtools 5ba261f or later; 5ba261f is NOT an ancestor of 4c8e73cc, so repinned all 13 pins to mtools HEAD 754dcf97 (pushed, main = origin/main) with mikemol-repin --write, uv sync both extras; submitted alone. | 2026-10-28: CORRECTION 2026-10-28: the submitted commit subject says the writer accepts the flake: touches prefix. It does NOT: after the repin to 754dcf97 and uv sync, --check still refuses W755 (unknown prefix flake:). The pins still satisfy nemik:W879 (5ba261f or later), but flake: acceptance is not in mtools 754dcf97; the mtools working tree holds uncommitted pathsforward edits, so it is probably unpushed. The subject clause is wrong; ask mtools-ad which commit carries it. | 2026-10-28: 2026-10-28: mtools-ad confirms no pushed mtools commit accepts the flake: touches prefix (pathsforward tags.py parse_tag knows file:, mod:, party:, topic only); fixed in its working tree (a flake grain, never leasable), going out as its own stack in the pathsforward dist; it will send the sha. Repin again to that sha, alone. W755 keeps flake:040a91b156c3 meanwhile: the commit gate accepted it (7ed6163 landed with it) although --check warns.",
       "issued_at": "2026-10-28T00:45:16Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W879",
-      "last_worked": "2026-10-28T02:26:04Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-28T04:32:30Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W755",
@@ -19341,6 +19347,76 @@
       "caused_by": "github-8f",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W756",
+      "title": "W75 gtk: make check_gtk.measure take a roster of css texts so a fixture can be denied, then @GTK-DENIES",
+      "status": "working",
+      "enables": [
+        "W75"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/check_gtk.py: measure(texts=None) reads a {variant: [gtk4, gtk3] css} fixture instead of make_gtk, --json takes one fixture file, catalog/fixtures/gtk/*.txt is denied with the policy rule id it names, @GTK-DENIES in catalog/worklist/warrants.bib, one selftest arm",
+      "evidence": "2026-10-28: 2026-10-28: built: check_gtk.measure_fixture (one JSON case {variant, gtk4, gtk3}), --json FIXTURE, catalog/fixtures/gtk/typo-and-wrong-role.txt denied with K2,K3,K4 (86 denials), @GTK-DENIES, 2 selftest arms; a selftest arm that READ the committed fixture failed the closure witness arm 1 (closure observation sees imports, not file opens), so the arm writes its fixture to a temp dir.",
+      "issued_at": "2026-10-28T03:31:33Z",
+      "minted_during": "interrupt",
+      "caused_by": "W75",
+      "last_worked": "2026-10-28T04:52:51Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_gtk.py",
+        "catalog/worklist/warrants.bib"
+      ],
+      "size_class": "small",
+      "completed": null
+    },
+    {
+      "symbol": "W757",
+      "title": "W75 firefox: make check_firefox.measure take a manifest so a fixture can be denied, then @FIREFOX-DENIES",
+      "status": "ready",
+      "enables": [
+        "W75"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/check_firefox.py: measure takes a manifest document, --json takes one fixture file, catalog/fixtures/firefox/*.txt is denied with the rule id it names, @FIREFOX-DENIES in catalog/worklist/warrants.bib, one selftest arm",
+      "evidence": "",
+      "issued_at": "2026-10-28T03:31:33Z",
+      "minted_during": "interrupt",
+      "caused_by": "W75",
+      "last_worked": "2026-10-28T03:31:40Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_firefox.py",
+        "catalog/worklist/warrants.bib"
+      ],
+      "size_class": "small"
+    },
+    {
+      "symbol": "W758",
+      "title": "W75 union: make check_union.measure take a sheet so a fixture can be denied, then @UNION-DENIES",
+      "status": "ready",
+      "enables": [
+        "W75"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/check_union.py: measure takes a sheet, --json takes one fixture file, catalog/fixtures/union/*.txt is denied with the rule id it names, @UNION-DENIES in catalog/worklist/warrants.bib, one selftest arm",
+      "evidence": "",
+      "issued_at": "2026-10-28T03:31:33Z",
+      "minted_during": "interrupt",
+      "caused_by": "W75",
+      "last_worked": "2026-10-28T03:31:42Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_union.py",
+        "catalog/worklist/warrants.bib"
+      ],
+      "size_class": "small"
     }
   ],
   "residue": [
@@ -19445,6 +19521,15 @@
       "taken_at": "2026-10-28T02:04:15Z",
       "renewed_at": "2026-10-28T02:04:15Z",
       "expires_at": "2026-10-28T02:34:15Z"
+    },
+    {
+      "tag": "file:make_plasma.py!w",
+      "holder": "(unlocked)",
+      "waypoint": "W719",
+      "base_sha": "7ddc5480c4160445ab766043c37e52ec237ec031",
+      "taken_at": "2026-10-28T04:17:18Z",
+      "renewed_at": "2026-10-28T04:17:18Z",
+      "expires_at": "2026-10-28T04:47:18Z"
     }
   ],
   "advice": [

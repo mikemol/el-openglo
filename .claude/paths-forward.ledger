@@ -1337,3 +1337,9 @@
 2026-10-28T01:05:20Z  interrupt W755 minted    -         "Flake: ENOSYS spawning /usr/bin/git inside land_template (posix_spawn errno 38), found by proof not reruns"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=github-8f
 2026-10-28T02:04:15Z  status W75  ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T02:26:17Z  tick  W75  advanced  sweep     "tokens W75 slice gating (b92c1webo); standards slice built in scratch W75b (patch w75-standards.patch); top-ranked W275 waits on the annotate defects reported to mtools-ad (W743 carries them) [blocked by W743]"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T03:31:33Z  interrupt W756 minted    -         "W75 gtk: make check_gtk.measure take a roster of css texts so a fixture can be denied, then @GTK-DENIES"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W75
+2026-10-28T03:31:33Z  interrupt W757 minted    -         "W75 firefox: make check_firefox.measure take a manifest so a fixture can be denied, then @FIREFOX-DENIES"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W75
+2026-10-28T03:31:33Z  interrupt W758 minted    -         "W75 union: make check_union.measure take a sheet so a fixture can be denied, then @UNION-DENIES"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W75
+2026-10-28T04:09:19Z  status W754 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T04:17:18Z  status W719 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T04:52:51Z  status W756 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0

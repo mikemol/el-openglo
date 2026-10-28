@@ -31,6 +31,7 @@ import json
 import os
 import re
 import sys
+from collections import Counter
 from collections.abc import Sequence
 from typing import NotRequired, TypedDict
 
@@ -40,7 +41,31 @@ SCHEME = re.compile(r"""class\s*=\s*["'][^"']*ColorScheme-""")
 BAKED = re.compile(
     r"""(?:fill|stroke|stop-color|flood-color)\s*[:=]\s*["']?\s*(?:#[0-9a-fA-F]{3,8}\b|rgba?\()"""
 )
+LITERAL_HEX = re.compile(
+    r"""(?:fill|stroke|stop-color|flood-color)\s*[:=]\s*["']?\s*(#[0-9a-fA-F]{3,8})\b"""
+)
 SECTION = re.compile(r"^\[(Colors:\w+)\]", re.MULTILINE)
+
+
+def literal_colors(text: str) -> Counter[str]:
+    """The distinct #hex colours painted by a literal outside the <style> element, with counts (W719).
+
+    Only hex literals; an rgb() literal is counted by measure_svg and not named here."""
+    return Counter(
+        m.group(1).lower() for m in LITERAL_HEX.finditer(STYLE.sub("", text))
+    )
+
+
+def theme_colors(base: str, tid: str) -> Counter[str]:
+    """Every literal #hex colour of one host theme's SVGs, summed over the files."""
+    out: Counter[str] = Counter()
+    d = os.path.join(base, tid)
+    # population: the host's installed Plasma theme directory (a system tree, not tracked files)
+    for dp, _dn, fns in sorted(os.walk(d)):
+        for fn in sorted(fns):
+            if fn.endswith((".svg", ".svgz")):
+                out.update(literal_colors(read_svg(os.path.join(dp, fn))))
+    return out
 
 
 class SvgCount(TypedDict):
@@ -131,6 +156,10 @@ def _selftest() -> bool:
         == 0,
         "inline style fill is baked": measure_svg('<g style="fill:#fff"/>')["baked"]
         == 1,
+        "literal colours are named and counted, stylesheet fallbacks are not": literal_colors(
+            '<style>.a{fill:#111111}</style><rect fill="#ABC"/><g style="fill:#abc"/><path stroke="#00ff00"/>'
+        )
+        == Counter({"#abc": 2, "#00ff00": 1}),
     }
     with tempfile.TemporaryDirectory() as t:
         os.makedirs(os.path.join(t, "x", "widgets"))
@@ -166,11 +195,24 @@ def main(argv: Sequence[str]) -> int:
         rest.append(a)
         i += 1
     for a in rest:
-        if a not in ("--json", "--selftest"):
+        if a not in ("--json", "--selftest", "--colors"):
             print(f"check_plasma_air: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in rest:
         return 0 if _selftest() else 1
+    if "--colors" in rest:
+        if not os.path.isdir(os.path.join(BASE, tid)):
+            print(f"check_plasma_air: {tid} is not on this host", file=sys.stderr)
+            return 3
+        colors = theme_colors(BASE, tid)
+        for hexv, n in sorted(colors.items(), key=lambda kv: (-kv[1], kv[0])):
+            print(f"{n}\t{hexv}")
+        print(
+            f"check_plasma_air: {len(colors)} distinct literal colour(s), "
+            f"{sum(colors.values())} use(s) in theme {tid}",
+            file=sys.stderr,
+        )
+        return 0
     m = measure(BASE, tid)
     if "--json" in rest:
         print(json.dumps(m, indent=1))
