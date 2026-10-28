@@ -192,19 +192,32 @@ def _selftest():
             ([c["variant"] for c in m["cases"] if not c["present"]], m["current"]),
             ([first], False),
         )
+    chk(
+        "a fixture operand without --json is refused, not read as the live file",
+        main(["check_tokens", os.path.join(ROOT, "catalog", "fixtures", "tokens")]),
+        2,
+    )
     print("check_tokens selftest:", "PASS" if ok else "FAIL")
     return ok
 
 
 def main(argv):
+    known = {"--json", "--selftest"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in {"--json", "--selftest"}:
+        if a.startswith("--") and a not in known:
             print(f"check_tokens: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_tokens: --json takes at most one fixture file", file=sys.stderr)
+        return 2
+    if operands and not os.path.isfile(operands[0]):
+        print(f"check_tokens: no such fixture {operands[0]!r}", file=sys.stderr)
+        return 2
     if "--selftest" in argv:
         return 0 if _selftest() else 1
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        print(json.dumps(measure(operands[0] if operands else None), indent=1))
         return 0
     import opa_gate
 

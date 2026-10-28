@@ -1122,3 +1122,10 @@
   claim    = {The byte-compile gate DENIES a known-bad source end to end: a file with a syntax error is refused by the measurement, the policy and the exit (K1), with every tracked source measured as it is, so the gate is shown to fail and not only to admit (W75, W749)},
   check    = {tool:opa_gate.py compiles catalog/fixtures/compiles/syntax-error.txt --expect denied:K1}
 }
+
+@misc{DTCG-DENIES,
+  section  = {tooling},
+  rests-on = {DTCG},
+  claim    = {The token-file gate DENIES a known-bad file end to end: a DTCG document holding one variant with a non-hex colour leaf and nothing else is refused by the measurement, the policy and the exit (D1 absent variants, D2 the bad leaf, D3 no alphas, D4 stale against a fresh emission, D5 missing material slots), so the gate is shown to fail and not only to admit (W75)},
+  check    = {tool:opa_gate.py tokens catalog/fixtures/tokens/bad-leaf.txt --expect denied:D1,D2,D3,D4,D5}
+}

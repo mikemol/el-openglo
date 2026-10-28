@@ -1,0 +1,7 @@
+{
+ "EL-Amber": {
+  "color": {
+   "fg": {"$type": "color", "$value": "0,255,0"}
+  }
+ }
+}
