@@ -1,6 +1,6 @@
 {
  "repo": "luthen-observability",
- "sha": "4045597b5992128fba2b2bf5354416576620a5d9",
+ "sha": "c2c505b76aa4e7817f30b7a59f45e7e058c627ef",
  "paths": [
   "checks",
   "images/qml-check",

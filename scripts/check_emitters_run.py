@@ -449,6 +449,38 @@ def _selftest():
             and not ap["tree_touched"]
             and colors_after_ap == "A=2\n",
         )
+    # ⚑ W760: THE ORDERING THE STAGINGS ASSUMED IS A LOCK. Two stagings generate into, clear and copy
+    # from the same real-tree directories; the lock is what keeps one out while the other is
+    # inside. Held by one descriptor, a second acquirer must be REFUSED (LOCK_NB: BlockingIOError)
+    # until it is released, and then be granted.
+    import fcntl
+
+    import emitters
+
+    with tempfile.TemporaryDirectory() as lock_root:
+        probe = os.open(
+            os.path.join(lock_root, emitters.LOCK_NAME), os.O_RDWR | os.O_CREAT, 0o666
+        )
+        try:
+            with emitters.tree_lock(lock_root):
+                try:
+                    fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    blocked = False
+                except BlockingIOError:
+                    blocked = True
+            see(
+                "tree_lock excludes a second acquirer while it is held (W760)",
+                blocked,
+            )
+            fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            see("...and grants the lock once it is released", True)
+        finally:
+            os.close(probe)
+        see(
+            "run_all takes the lock itself by default and lets a holder pass hold=False",
+            emitters.run_all(lock_root, only=set()) == []
+            and emitters.run_all(lock_root, only=set(), hold=False) == [],
+        )
     print("check_emitters_run selftest:", "PASS" if ok else "FAIL")
     return ok
 

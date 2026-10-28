@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 758,
+  "counter": 764,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-19T23:30:08Z",
   "job_id": "d70a38f0",
@@ -5684,20 +5684,22 @@
     {
       "symbol": "W250",
       "title": "policy/screens.rego: a stepped marquee capture series is exactly one run (the S-rule W200 named but could not own)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "screens",
         "render_screens"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Make render_screens log the run count of each marquee-anim series (it already logs the steps: W209 logged S5) and add an S-rule in policy/screens.rego: runs == 1 per series, refusing case runs == 2 (a series that wrapped) and runs == 0 (a series that never ended); positive control the 18 current marquee-anims.",
       "evidence": "2026-10-03: 2026-10-03: minted from W200. The card rule - a capture series is exactly one run - is now true by construction in the widget (complete() increments captureRuns on every path that ends a run, and the harness stops on captureRuns > 0), but nothing in policy/screens.rego JUDGES it: the property is held by the code, not by a gate.",
       "issued_at": "2026-10-03T17:55:54Z",
       "minted_during": "interrupt",
       "caused_by": "W200",
-      "last_worked": "2026-10-19T01:10:51Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -5899,21 +5901,23 @@
     {
       "symbol": "W259",
       "title": "Marquee animation APNGs are not byte-reproducible: the el-frames log carries per-frame t values that vary between renders (x steps and all 37 pixel frames are identical)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "render_screens",
         "marquee",
         "screens"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Decide what t is FOR: if S5/S8 read it, quantise it to the animation fixed step (it is virtual time under QSG_FIXED_ANIMATION_STEP, so a stable value exists); if nothing reads it, drop it from the logged record. Then re-render, confirm two renders are byte-identical, and promote the scratchpad apng diff tool to a repo check (frames identical, log x identical) so a diff reviewer has a tool.",
       "evidence": "2026-10-03: 2026-10-03 MEASURED during the W254 integration: re-rendering the six marquee-anim APNGs after Python-only edits changed each file by 1-3 bytes (16964 -> 16961 etc.). apngdiff over HEAD vs working: 37 frames each, ZERO pixel-differing frames, the x positions in the el-frames log identical; the ONLY difference is the per-frame t in the el-frames text chunk (Amber: t 768 -> 768, then 848/928/1008 vs 800/848/880): t is a measured time, not a function of the inputs. So these files are not reproducible byte for byte, every re-render dirties six tracked files, and a diff of them cannot tell a regression from noise without a tool like scratchpad/apngdiff.py. The screens gate admits either (S5 judges the logged x steps).",
       "issued_at": "2026-10-03T19:01:05Z",
       "minted_during": "interrupt",
       "caused_by": "W254",
-      "last_worked": "2026-10-19T01:10:53Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -6365,7 +6369,7 @@
     {
       "symbol": "W275",
       "title": "el-openglo typing: emitters.py (2553 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W311",
         "W315",
@@ -6411,14 +6415,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "emitters.py: 69 findings, 12 untyped defs (lines 91, 106, 226, 272, 275, 286, 306, 313, 318, 351, 371) plus untyped callees atomic_write, notice_text, atomic_path, _discard, write_notice, drift, declared, main; clear them with mikemol-pycodemod annotate over a cli_observe seen.json once W743 proves the mechanism, not by hand",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-28: 2026-10-27: cli_observe over a 3-test scratch pytest file (notice_text, write_notice, atomic_write, atomic_path incl. exception path, declared, drift) then annotate --root . --seen emitters.py: dry run REJECTED by its judge, findings 0->2: atomic_path.__exit__ annotated -> bool (mypy: always returns False) and tb typed as the undefined name traceback. Both are annotate defects, reported to mtools-ad. Nothing written. Observed run_all and main were not exercised (they run every generator).",
       "issued_at": "2026-10-05T18:22:40Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-28T01:28:20Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6432,7 +6438,7 @@
     {
       "symbol": "W276",
       "title": "el-openglo typing: scripts/git_tracked.py (1068 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W312",
         "W316",
@@ -6454,14 +6460,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/git_tracked.py: 178 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x78: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:40Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:28Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6475,21 +6483,23 @@
     {
       "symbol": "W277",
       "title": "el-openglo typing: scripts/worklist_gate.py (2670 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W320"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/worklist_gate.py: 530 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x226: Expression type contains \"…\" (has type \"…\"). Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:40Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:28Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6503,7 +6513,7 @@
     {
       "symbol": "W278",
       "title": "el-openglo typing: palette_graph.py (3900 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W309",
         "W313",
@@ -6520,14 +6530,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "palette_graph.py: 130 house finding(s) (typing_census --by-file-idiom); the dominant idiom is no-untyped-call x51: Call to untyped function \"…\" in typed context. Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:40Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:29Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6541,19 +6553,21 @@
     {
       "symbol": "W279",
       "title": "el-openglo typing: templates/loader.py (966 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "templates/loader.py: 42 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x15: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:40Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:29Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6611,19 +6625,21 @@
     {
       "symbol": "W281",
       "title": "el-openglo typing: stubs/fontTools/ttLib/__init__.pyi (39 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "One house finding left in the stub: Table.__getattr__ returns Any because a font table attributes depend on the table. Give the tables this tree reads (head, hhea, OS/2, glyf, cmap) their own classes so the dynamic fallback goes, or keep the dynamic table and record why in the card. Close only when the census shows the stub at 0.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: stub edited (Pen Protocol for draw, BinaryIO for save); the third finding, Table.__getattr__ -> Any, is dynamic by design and stays unless the consumers allow a narrower type. House count to be read from typing_census after the edit (running). | 2026-10-18: landed as 6730be1 (advisory marker verified by land_template): house count 3 to 1. One finding left, Table.__getattr__ -> Any, dynamic by design.",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:29Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6637,7 +6653,7 @@
     {
       "symbol": "W282",
       "title": "el-openglo typing: qt_sandbox.py (942 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W352",
         "W367",
@@ -6655,14 +6671,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "qt_sandbox.py: 179 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x68: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6676,7 +6694,7 @@
     {
       "symbol": "W283",
       "title": "el-openglo typing: scripts/plasma_rewrite.py (32 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W376",
         "W426",
@@ -6686,14 +6704,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/plasma_rewrite.py: 8 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x3: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent (isolated worktree, wave 3); results will go through one stacked gate. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when the stack lands (queued). | 2026-10-18: Swarm commit landed as 3380784 (stacked gate, five commits, each verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 8 to 0 by typing_census.",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6707,21 +6727,23 @@
     {
       "symbol": "W284",
       "title": "el-openglo typing: catalog/library/screens_sheets.py (28 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W441"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "catalog/library/screens_sheets.py: 14 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x13: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6735,7 +6757,7 @@
     {
       "symbol": "W285",
       "title": "el-openglo typing: scripts/el_serial_spec.py (45 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W318",
         "W319"
@@ -6743,14 +6765,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/el_serial_spec.py: 45 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x28: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6764,21 +6788,23 @@
     {
       "symbol": "W286",
       "title": "el-openglo typing: scripts/identify.py (105 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W351"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/identify.py: 105 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x35: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent (isolated worktree, wave 3); results will go through one stacked gate. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when the stack lands (queued). | 2026-10-18: Swarm commit landed as 534c2a3 (stacked gate, five commits, each verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 105 to 0 by typing_census.",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:31Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6792,19 +6818,21 @@
     {
       "symbol": "W287",
       "title": "el-openglo typing: catalog/fixtures/deps/undeclared.py (1 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": null,
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree (swarm tick: disjoint single-file debt cards; the integrator applies the diff, measures and commits). | 2026-10-18: landed as 68e7b59 (advisory marker verified by land_template). House count 1 to 0: the file is absent from typing_census from the main checkout (192 files and 37152 findings after it; the deps gate still admits 12 of 12). | 2026-10-18: REOPENED 2026-10-18 on the operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): this file was cleared by an unauthorized subagent (commit 68e7b59, kept as residue); the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against 68e7b59 to study manual against codemod.",
       "issued_at": "2026-10-05T18:22:41Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:31Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6839,19 +6867,21 @@
     {
       "symbol": "W289",
       "title": "el-openglo typing: scripts/auto_push.py (143 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/auto_push.py: 143 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x53: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:31Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6865,19 +6895,21 @@
     {
       "symbol": "W290",
       "title": "el-openglo typing: scripts/capture_baseline.py (50 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/capture_baseline.py: 50 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x26: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent (isolated worktree, wave 3); results will go through one stacked gate. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when the stack lands (queued). | 2026-10-18: Swarm commit landed as a551fbb (stacked gate, five commits, each verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 50 to 0 by typing_census.",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:32Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6891,19 +6923,21 @@
     {
       "symbol": "W291",
       "title": "el-openglo typing: scripts/check_cotype_coherence.py (95 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_cotype_coherence.py: 95 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x42: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent (isolated worktree, wave 3); results will go through one stacked gate. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when the stack lands (queued). | 2026-10-18: Swarm commit landed as 0aa950c (stacked gate, five commits, each verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 95 to 0 by typing_census. Carries a stated selftest difference when cotype_index --json fails.",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:32Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6917,19 +6951,21 @@
     {
       "symbol": "W292",
       "title": "el-openglo typing: scripts/check_cotype_open.py (67 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_cotype_open.py: 67 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x36: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:32Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6943,19 +6979,21 @@
     {
       "symbol": "W293",
       "title": "el-openglo typing: scripts/check_deb.py (96 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_deb.py: 96 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x44: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:32Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6969,19 +7007,21 @@
     {
       "symbol": "W294",
       "title": "el-openglo typing: scripts/check_discriminates.py (184 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_discriminates.py: 184 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x78: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:33Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -6995,19 +7035,21 @@
     {
       "symbol": "W295",
       "title": "el-openglo typing: scripts/check_log_content.py (91 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_log_content.py: 91 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x49: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:34Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7021,19 +7063,21 @@
     {
       "symbol": "W296",
       "title": "el-openglo typing: scripts/check_marquee_host.py (129 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_marquee_host.py: 129 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x63: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:42Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:34Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7047,19 +7091,21 @@
     {
       "symbol": "W297",
       "title": "el-openglo typing: scripts/check_modes.py (204 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_modes.py: 204 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x108: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent (isolated worktree, wave 3); results will go through one stacked gate. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when the stack lands (queued). | 2026-10-18: Swarm commit landed as b67322b (stacked gate, five commits, each verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 204 to 0 by typing_census; the real run over every check modes was not executed.",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:34Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7073,19 +7119,21 @@
     {
       "symbol": "W298",
       "title": "el-openglo typing: scripts/check_plasma_air.py (95 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_plasma_air.py: 95 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x39: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies, re-measures and commits. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when it lands (queued). | 2026-10-18: Swarm commit landed as d945172 (advisory marker verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 95 to 0 by typing_census; live --json byte-identical before and after.",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:34Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7099,19 +7147,21 @@
     {
       "symbol": "W299",
       "title": "el-openglo typing: scripts/check_qml_target.py (141 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_qml_target.py: 143 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x65: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:35Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7125,19 +7175,21 @@
     {
       "symbol": "W300",
       "title": "el-openglo typing: scripts/check_qt_sandbox.py (181 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_qt_sandbox.py: 181 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x93: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:35Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7151,19 +7203,21 @@
     {
       "symbol": "W301",
       "title": "el-openglo typing: scripts/check_runtime_warnings.py (77 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_runtime_warnings.py: 77 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x41: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:35Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7177,19 +7231,21 @@
     {
       "symbol": "W302",
       "title": "el-openglo typing: scripts/check_use_of_colour.py (565 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_use_of_colour.py: 565 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x240: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:35Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7203,19 +7259,21 @@
     {
       "symbol": "W303",
       "title": "el-openglo typing: scripts/check_wall_limits.py (373 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_wall_limits.py: 373 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x162: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies, re-measures and commits. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when it lands (queued). | 2026-10-18: Swarm commit landed as cee3ed5 (advisory marker verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 373 to 0 by typing_census. Carries a stated behaviour difference: the bib loader skips a spec with no loader where it raised AttributeError; --json crashes before and after for an unrelated reason (W682).",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:36Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7229,19 +7287,21 @@
     {
       "symbol": "W304",
       "title": "el-openglo typing: scripts/cotype_index.py (296 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/cotype_index.py: 296 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x147: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies, re-measures and commits. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when it lands (queued). | 2026-10-18: Swarm commit landed as 06dcdad (advisory marker verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 296 to 0 by typing_census. Carries a stated behaviour difference: _resolve gives empty text for an absent COTYPE.md where a default-argument call raised AttributeError.",
       "issued_at": "2026-10-05T18:22:43Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:36Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7255,19 +7315,21 @@
     {
       "symbol": "W305",
       "title": "el-openglo typing: scripts/drop_lines.py (54 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": null,
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies the diff, measures and commits. | 2026-10-18: landed as adad454 (advisory marker verified by land_template). House count 54 to 0: absent from typing_census from the main checkout; the 5-arm selftest passes. | 2026-10-18: REOPENED 2026-10-18 on the operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): this file was cleared by an unauthorized subagent (commit adad454, kept as residue); the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against adad454.",
       "issued_at": "2026-10-05T18:22:44Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:36Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7281,19 +7343,21 @@
     {
       "symbol": "W306",
       "title": "el-openglo typing: scripts/extract_template.py (50 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/extract_template.py: 50 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x33: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies, re-measures and commits. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when it lands (queued). | 2026-10-18: Swarm commit landed as 014d30b (advisory marker verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 50 to 0 by typing_census.",
       "issued_at": "2026-10-05T18:22:44Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:36Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7307,19 +7371,21 @@
     {
       "symbol": "W307",
       "title": "el-openglo typing: scripts/pre_push_local.py (69 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/pre_push_local.py: 69 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x30: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure",
       "issued_at": "2026-10-05T18:22:44Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:37Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7333,19 +7399,21 @@
     {
       "symbol": "W308",
       "title": "el-openglo typing: scripts/svg_setdiff.py (72 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/svg_setdiff.py: 72 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x37: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone | 2026-10-18: 2026-10-18: mikemol-pycheck --census over the repo returns {} (no file carries findings): the debt is cleared, the ledger row is gone | 2026-10-18: CORRECTION: reopened; the closure used the pycheck edit-gate census, not the house mypy measure | 2026-10-18: 2026-10-18: dispatched to a subagent in an isolated worktree; the integrator applies the diff, measures and commits. | 2026-10-18: The operator answer of 2026-10-18 held on W711 (an AskUserQuestion answer, record checked, warrant pending mtools:W1499): the subagent version is residue; the debt is redone by the codemod, mtools:W1513, whose output is kept and diffed against it. Swarm commit sha to be recorded here when it lands (queued). | 2026-10-18: Swarm commit landed as ab1d741 (advisory marker verified by land_template): the residue to diff the codemod output (mtools:W1513) against. Count 72 to 0 by typing_census.",
       "issued_at": "2026-10-05T18:22:44Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:37Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7411,7 +7479,7 @@
     {
       "symbol": "W310",
       "title": "el-openglo typing: make_glyph_ink.py (2288 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W329",
         "W330",
@@ -7422,14 +7490,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "make_glyph_ink.py: 176 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x95: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:44Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:37Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -7883,7 +7953,7 @@
     {
       "symbol": "W324",
       "title": "el-openglo typing: schemes_artifact.py (4437 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W346",
         "W347",
@@ -7903,14 +7973,16 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "schemes_artifact.py: 261 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x113: Expression has type \"…\". Annotate from the consumers, judged by the house count of this file.",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:46Z",
       "minted_during": "tick",
       "caused_by": null,
-      "last_worked": "2026-10-19T00:00:41Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
@@ -12825,17 +12897,19 @@
     {
       "symbol": "W483",
       "title": "Answer paperkit: paperkit main is pushed; pin this sha for el-openglo:W455 (paperkit:W289)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Move the paperkit pin b5877102 to 65f118e3e60de8d02c1d514ba8186739a11e5223 in the pyproject tooling extra, uv lock, uv sync both extras, run the worklist gate through land_template, then write paperkit citing paperkit:W289 with the result or the reason it does not resolve. A pin move lands ALONE with nothing queued, so it follows the W666 and typing_census commits.",
-      "evidence": "2026-10-16: 2026-10-16: status answered in paperkit/inbox/2026-10-16-el-openglo-pin-status-for-w289.md. | 2026-10-28: 2026-10-27: paperkit (live session) asked to read this card; still open, pin move follows W752 (mtools pins) and lands alone.",
+      "evidence": "2026-10-16: 2026-10-16: status answered in paperkit/inbox/2026-10-16-el-openglo-pin-status-for-w289.md. | 2026-10-28: 2026-10-27: paperkit (live session) asked to read this card; still open, pin move follows W752 (mtools pins) and lands alone. | 2026-10-28: 2026-10-28: paperkit landed W426/W535 as 95f7c4e (resolver.py pycheck-clean, every process spawn now in paperkit.checkenv; its 15 mikemol-* rows repinned to par ca6702b; a sibling non-object JSON now reports \"is not a JSON object\"). This changes the resolver our worklist gate runs under: take it into account when W483 moves the paperkit pin, and re-run the replay and flake accounts after.",
       "issued_at": "2026-10-10T21:27:14Z",
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-10-10-paperkit-main-pushed-pin-this-sha.md",
-      "last_worked": "2026-10-28T00:16:45Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
@@ -13040,7 +13114,7 @@
     {
       "symbol": "W492",
       "title": "Restore the non-blocking cotype queue report the old precommit.sh printed, as its own gate stage kind",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "gate",
@@ -13049,14 +13123,16 @@
         "file:BUILD.bazel!w",
         "file:closures_stages.bzl!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Add a stage kind that runs the cotype queue report and prints it without failing the gate (the old precommit.sh printed it, non-blocking): a gate/stage.sh kind, its target in BUILD.bazel and its entry in closures_stages.bzl. Gate machinery: lands ALONE on an empty queue. WITNESS: a gate run prints the cotype queue report and its stage exits 0 whatever the report says.",
       "evidence": "",
       "issued_at": "2026-10-11T07:08:31Z",
       "minted_during": "interrupt",
       "caused_by": "W491",
-      "last_worked": "2026-10-19T01:18:14Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default",
@@ -13364,21 +13440,23 @@
     {
       "symbol": "W505",
       "title": "check_ebuild leaves its .ebuild-witness temp trees behind when killed (17 found, each a full repo copy that every tool scan then reads): sweep stale ones at start",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "check_ebuild",
         "gate",
         "file:scripts/check_ebuild.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "At the start of check_ebuild, sweep stale .ebuild-witness temp trees left by a killed run (each is a full repo copy that every tool scan then reads): name the directory pattern, remove only those whose owning process is gone, report n of m, selftest arm with a planted stale tree. WITNESS: a planted stale tree is removed by the next run and a live one is not.",
       "evidence": "",
       "issued_at": "2026-10-11T18:06:34Z",
       "minted_during": "interrupt",
       "caused_by": "W504",
-      "last_worked": "2026-10-19T01:18:53Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default",
@@ -13392,21 +13470,23 @@
     {
       "symbol": "W506",
       "title": "render_qml.py --selftest fails two litGradient texture arms at HEAD (pre-existing) and no gate stage runs it",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "render_qml",
         "gate",
         "file:scripts/render_qml.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "First measure: run render_qml.py --selftest and read the two failing litGradient texture arms (pre-existing at HEAD); fix what the arms name; then give the selftest a gate stage (a check_ wrapper or a stage kind) so it is run. Two slices; split if the fix and the stage do not fit one commit.",
       "evidence": "",
       "issued_at": "2026-10-11T18:09:44Z",
       "minted_during": "interrupt",
       "caused_by": "W504",
-      "last_worked": "2026-10-19T01:18:54Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default",
@@ -13457,20 +13537,22 @@
     {
       "symbol": "W509",
       "title": "Ask luthen to add perf and pidstat (sysstat) to the host profiling set; el-openglo uses them to profile plasmashell under the marquee",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "marquee-main",
         "file:catalog/marquee-profile.md!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Unblocked: luthen-observability:W837 is done (0adf88a5) and perf and pidstat are installed here (/usr/bin/perf, /usr/bin/pidstat, checked 2026-10-19). Profile plasmashell per function with perf under the marquee (perf_event_paranoid is 2, so own-process user space only, which is plasmashell), record the hot functions and the pidstat CPU in catalog/marquee-profile.md with the command lines. WITNESS: the file names the top functions and the measured CPU share.",
       "evidence": "",
       "issued_at": "2026-10-12T01:12:28Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-19T01:18:55Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "manifest": [
@@ -17331,17 +17413,19 @@
     {
       "symbol": "W677",
       "title": "The gate runs from an environment fixed at its own snapshot, so a repin is just another queued commit",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Measure uv sync --frozen into a scratch UV_PROJECT_ENVIRONMENT from this uv.lock (CPU time, disk), and read where mikemol-commit picks its python; then change gate/stage.sh lines 50-54 to build and use a venv keyed by the lock sha. WITNESS: a repin queued behind a running gate leaves that gate result unchanged.",
       "evidence": "2026-10-18: FIRST STEP READ 2026-10-18: gate/stage.sh picks its python at lines 50-54: RUNNER=(uv run --no-sync python3) whenever ROOT/.venv exists, so every stage runs from the LIVE repo venv; a uv sync (repin) swaps the tools under a gate in flight. mikemol-commit itself is also read from that venv (not yet read here). Remaining: measure the cost of a per-snapshot venv (uv sync --frozen into a scratch UV_PROJECT_ENVIRONMENT keyed by the uv.lock sha), then make RUNNER use it and stage.sh own the build. | 2026-10-18: MEASURED 2026-10-18: uv sync --frozen --extra tooling --extra research from this uv.lock into a scratch UV_PROJECT_ENVIRONMENT takes 6.5 s CPU, 361 MB on disk, 794 MB peak memory (uv cache warm). A per-lock-sha venv is cheap; remaining: gate/stage.sh builds and uses it. | 2026-10-18: ATOMIZED 2026-10-18: ROOT/.venv is read directly by three gate-stage consumers (check_routes hook paths, worklist_gate venv test, check_closure witness symlink), so a lock-keyed venv needs one resolver first: W698 adds it, W699 makes stage.sh build and export the snapshot venv.",
       "issued_at": "2026-10-18T01:21:09Z",
       "minted_during": "interrupt",
       "caused_by": "github-8f",
-      "last_worked": "2026-10-18T20:52:41Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "manifest": [
@@ -17784,21 +17868,23 @@
     {
       "symbol": "W694",
       "title": "The gate and the witness give a stage the NAMES of its DIRS without the content: a generated skeleton of empty stubs per directory",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W684"
       ],
       "touches": [
         "check_closure"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "After the 5-stage re-write: witness the 5; if worklist/readme still fail on claims, read which claim and whether it is the known @CURRENCY or a new one. Then the census check, the full-set write (so closures_dirs.bzl is consistent), and the landing stack.",
       "evidence": "2026-10-18: 2026-10-18 read BUILD.bazel and stages.bzl before building: every stage is HOST TIER today (tags exclusive, external, local, no-sandbox), so Bazel does not hide undeclared files from a stage and never serves it from cache; a stage's declared data matters now to (a) the closure witness, which runs the stage in a tree holding only its closure, and (b) the census stage (every tracked file must be a named input of SOME stage). So the skeleton of name stubs is needed by the WITNESS now, and by BUILD only when the host-tier tags are subtracted (W458/W459). Also: narrowing pytestspec to what it opens removes about 100 root files from its data; the census stage then needs another stage to name each of them. | 2026-10-18: 2026-10-18 scratch worktree wt/w684: the witness now builds name stubs and --write stores the NARROW closure. Measured on pytestspec: 326 files OPENED (content), 3 listed dirs (\".\", policy, policy/lib), 180 files only STAT-ed (names); the closure was 506. Witness arm 1 PASSES with the narrow closure plus empty stubs for the listed-directory children and the stat-only files (pytestspec: arm1 pass). Two findings on the way: (1) a mode-000 stub breaks access(R_OK) and pytest own stat-based checks (40 pytestspec items failed), so stubs are plain empty files and the weakness (a stage that opens a stub on a path the observation never took reads empty) is stated in the docstring; (2) a STAT of a Python source is content in disguise: the import system validates a cached .pyc by stat-ing the source and never opening it, so a module only stat-ed still supplied the running code, and its empty stub imported as nothing (AttributeError: closure_tree has no load_tree). Rule: a stat-only .py outside a listed directory is declared as content; only stats that come from a listing (files directly inside a listed dir) and non-Python stats are structure. | 2026-10-18: 2026-10-18: selftest arms added in the scratch worktree (stats given, without stats, stat-only py inside a listed dir, stubs_for); check_closure selftest 35 arms pass. Full sweep started: check_closure --write over all 110 stages in the worktree under systemd-run (MemoryMax 10G, no swap), then --witness over all 110. | 2026-10-18: 2026-10-18 FULL SWEEP DONE in the scratch worktree (48 min wall, 57 min CPU, 1.8 GB peak): check_closure --write over all 110 stages, narrow closures plus closures_dirs.bzl (DIRS, STATS). Per-stage opened / listed dirs / stat-only, examples: pytestspec 326 / 3 / 180 (was 506), worklist 737 / 12 / 159, readme 756 / 8 / 128, opa-test 200 / 2 / 96, check_closure 266 / 2 / 637, check_deps 201 / 0 / 702, check_license 336 / 2 / 567, check_mark 618 / 0 / 285 (it opens most of them), most check_*.py selftests 12 to 30 opened with 0 listed. The full --witness over all 110 stages is running now (arm 1 with stubs). | 2026-10-18: 2026-10-18 FIRST FULL WITNESS (stats as structure outside the .py exception): 84 of 110 stages arm 1 PASS, 26 FAIL. The failures all trace to one cause: a module the import system loaded was classified stat-only and stubbed empty (aperture: ImportError cannot import name atomic_write from emitters, emitters.py an empty stub). A stat-only .py INSIDE a listed directory was taken as listing-induced structure, but it was an import validated through its .pyc. Fix: the .pyc the import system OPENS names the source it compiled (<dir>/__pycache__/<stem>.cpython-314.pyc is <dir>/<stem>.py); parse_trace now declares as content every tracked source whose compiled module was opened, and the blunt \"stat-only .py outside a listed dir\" rule is gone (it over-declared). Selftest 36 arms pass, with an arm for the pyc rule. Re-running the full --write now, then the full --witness. | 2026-10-18: 2026-10-18 second full --write done in the scratch worktree with the .pyc rule (check_aperture now 22 opened where it was 16: the imported modules are counted). The second full --witness over all 110 stages is running now. | 2026-10-18: 2026-10-18 SECOND FULL WITNESS: 105 of 110 arm 1 pass (was 84); arm 2 refused 74 of 110 (was 56). Failing 5: readme, worklist, check_ghost_balance, check_rego_lint, check_selection_contrast. Cause of the three selftests (traceback): opa eval -d policy exits 2 in the witness tree, because the policy directory was LISTED (by opa, a Go tool) and its .rego files read through a directory fd the trace cannot attribute; the old listing rule declared them as a fallback and masked it, and the stubs are empty .rego files opa cannot parse. Rule added: only a listing the Python audit hook logged (R row) is structure; a listing it did not see (opa, git, bash) keeps declaring every child. Selftest 39 arms pass. Re-observing those 5 stages now, then their witness. | 2026-10-19: BLOCKED 2026-10-18 (nemik stalled-card warning): part of the closure stack with W692 and W693, built in the scratch worktree; lands alone on an empty queue, after W701, W702, W704. | 2026-10-19: LOST SOURCE 2026-10-19: the scratch worktree wt/w684 is gone; the narrow closures, stubs, STATS and the .pyc rule must be rebuilt in the main tree from the findings on this card. The findings are the durable part: stat-only .py is content when its .pyc was opened; only a listing the Python audit hook logged is structure; stubs are plain empty files (mode 000 breaks access(R_OK)). Large: atomize before working it, and it follows W693.",
       "issued_at": "2026-10-18T15:46:12Z",
       "minted_during": "interrupt",
       "caused_by": "W684",
-      "last_worked": "2026-10-19T06:26:02Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "manifest": [
@@ -17994,26 +18080,29 @@
     {
       "symbol": "W703",
       "title": "Find the process that rewrites the generated colors, colorscheme and clock files in the gate tree while a worklist stage runs",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W212"
       ],
       "touches": [
         "file:scripts/check_tree_writes.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "The two refused gates (kept accounts 20261018T230048 and T231701, invocations ffb534e6 and 183f183e) named the same 22 files as written during check_emitters_run: EL-*.colors, EL-*.colorscheme and the org.el.segclock package. Candidates: a concurrent stage running make_schemes or make_clock in place, or check_action_key probing a producer. Add a mode to scripts/check_tree_writes.py (or a new check) that names the writer of a file during a window, then read it against a gate run. WITNESS: the writer is named and either fixed or made to write a private copy.",
       "evidence": "",
       "issued_at": "2026-10-18T23:39:12Z",
       "minted_during": "interrupt",
       "caused_by": "W212",
-      "last_worked": null,
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_tree_writes.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W704",
@@ -18113,19 +18202,21 @@
     {
       "symbol": "W708",
       "title": "Clear the stalled and invisible cards nemik flags: W678 (stalled), W206 and W214 (working, progress invisible)",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W705"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "W678: finish its last unmanifested leaves or return it to ready. W206 and W214: their commits keep landing but the card shows none of it, so atomize each into child cards that show each slice (the landed shas are in their evidence). WITNESS: nemik lists no stalled or progress-invisible Warning for el-openglo.",
       "evidence": "2026-10-19: PROGRESS 2026-10-19: W214 split into visible slices (60bcf8d runner fix, 8ba8d3b pinned locator landed; W713 the warrant in flight) and blocked on W713, integrity 0. W678 stays OPEN: I closed it once on the strength of nemik listing no ready manifest-less leaf, which released 27 leaves that were blocked on it (nemik never listed them as ready); reopened and the 27 re-blocked with update-many --write. Lesson recorded: a card that other cards are blocked on is not done because the Warning about it is gone; read what waits behind it first (mikemol-paths-forward --update-many dry-runs without --write). Left here: W206 (working, slices not visible) and W678 itself (27 leaves to manifest).",
       "issued_at": "2026-10-19T00:22:10Z",
       "minted_during": "interrupt",
       "caused_by": "W705",
-      "last_worked": "2026-10-19T01:02:16Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         ".claude/paths-forward.json"
@@ -18136,24 +18227,27 @@
     {
       "symbol": "W709",
       "title": "Claim or link the cards nemik says are unclaimed or unlinked: W179, W462, and the 3 cards with no edge",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W705"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "W179 and W462 are blocked on paperkit with no paperkit card claiming them: cite the paperkit card, or send paperkit a letter naming the el-openglo card so it can mint one. For the 3 edge-less cards, add the enables edge to the card or goal that needs each, or drop it. WITNESS: nemik lists no unclaimed-block or unlinked-card row for el-openglo.",
       "evidence": "2026-10-19: STATUS 2026-10-19: W179 and W462 are blocked on paperkit with a letter filed for each (paperkit/inbox/2026-10-01-el-openglo-dflip-needs-a-leaf-selector.md; 2026-10-18-el-openglo-gate-json-needs-the-check-string.md) and nemik-inbound paperkit lists both UNCLAIMED; paperkit has no live session, so nothing here can be edited to clear them. The 3 edge-less cards (W483, W700, W703): W703 now enables W212 (and W212 waits on it); W483 and W700 are independent pins that land alone, no honest edge, left as nemik Info.",
       "issued_at": "2026-10-19T00:22:10Z",
       "minted_during": "interrupt",
       "caused_by": "W705",
-      "last_worked": "2026-10-19T00:45:18Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         ".claude/paths-forward.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W710",
@@ -18207,20 +18301,22 @@
     {
       "symbol": "W712",
       "title": "check_contracts follows a for-loop target bound to the values of a mapping, so the readers of make_schemes.GRID can be judged by K2",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "file:scripts/check_contracts.py!w",
         "file:policy/contracts.rego!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "GRID readers bind the record with for t, dark in make_schemes.GRID.values() (check_android_clock, check_geometry_source, check_ghost_composite, check_ghost_surfaces, check_palette_chain, check_states, variant_roster). Add a consumer mode whose receivers are the names a for-loop target takes from a call chain, scoped to the def, with a selftest arm; then list those files under the GRID surface. WITNESS: check_contracts --json lists the readers of make_schemes.GRID and opa_gate.py contracts admits.",
       "evidence": "",
       "issued_at": "2026-10-19T00:53:48Z",
       "minted_during": "interrupt",
       "caused_by": "W690",
-      "last_worked": "2026-10-19T00:53:51Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null,
       "manifest": [
@@ -18256,35 +18352,38 @@
     {
       "symbol": "W714",
       "title": "Express the landing chain as a waldo recipe: phases carry the land_template commands as acts and the existing checks as done witnesses",
-      "status": "ready",
-      "enables": [
-        "W555"
-      ],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "with the gate queue empty: uv sync --extra tooling --extra research, confirm the venv bin has mikemol-waldo, read its --help for the recipe format, then write the landing recipe and lint it",
-      "evidence": "2026-10-19: READ 2026-10-19: waldo Phase.act is an argv run only while the done witness is false and judged by it afterwards; lint refuses an act with no done witness and a phase with both act and contract. So the design question is each phase done-witness, not the commands. | 2026-10-19: SLICE LANDED 2026-10-19 as bc100f6 (land_template printed it): mikemol-waldo in pyproject.toml and uv.lock at b0497960. The card is NOT done: the recipe itself is still to write. | 2026-10-19: READ 2026-10-19: the venv bin has no mikemol-waldo even though bc100f6 pinned it in pyproject.toml and uv.lock, so the recipe cannot be linted here until uv sync with the tooling and research extras runs; that rewrites the shared venv, so it waits for an empty gate queue (the W512 commit holds the lease now)",
-      "issued_at": "2026-10-19T05:24:05Z",
-      "minted_during": "interrupt",
-      "caused_by": "W555",
-      "last_worked": "2026-10-19T17:18:19Z",
-      "ticks_blocked": 0,
-      "manifest": [
-        "scripts/land_template.py"
-      ],
-      "size_class": "medium"
-    },
-    {
-      "symbol": "W715",
-      "title": "Keep land_template as the thin caller of the recipe and carry its selftest arms over as recipe tests",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W555"
       ],
       "touches": [],
       "blocked_on": [
-        "W714"
+        "W762"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "with the gate queue empty: uv sync --extra tooling --extra research, confirm the venv bin has mikemol-waldo, read its --help for the recipe format, then write the landing recipe and lint it",
+      "evidence": "2026-10-19: READ 2026-10-19: waldo Phase.act is an argv run only while the done witness is false and judged by it afterwards; lint refuses an act with no done witness and a phase with both act and contract. So the design question is each phase done-witness, not the commands. | 2026-10-19: SLICE LANDED 2026-10-19 as bc100f6 (land_template printed it): mikemol-waldo in pyproject.toml and uv.lock at b0497960. The card is NOT done: the recipe itself is still to write. | 2026-10-19: READ 2026-10-19: the venv bin has no mikemol-waldo even though bc100f6 pinned it in pyproject.toml and uv.lock, so the recipe cannot be linted here until uv sync with the tooling and research extras runs; that rewrites the shared venv, so it waits for an empty gate queue (the W512 commit holds the lease now)",
+      "issued_at": "2026-10-19T05:24:05Z",
+      "minted_during": "interrupt",
+      "caused_by": "W555",
+      "last_worked": "2026-10-28T09:39:15Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/land_template.py"
+      ],
+      "size_class": "medium",
+      "completed": null
+    },
+    {
+      "symbol": "W715",
+      "title": "Keep land_template as the thin caller of the recipe and carry its selftest arms over as recipe tests",
+      "status": "blocked",
+      "enables": [
+        "W555"
+      ],
+      "touches": [],
+      "blocked_on": [
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "After the recipe runs, make land_template the thin caller of it and carry its selftest arms over as recipe tests; WITNESS: land_template --selftest still passes and the recipe tests hold the same arms.",
@@ -18292,46 +18391,50 @@
       "issued_at": "2026-10-19T05:24:13Z",
       "minted_during": "interrupt",
       "caused_by": "W555",
-      "last_worked": "2026-10-19T05:24:19Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/land_template.py"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W716",
       "title": "Decide in-process time-sliced versus helper process for glyph pages by measuring one page render cost under the Canvas route",
-      "status": "ready",
-      "enables": [
-        "W513"
-      ],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "After W512 fixes the rule, time one page render under the Canvas route and record the cost; decide in-process time-sliced versus helper process from the number. WITNESS: the cost and the decision are in this card evidence.",
-      "evidence": "2026-10-19: The measurement is taken after W512 fixes the glyph rule (the W513 next step), so this waits on W512; building it first would time the wrong rule.",
-      "issued_at": "2026-10-19T05:24:22Z",
-      "minted_during": "interrupt",
-      "caused_by": "W513",
-      "last_worked": "2026-10-19T05:52:56Z",
-      "ticks_blocked": 0,
-      "manifest": [
-        "templates/marquee-body.js",
-        "templates/marquee-main.qml"
-      ],
-      "size_class": "small"
-    },
-    {
-      "symbol": "W717",
-      "title": "Implement the miss-first-then-page queue with a per-frame budget, in-flight dedup and a queued-page cap",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W513"
       ],
       "touches": [],
       "blocked_on": [
-        "W716"
+        "W762"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W512 fixes the rule, time one page render under the Canvas route and record the cost; decide in-process time-sliced versus helper process from the number. WITNESS: the cost and the decision are in this card evidence.",
+      "evidence": "2026-10-19: The measurement is taken after W512 fixes the glyph rule (the W513 next step), so this waits on W512; building it first would time the wrong rule.",
+      "issued_at": "2026-10-19T05:24:22Z",
+      "minted_during": "interrupt",
+      "caused_by": "W513",
+      "last_worked": "2026-10-28T09:39:15Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "templates/marquee-body.js",
+        "templates/marquee-main.qml"
+      ],
+      "size_class": "small",
+      "completed": null
+    },
+    {
+      "symbol": "W717",
+      "title": "Implement the miss-first-then-page queue with a per-frame budget, in-flight dedup and a queued-page cap",
+      "status": "blocked",
+      "enables": [
+        "W513"
+      ],
+      "touches": [],
+      "blocked_on": [
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Implement the queue the W716 decision chose: the miss renders alone and first, the rest of its 256-codepoint page is queued and time-sliced to a per-frame budget, pages dedup while in flight, queued pages are capped.",
@@ -18339,24 +18442,25 @@
       "issued_at": "2026-10-19T05:24:22Z",
       "minted_during": "interrupt",
       "caused_by": "W513",
-      "last_worked": "2026-10-19T05:24:29Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "templates/marquee-body.js",
         "templates/marquee-main.qml"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W718",
       "title": "Persist the glyph table as one unit per page so it survives plasmashell restarts",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W513"
       ],
       "touches": [],
       "blocked_on": [
-        "W717"
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Persist each rendered page as one unit keyed by (codepoint block, font, cell size, rule version) so the table survives plasmashell restarts; WITNESS: a restart loads the pages without re-rendering them.",
@@ -18364,32 +18468,35 @@
       "issued_at": "2026-10-19T05:24:22Z",
       "minted_during": "interrupt",
       "caused_by": "W513",
-      "last_worked": "2026-10-19T05:24:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "templates/marquee-body.js",
         "templates/marquee-main.qml"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W719",
       "title": "Map each literal colour in the Air SVGZ to the nearest palette role, as a table measured by check_plasma_air",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W245"
       ],
       "touches": [
         "file:make_plasma.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Map each of the 325 distinct literal colours to the nearest palette role: read the roles from the palette authority (make_preview.parse_scheme / make_schemes.GRID) and take the distance from cvd_gate rather than a new metric; emit it as check_plasma_air --roles, with a selftest arm and the n of m (colours mapped of 325).",
-      "evidence": "2026-10-28: 2026-10-28: measured with the new check_plasma_air --colors: the Air theme paints 325 DISTINCT literal #hex colours, 3254 uses, in 50 svgs; the card 49 was the count of SVGS with literals (49 of 50), not of colours. Top: #ffffff x1118, #000000 x910, #008000 x179, #4e9a06 x106, #f0f0f0 x100, #ff00ff x84, #1a1a1a x75. rgb() literals are counted by measure_svg and not named.",
+      "evidence": "2026-10-28: 2026-10-28: measured with the new check_plasma_air --colors: the Air theme paints 325 DISTINCT literal #hex colours, 3254 uses, in 50 svgs; the card 49 was the count of SVGS with literals (49 of 50), not of colours. Top: #ffffff x1118, #000000 x910, #008000 x179, #4e9a06 x106, #f0f0f0 x100, #ff00ff x84, #1a1a1a x75. rgb() literals are counted by measure_svg and not named. | 2026-10-28: landed as acdd13c (2026-10-28): check_plasma_air --colors, 325 distinct literal colours, 3254 uses in the Air theme. Not done: the role mapping (next step) remains.",
       "issued_at": "2026-10-19T05:27:56Z",
       "minted_during": "tick",
       "caused_by": "W245",
-      "last_worked": "2026-10-28T04:18:19Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_plasma_air.py",
@@ -18401,13 +18508,13 @@
     {
       "symbol": "W720",
       "title": "Emit el-openglo-air-<variant> through the make_plasma machinery with the colors file from the scheme",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W245"
       ],
       "touches": [],
       "blocked_on": [
-        "W719"
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Emit el-openglo-air-<variant> by specialising make_plasma (no colours computed here), with the colors file taken from the scheme. WITNESS: the emitted flavour exists for each variant.",
@@ -18415,17 +18522,18 @@
       "issued_at": "2026-10-19T05:27:56Z",
       "minted_during": "tick",
       "caused_by": "W245",
-      "last_worked": "2026-10-19T05:28:01Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "make_plasma.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W721",
       "title": "Register the Air emitter: ROLES emitter, ORDER, the publishing.md row and the warrant, gated by check_plasma_air --theme following with 0 literals",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W245"
       ],
@@ -18433,7 +18541,7 @@
         "file:catalog/publishing.md!w"
       ],
       "blocked_on": [
-        "W720"
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Register the emitter (ROLES, ORDER, publishing.md row, warrant) and gate it: check_plasma_air --theme on the emitted flavour reports follows with 0 literals.",
@@ -18441,31 +18549,34 @@
       "issued_at": "2026-10-19T05:27:56Z",
       "minted_during": "tick",
       "caused_by": "W245",
-      "last_worked": "2026-10-19T05:28:02Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "make_plasma.py",
         "catalog/publishing.md",
         "scripts/check_plasma_air.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W722",
       "title": "Replace the 8 import-availability probes marked noqa F401 with importlib.util.find_spec, behaviour-neutral",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W260"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Replace each import x  # noqa: F401 probe with importlib.util.find_spec(\"x\") is not None; no new noqa. WITNESS: ruff check --ignore-noqa lists no F401 in these six files and each selftest still passes.",
       "evidence": "",
       "issued_at": "2026-10-19T05:40:02Z",
       "minted_during": "interrupt",
       "caused_by": "W260",
-      "last_worked": "2026-10-19T05:40:07Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_css.py",
@@ -18475,24 +18586,27 @@
         "scripts/check_monet.py",
         "scripts/worklist_gate.py"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W723",
       "title": "Narrow or restructure the 6 broad except Exception nets in the render and capture tools (render_samples, cvd_gate, make_wallpaper, capture_baseline, extract_template, identify)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W260"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "For each broad except Exception read the try body and name the exceptions it expects; where it is a deliberate net around a measurement return a withheld fact instead of swallowing; add a selftest arm that an unexpected exception propagates or is withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these six files.",
       "evidence": "",
       "issued_at": "2026-10-19T05:40:02Z",
       "minted_during": "interrupt",
       "caused_by": "W260",
-      "last_worked": "2026-10-19T05:40:07Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "catalog/library/render_samples.py",
@@ -18502,24 +18616,27 @@
         "scripts/extract_template.py",
         "scripts/identify.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W724",
       "title": "Narrow or restructure the broad except Exception nets in the check_chrome, check_config, check_consumers, check_ebuild, check_monet and check_palette_chain checks",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W260"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "For each broad except Exception name the exceptions the try body expects, or return a withheld fact where it is a deliberate net around a measurement, with a selftest arm that an unexpected exception propagates or is withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these seven files.",
       "evidence": "",
       "issued_at": "2026-10-19T05:40:02Z",
       "minted_during": "interrupt",
       "caused_by": "W260",
-      "last_worked": "2026-10-19T05:40:17Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_chrome.py",
@@ -18530,24 +18647,27 @@
         "scripts/check_monet.py",
         "scripts/check_palette_chain.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W725",
       "title": "Narrow or restructure the broad except Exception nets in check_plymouth_digits, check_publishing, check_standards, check_symbol, check_template_parity, check_terminals, check_windows and opa_gate",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W260"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "For each broad except Exception name the exceptions the try body expects, or return a withheld fact where it is a deliberate net around a measurement, with a selftest arm that an unexpected exception propagates or is withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these eight files.",
       "evidence": "",
       "issued_at": "2026-10-19T05:40:02Z",
       "minted_during": "interrupt",
       "caused_by": "W260",
-      "last_worked": "2026-10-19T05:40:18Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_plymouth_digits.py",
@@ -18559,7 +18679,8 @@
         "scripts/check_windows.py",
         "scripts/opa_gate.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W726",
@@ -18744,54 +18865,60 @@
     {
       "symbol": "W733",
       "title": "A tool names the in-flight gate invocation id, so a gate that runs long can be read before it ends (bb_log, bb_targets and bb_records all need the id, and it prints only in a refusal)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "file:scripts/land_template.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Read 2026-10-19: the holder of a running commit is mikemol-membudget hold claim:path:.../.git/mtools/commit with pid and lease time in .git/mtools/commit.ledger, and ps gives its elapsed time; the invocation id is not recorded anywhere I can read. Ask where land_template could record it (the commit ledger is the natural place) and add a mode of land_template that prints it. WITNESS: while a gate runs, one command prints its invocation id and elapsed time.",
       "evidence": "",
       "issued_at": "2026-10-19T10:23:27Z",
       "minted_during": "interrupt",
       "caused_by": "github-8f",
-      "last_worked": null,
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/land_template.py"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W734",
       "title": "Declare make_deb and deb_pack as an action in check_action_key with their input domain, so the .deb is current or stale by key and not by push or clock",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W79"
       ],
       "touches": [
         "file:scripts/check_action_key.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Declare the deb action in check_action_key with entry make_deb.py, its input domains, and a committed stamp output (catalog/deb.stamp); record its key in catalog/actions.json the way the three existing actions are. WITNESS: check_action_key --list names the deb action, opa_gate.py action_key admits, and editing a declared input makes it read stale.",
       "evidence": "2026-10-19: READ 2026-10-19 (check_action_key --list): the three declared actions (screens, schemes, wallpapers) each carry an entry script, input domains, a host declaration and OUTPUTS that are COMMITTED files whose keys catalog/actions.json records. A .deb is not committed, so the plan in W79 (key the .deb build by currency) does not fit as written. What fits: declare the deb action with a small COMMITTED stamp as its output (the stamp records the key the last verified build was made under), and have the @DEB warrant rebuild only when the key differs from the stamp. The stamp is an artefact of that decision, not a workaround.",
       "issued_at": "2026-10-19T11:00:24Z",
       "minted_during": "tick",
       "caused_by": "W79",
-      "last_worked": "2026-10-19T12:12:34Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_action_key.py",
         "make_deb.py"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W735",
       "title": "Add the @DEB warrant: opa_gate.py deb rebuilds the .deb only when its action key is stale, verifying staged equals packed with steps 0",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W79"
       ],
@@ -18801,7 +18928,7 @@
         "file:catalog/worklist/warrants.bib!w"
       ],
       "blocked_on": [
-        "W734"
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Add the @DEB warrant citing opa_gate.py deb, producing its own inputs only when the W734 action key is stale (staged equals packed, steps 0); WITNESS: opa_gate.py deb admits and the warrant is discharged by the worklist gate.",
@@ -18809,19 +18936,20 @@
       "issued_at": "2026-10-19T11:00:24Z",
       "minted_during": "tick",
       "caused_by": "W79",
-      "last_worked": "2026-10-19T11:00:35Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_deb.py",
         "policy/deb.rego",
         "catalog/worklist/warrants.bib"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W736",
       "title": "First luthen oci_runner run of oci/engines/Containerfile, so the unverified blender and godot3-server package names resolve and both engine versions print",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W154",
         "W155"
@@ -18829,20 +18957,23 @@
       "touches": [
         "file:oci/engines/Containerfile!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "luthen-observability:W328 is DONE (landed 2026-10-03), so W154 and W155 are not waiting on luthen: the runner is python3 -m checks.oci_runner --src DIR --script SCRIPT --containerfile oci/engines/Containerfile --out OUT [--cpu-seconds N], run from the luthen checkout by a session holding the k3s group. Run it as a systemd-run unit with a memory cap while nothing else heavy runs; read the verdict (ok, refused or cannot-run) and the printed versions. WITNESS: the verdict is ok and both versions print, or the refusal names the package that does not exist, which is then fixed in the Containerfile and check_engines_recipe.",
       "evidence": "",
       "issued_at": "2026-10-19T11:25:45Z",
       "minted_during": "tick",
       "caused_by": "luthen-observability:W328",
-      "last_worked": null,
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "oci/engines/Containerfile",
         "scripts/check_engines_recipe.py"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W737",
@@ -18926,19 +19057,21 @@
     {
       "symbol": "W739",
       "title": "Declare the --json record of each check as a surface in policy/contracts.rego, starting with the check whose record the most policies read",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W247"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "",
       "evidence": "",
       "issued_at": "2026-10-19T14:42:03Z",
       "minted_during": "interrupt",
       "caused_by": "W247",
-      "last_worked": null,
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_contracts.py",
@@ -18946,7 +19079,8 @@
         "policy/contracts_test.rego",
         "policy/contracts.cases.json"
       ],
-      "size_class": "medium"
+      "size_class": "medium",
+      "completed": null
     },
     {
       "symbol": "W740",
@@ -19032,19 +19166,21 @@
     {
       "symbol": "W743",
       "title": "Typing debt is 37317 house findings; measure how many clear when the 2037 untyped defs are annotated by a codemod judged by mypy",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W274"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "after W752 lands: run cli_observe over a small pytest target, then annotate --root . --seen seen.json as a dry run on segment_topology.py, record the before and after mypy counts",
       "evidence": "2026-10-19: MEASURED 2026-10-19 with typing_census --codes: 37317 house findings in 192 files; 27836 misc (15725 Expression has type Any, 12044 Expression type contains Any), 6956 no-untyped-call, 2039 no-untyped-def (1629 missing annotation, 408 missing return type); the Any findings follow from untyped defs, so annotating the 2037 defs is the first class to try | 2026-10-19: TRIED 2026-10-19 on segment_topology.py: none-returns refused 12 defs (they return a value) and fixed none; typed-args found none (argparse results only); judged-fix --select ANN would add Any placeholders, which the house count reads as more Any. No existing pycodemod mode annotates a def from what it does, so a missing mode is the work; letter sent to mtools inbox 2026-10-19-el-openglo-annotate-defs-mode.md asking for an annotate-defs mode judged by mypy | 2026-10-19: CORRECTION 2026-10-19 (github-8f pointed at mtools W1514 to W1516): the annotate mode EXISTS in mtools own pycodemod build: mikemol-pycodemod annotate --root R --seen seen.json [--write] FILES is judged by the project mypy count and writes a file only where findings fall; observed.Observer (sys.monitoring, PEP 669) collects the signatures a run sees. This repo venv pycodemod predates it (no annotate in its mode list), so my letter to mtools asking for an annotate-defs mode was unnecessary. What is missing HERE is the driver: a script that runs a check selftest under Observer and writes seen.json, plus a repin of mikemol-pycodemod past 8d685209 | 2026-10-19: mtools-ad 2026-10-19: no observe driver ships yet; carded as mtools W1726 (mikemol-pycodemod observe --root PROJECT --out seen.json -- PYTEST_ARGS, in-process under the Observer); do not write a local copy. The repin (W745) comes first and annotate over an observation produced another way is not blocked | 2026-10-19: CONTROL MEASURED 2026-10-19 by hand while mtools:W1726 builds the observe driver: typing_census --findings (new mode) listed the 4 findings of scripts/census_compare.py; a cast around raw_decode and a typed signature on typing_plan.debt_cards cleared them (census_compare 4 to 0, typing_plan 104 to 88), repo census 37512 findings in 192 files to 37489 in 191; each fix is one idiom (cast the Any out of a stdlib call, give the callee a signature), the kind annotate should plan once it has observations; submitted as one commit, sha only after it prints | 2026-10-19: LEVERAGE MEASURED 2026-10-19: one signature on opa_gate.gate (called by 65 check scripts) took the house census from 37489 findings to 37352 (137 fewer, 191 files); the class to look for is a callee untyped in a hub module that many files call, found by pycodemod calls --target NAME; stacked behind the control commit as a second commit, sha only after it prints | 2026-10-19: control commit landed as 586f1b1 (typing_census --findings, census_compare and typing_plan annotations) | 2026-10-19: opa_gate.gate signature commit landed as 5f3fb0a (census 37489 to 37352, measured before landing) | 2026-10-19: typing_census --callees commit landed as 262bbec; the queue is empty, so the W750 helper codemod runs on the landed tree in the main working tree now | 2026-10-19: mtools-ad 2026-10-19: mtools:W1726 landed as 4c8e73cc (pushed): python -m mikemol.pycodemod.cli_observe --root PROJECT --out FILE -- PYTEST_ARGS runs pytest in the same process under the Observer and writes seen.json (keys file relative to --root :: qualified name; a file outside the root is left out; exit code is pytest); it must run in the project own interpreter. Needs the repin W752 first | 2026-10-28: 2026-10-27 (after W752 c0d5612): cli_observe runs here (the repo has no pytest files; a scratchpad test wrapping segment_topology._selftest gave seen.json, 1 passed). annotate --root . --seen seen.json segment_topology.py REJECTED itself: its plain mypy count went 0->13 (object-typed observations: Dict entry str:object, object*float, tuple widths, dup needs annotation), so nothing was written. Reading: observed types from one selftest are too narrow or too wide for this module; the next step is a wider observation (the importers run) or annotate on a file whose findings are no-untyped-def only, e.g. emitters.py W275.",
       "issued_at": "2026-10-19T16:17:12Z",
       "minted_during": "tick",
       "caused_by": "W274",
-      "last_worked": "2026-10-28T01:02:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/typing_census.py",
@@ -19056,11 +19192,11 @@
     {
       "symbol": "W744",
       "title": "Return the BibTeX row to the struct-tools skill as the paperkit bibstruct console script, pinned in the tooling extra",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
       "blocked_on": [
-        "mtools:W2063"
+        "W762"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "when paperkit:W538 ships the console script, repin paperkit in the tooling extra (a pin move lands alone), re-add the BibTeX row naming the console script, and check opa_gate routes admits it",
@@ -19068,14 +19204,15 @@
       "issued_at": "2026-10-19T16:24:07Z",
       "minted_during": "interrupt",
       "caused_by": "W738",
-      "last_worked": "2026-10-28T00:27:27Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         ".claude/skills/struct-tools/SKILL.md",
         "pyproject.toml",
         "uv.lock"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W745",
@@ -19242,19 +19379,21 @@
     {
       "symbol": "W751",
       "title": "land_template --selftest fails on a clean tree since the narrow closures: its arm \"every stored closure is current for every roster component\" finds check_marquee_live lacking SegmentChar.qml",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "file:scripts/land_template.py!w"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "MEASURED 2026-10-27: the stubs patch (scratchpad w751.patch) changes nothing, the selftest fails identically with and without it, so drop that theory. The failing arm is the real-tree one: scripts/check_marquee_live.py holds every roster template but SegmentChar.qml, check_closure --write-narrow on it rewrites 0 files and its closure witness passes arm 1. So the closure is current and stale_closures cannot tell a reader that omits one component from a stale one. Decide: make the arm compare the stored closure with a fresh observation (what stale means), or have stale_closures use check_closure.--witness per candidate, then rerun land_template --selftest.",
       "evidence": "2026-10-19: FOUND 2026-10-19 while checking the W750 codemod: land_template --selftest FAILS on the clean tree of 83930b3 (worktree el-openglo-W745) as well as on main, in the arm \"every stored closure is current for every roster component\": got SegmentChar.qml missing from the stored closure of scripts/check_marquee_live.py, want none. Cause to check: the W732 narrow closures record what a stage opened, so a roster template it only stat-ed is absent; the arm (or the narrow rule) needs reconciling. land_template is not a gate stage, so no commit was refused by it | 2026-10-19: PLAN 2026-10-19: the failing arm reads stored closures only; a narrow closure holds what the stage OPENED, and what it only stat-ed lives in STATS and DIRS (closures_dirs.bzl), which the witness stubs as empty files (check_closure.stubs_for). A roster template a stage stat-ed is therefore present in the tree the witness builds, so the arm should read closure plus stubs. scripts/land_template.py is carried by the W750 helper codemod commit in the gate (it annotates the selftest helper there), so the edit waits for that commit | 2026-10-28: 2026-10-27: stubs-for patch tried and measured a no-op (same failure with and without); closure re-observed for check_marquee_live, 0 files changed.",
       "issued_at": "2026-10-19T22:41:14Z",
       "minted_during": "interrupt",
       "caused_by": "W732",
-      "last_worked": "2026-10-28T01:27:41Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/land_template.py",
@@ -19293,40 +19432,44 @@
     {
       "symbol": "W753",
       "title": "Adopt the ratchet series: this repo's gate emits its own ratchets with mikemol-ratchet-hook",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "github:W42"
       ],
       "touches": [
         "ratchet"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Repin the hooks wheel to mtools 5487b92e or later (plus mikemol-ratchet and mikemol-atomicwrite; if vendored, those rows come with mtools:W1946). Dry-run mikemol-ratchet-hook <gate script> --after '<anchor line>' --tool '<emit expr>' --ratchet '<ratchet expr>' --name '<real repo name, never the snapshot dir>' --dir '<gated tree>', read the printed block, then --write. Worked cases: mtools .githooks/pre-commit and nemik tools/gate_staged.sh. Witness: count by (repo) (last_over_time(mikemol.ratchet.value[30m])) shows this repo after its next gate.",
       "evidence": "2026-10-25: 2026-10-25: mtools:W1946 landed (135344fc); unblocked by host github-8f. If this repo vendors wheels and lacks the census wheel, add it once: mikemol-wheel ratchet atomicwrite --sha 5487b92ee8a52aa6557656e18e7674c7d06b821e --out vendor/wheels --src <a tree of mtools at that sha, fetched, never a sibling checkout>, then the [tool.uv.sources] path rows and the two dependencies, then mikemol-ratchet-hook on the gate script. Later mikemol-repin --revendor moves ratchet and atomicwrite with the rest. A repo installing from git pins needs none of this.",
       "issued_at": "2026-10-25T05:24:44Z",
       "minted_during": "interrupt",
       "caused_by": "github:W42",
-      "last_worked": "2026-10-25T06:05:03Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null
     },
     {
       "symbol": "W754",
       "title": "Answer nemik:W879: repin mikemol-paths-forward and the mtools pins so nemik:W516 withholding at the source reaches this repo",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "nemik:W879"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "After W752 lands, read nemik:W879 and nemik:W516 for the sha they want; if it is newer than 4c8e73cc, repin to it alone, else reply citing the W752 sha.",
-      "evidence": "2026-10-28: 2026-10-27: the installed writer (4c8e73cc) REFUSES --check on W755 because the touches tag flake:040a91b156c3 has an unknown prefix, so the flake: tag github-8f asked for is accepted only by a newer mtools pin; this is the repin nemik:W879 / mtools:W2008 want. Repin alone after the W75 tokens stack (b92c1webo) lands. | 2026-10-28: 2026-10-28: nemik:W879 asks for mtools 5ba261f or later; 5ba261f is NOT an ancestor of 4c8e73cc, so repinned all 13 pins to mtools HEAD 754dcf97 (pushed, main = origin/main) with mikemol-repin --write, uv sync both extras; submitted alone. | 2026-10-28: CORRECTION 2026-10-28: the submitted commit subject says the writer accepts the flake: touches prefix. It does NOT: after the repin to 754dcf97 and uv sync, --check still refuses W755 (unknown prefix flake:). The pins still satisfy nemik:W879 (5ba261f or later), but flake: acceptance is not in mtools 754dcf97; the mtools working tree holds uncommitted pathsforward edits, so it is probably unpushed. The subject clause is wrong; ask mtools-ad which commit carries it. | 2026-10-28: 2026-10-28: mtools-ad confirms no pushed mtools commit accepts the flake: touches prefix (pathsforward tags.py parse_tag knows file:, mod:, party:, topic only); fixed in its working tree (a flake grain, never leasable), going out as its own stack in the pathsforward dist; it will send the sha. Repin again to that sha, alone. W755 keeps flake:040a91b156c3 meanwhile: the commit gate accepted it (7ed6163 landed with it) although --check warns.",
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After the queued stacks land, resubmit the repin alone with nothing queued and build nothing in the main tree while it gates (scratch worktree only).",
+      "evidence": "2026-10-28: 2026-10-27: the installed writer (4c8e73cc) REFUSES --check on W755 because the touches tag flake:040a91b156c3 has an unknown prefix, so the flake: tag github-8f asked for is accepted only by a newer mtools pin; this is the repin nemik:W879 / mtools:W2008 want. Repin alone after the W75 tokens stack (b92c1webo) lands. | 2026-10-28: 2026-10-28: nemik:W879 asks for mtools 5ba261f or later; 5ba261f is NOT an ancestor of 4c8e73cc, so repinned all 13 pins to mtools HEAD 754dcf97 (pushed, main = origin/main) with mikemol-repin --write, uv sync both extras; submitted alone. | 2026-10-28: CORRECTION 2026-10-28: the submitted commit subject says the writer accepts the flake: touches prefix. It does NOT: after the repin to 754dcf97 and uv sync, --check still refuses W755 (unknown prefix flake:). The pins still satisfy nemik:W879 (5ba261f or later), but flake: acceptance is not in mtools 754dcf97; the mtools working tree holds uncommitted pathsforward edits, so it is probably unpushed. The subject clause is wrong; ask mtools-ad which commit carries it. | 2026-10-28: 2026-10-28: mtools-ad confirms no pushed mtools commit accepts the flake: touches prefix (pathsforward tags.py parse_tag knows file:, mod:, party:, topic only); fixed in its working tree (a flake grain, never leasable), going out as its own stack in the pathsforward dist; it will send the sha. Repin again to that sha, alone. W755 keeps flake:040a91b156c3 meanwhile: the commit gate accepted it (7ed6163 landed with it) although --check warns. | 2026-10-28: 2026-10-28: the W754 gate (baku08ms6) was REFUSED, HEAD still 7ddc548: //:worklist FAILED in 802s (invocation 02ea25c2-d07e-4dbb-ba2a-2039b392816b), 1 of 117 tests; the undischarged claim is cut off in the output. In the current tree (same pins plus later edits) scripts/worklist_gate.py --only worklist PASSES (129 claims), so either the failure is tied to the snapshot or it is a flake (loop prompt line 27: card it if an identical resubmit passes). Possible self-inflicted cause: I edited tracked files in the MAIN tree (check_plasma_air.py, check_gtk.py, warrants.bib, WORKLIST.md) while that gate ran, instead of building in a scratch worktree. Resubmit ALONE after W719 and W756 land, then read the BES record if it refuses again. | 2026-10-28: 2026-10-28: W719 landed as acdd13c although I edited gtk files and warrants.bib in the main tree while its gate ran, so editing the main tree during a gate did not by itself refuse it; the W754 //:worklist failure stays unexplained until W759 (BES reader) or an identical resubmit says more. | 2026-10-28: 2026-10-28 CAUSE FOUND (scripts/bes_failures.py on invocation 02ea25c2, failed log fetched from BuildBuddy /file/download): the refusal was a FLAKE of @QML-TARGET (tool:opa_gate.py qml_target): failed in the gate, PASSED ON REPLAY (exit 0, 41 admitted). Not caused by the pins and not by my main-tree edits. Carded as W760 (loop prompt line 27: a flake is a blocker; fix by proof). The repin resubmission waits on W760 per that rule, or on the operator saying otherwise.",
       "issued_at": "2026-10-28T00:45:16Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W879",
-      "last_worked": "2026-10-28T04:32:30Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -19351,19 +19494,21 @@
     {
       "symbol": "W756",
       "title": "W75 gtk: make check_gtk.measure take a roster of css texts so a fixture can be denied, then @GTK-DENIES",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W75"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_gtk.py: measure(texts=None) reads a {variant: [gtk4, gtk3] css} fixture instead of make_gtk, --json takes one fixture file, catalog/fixtures/gtk/*.txt is denied with the policy rule id it names, @GTK-DENIES in catalog/worklist/warrants.bib, one selftest arm",
       "evidence": "2026-10-28: 2026-10-28: built: check_gtk.measure_fixture (one JSON case {variant, gtk4, gtk3}), --json FIXTURE, catalog/fixtures/gtk/typo-and-wrong-role.txt denied with K2,K3,K4 (86 denials), @GTK-DENIES, 2 selftest arms; a selftest arm that READ the committed fixture failed the closure witness arm 1 (closure observation sees imports, not file opens), so the arm writes its fixture to a temp dir.",
       "issued_at": "2026-10-28T03:31:33Z",
       "minted_during": "interrupt",
       "caused_by": "W75",
-      "last_worked": "2026-10-28T04:52:51Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_gtk.py",
@@ -19375,46 +19520,185 @@
     {
       "symbol": "W757",
       "title": "W75 firefox: make check_firefox.measure take a manifest so a fixture can be denied, then @FIREFOX-DENIES",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W75"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "scripts/check_firefox.py: measure takes a manifest document, --json takes one fixture file, catalog/fixtures/firefox/*.txt is denied with the rule id it names, @FIREFOX-DENIES in catalog/worklist/warrants.bib, one selftest arm",
-      "evidence": "",
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "check_firefox.measure renders every variant through make_firefox.render_all, lints each (_lint_run, web-ext) and adds dynamic_facts(roster): a fixture measure must take a manifest text and say what lint_errors, lint_warnings and dynamic become (null = withheld by the policy, so the denial must come from facts() alone). Read policy/firefox.rego to choose rule ids that facts() alone can fire, build measure_fixture({variant, manifest}) in a scratch worktree, then catalog/fixtures/firefox-manifests/*.txt (not a dir named firefox: check .gitignore first), @FIREFOX-DENIES, 2 selftest arms (write the fixture to a temp dir: closure observation sees imports, not opens).",
+      "evidence": "2026-10-28: 2026-10-28 built in scratch worktree el-openglo-W757 (from acdd13c): check_firefox.measure_fixture({variant, manifest text}) with lint and dynamic left unmeasured (withheld, not judged), --json FIXTURE, catalog/fixtures/firefox-manifests/wrong-theme.txt denied with exactly X2 X3 X4 X5 (42 deny, 2 withheld), selftest 17 ok with 2 new arms (fixture written to a temp dir), closure witness arm1 pass arm2 refused, @FIREFOX-DENIES added in the scratch bib. Code patch saved: scratchpad/w757-code.patch. To queue: apply it in main after the W759 stack lands, re-add the warrant and --project (the scratch bib forks from the main bib at GTK-DENIES).",
       "issued_at": "2026-10-28T03:31:33Z",
       "minted_during": "interrupt",
       "caused_by": "W75",
-      "last_worked": "2026-10-28T03:31:40Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_firefox.py",
         "catalog/worklist/warrants.bib"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": null
     },
     {
       "symbol": "W758",
       "title": "W75 union: make check_union.measure take a sheet so a fixture can be denied, then @UNION-DENIES",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W75"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_union.py: measure takes a sheet, --json takes one fixture file, catalog/fixtures/union/*.txt is denied with the rule id it names, @UNION-DENIES in catalog/worklist/warrants.bib, one selftest arm",
       "evidence": "",
       "issued_at": "2026-10-28T03:31:33Z",
       "minted_during": "interrupt",
       "caused_by": "W75",
-      "last_worked": "2026-10-28T03:31:42Z",
+      "last_worked": "2026-10-28T09:39:15Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_union.py",
         "catalog/worklist/warrants.bib"
+      ],
+      "size_class": "small",
+      "completed": null
+    },
+    {
+      "symbol": "W759",
+      "title": "A reader for a refused gate: print the failing target, claim and test.log of a BuildBuddy invocation from its id, n of m, instead of a 97K-token JSON",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "party:mtools"
+      ],
+      "blocked_on": [
+        "W762"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "GetInvocation on http://buildbuddy-web.buildbuddy.svc.cluster.local:8080/rpc/BuildBuddyService/GetInvocation (the in-cluster name works from this shell; 127.0.0.1:31080 does not) returns the whole Build Event Protocol stream, 97K tokens for invocation 02ea25c2-d07e-4dbb-ba2a-2039b392816b (W754 refusal). Ask mtools (the bes-logs skill owner) for a mode that reads the failing testResult/progress lines, or add it here if it is ours; then use it to read W754 cause.",
+      "evidence": "2026-10-28: 2026-10-28: first cut written as scripts/bes_failures.py (untracked until the next stack): fetches GetInvocation by id, walks targetGroups[].targets[] (metadata.label + testSummary.overallStatus/failed uris), prints FAILED labels, the failed log URIs and the progress lines that name a failure, n of m, refuses a record with no test target (exit 2); --shape lists the record key paths; --file reads a saved record; selftest 6 arms. The failed log BODY is fetched with GET http://buildbuddy-web.buildbuddy.svc.cluster.local:8080/file/download?bytestream_url=...&invocation_id=... (worked, 1124 bytes). Next: add that fetch as --log, a closure/stage, BUILD target, and struct-tools row. | 2026-10-28: 2026-10-28: scripts/bes_failures.py renamed to scripts/check_bes_failures.py (a tracked check needs a selftest stage and a closure); closure written (13 files, 116 closures), witness arm 1 passes (arm 2 none: no verdict to plant a defect in), struct-tools row added, opa_gate routes admits 71. Submitted as a stack behind W756. | 2026-10-28: 2026-10-28: the W759 stack (bkezwhupe) was REFUSED at //:closure_witness (invocation 7d9b56ed-22a4-4298-9c9f-b072902a2958, 1554 s) by the same flake class, read with this tool itself: [@CONFIG-REACH], [@CURRENCY] and [@QML-TARGET] failed once and PASSED ON REPLAY, 0 reproduced, 3 flaky of 3. Nothing in the stack failed; HEAD is still acdd13c. Third flake refusal in a row; class card W762.",
+      "issued_at": "2026-10-28T05:20:58Z",
+      "minted_during": "interrupt",
+      "caused_by": "W754",
+      "last_worked": "2026-10-28T09:39:15Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W760",
+      "title": "Flake: @QML-TARGET (opa_gate qml_target) fails in the //:worklist gate and passes on replay of the same tree",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "file:scripts/check_qml_target.py"
+      ],
+      "blocked_on": [
+        "paperkit:W32"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Implement emitters.tree_lock(root) (fcntl.flock on <root>/.emitters.lock, gitignored), run_all(hold=True) default, make_deb.stage wraps run_all(hold=False) through the mapping copies, emitters selftest arm for mutual exclusion, .gitignore the lock file; then hunt QML-TARGET -n 16 -j 4 for 0 failures as the bar (W454).",
+      "evidence": "2026-10-28: 2026-10-28 read of scripts/check_qml_target.py for the proof: the check stages the .deb tree (make_deb --stage) in a TemporaryDirectory, materializes the pinned luthen runner with git archive, then for each package runs python3 -m checks.qml_check through bash (or sg k3s) as a SUBPROCESS and reads the last JSON line of its stdout; a missing JSON line or exit 2 is withheld, any other failing verdict is a deny. Concurrent actors under the gate: the other claims run in parallel (CPU and memory pressure), the runner is luthen code running a container or k3s load, and run_check passes it no timeout. WHAT IS MISSING FOR THE PROOF: the gate log keeps only \"check FAILED for [@QML-TARGET]\", not the failing deny or withheld text, so the failing step is unknown. | 2026-10-28: 2026-10-28 INSTANCE 2: the W756 gate (b28y5vhwv, invocation b6c7ec2d-aa2f-4d46-8591-bf9fa79f0509) was refused at //:closure_witness (1662s): inside the closure-only tree the worklist failed on [@QML-TARGET] AGAIN (replay: PASSED, 41 admitted, flaky) and on [@CURRENCY] (replay PASSED; withheld-only), 0 reproduced, 2 flaky of 2. Two refusals in a row (W754, W756) on the same QML-TARGET flake, on unrelated stacks, so it is not a one-off. The log was read with scripts/check_bes_failures.py plus the /file/download fetch. | 2026-10-28: 2026-10-28: read scripts/worklist_gate.py _replay: it re-runs each check the gate reported FAILED (keys from the gate output) under the gate own CPU cap and clean env; on exit 0 it prints PASSED ON REPLAY. The FIRST failure own output never reaches that output (paperkit-gate prints only the FAILED line), so a flake leaves no account. Asked paperkit to keep the first run exit code and output tail per failing check (message 2026-10-28); block on its symbol when it answers. | 2026-10-28: 2026-10-28: paperkit answers: paperkit:W32 (gate.py check FAILED line to carry rc/signal, CPU time and an output tail before any replay) is this ask; it waits on paperkit:W508 (gate.py lint debt). The data already exists at the resolver (run_ok keeps the failing check last line in the Verdict); the print is missing. | 2026-10-28: 2026-10-28 REPRODUCED: flake_hunt --key QML-TARGET -n 12 -j 4 (after the PATH fix in flake_hunt): 2 of 12 runs FAILED, both inside make_deb --stage as FileNotFoundError: (a) a CWD-RELATIVE path plasma/desktoptheme/EL-Openglo/widgets/panel-background.svg opened by xml ElementTree.parse; (b) make_deb.legacy_alias_packages (make_deb.py:821-845) open(<private stage>/usr/share/plasma/plasmoids/org.el.segclock.elopenglo/metadata.json) right after shutil.copytree(canonical, legacy, dirs_exist_ok=True). The stage dir is private to each run, so (b) is not a cross-run write; no os.chdir and no thread pool in make_deb/make_plasma. Accounts: /var/tmp/el-openglo-gate-accounts/20261028T044017-1902040.log and 20261028T044339-1936782.log (opa_gate keeps only the last 300 chars of the child stderr, so the top of the stack is lost: second hunt runs check_qml_target.py --json directly for the full trace). | 2026-10-28: 2026-10-28 PROOF (from the code, and the second hunt that ran check_qml_target.py --json directly: 2 of 16 failed, full stack kept): make_deb.stage() (make_deb.py:889-911) calls emitters.run_all(ROOT, only=emitters.STAGE), which runs make_schemes, make_aurorae, make_plasma, make_wallpaper, make_clock and make_font AS __main__ with cwd = the REAL repo root (emitters.py:351-368); their __main__ blocks clear and rewrite cwd-relative output dirs (make_clock.py:238 shutil.rmtree(\"plasma-clock\") then render_all and check; make_plasma writes plasma/desktoptheme/...); then system_mapping() copies those dirs from ROOT into the stage. Every make_deb --stage run in the gate (qml_target, deb, ebuild, ...) does this against the SAME repo directories with no lock, so one process rmtree/rewrites what another is checking or copying. Observed failures: make_clock.py:205 check() FileNotFoundError plasma-clock/org.el.segclock/metadata.json; emitters.py:297 atomic_path.__exit__ os.chmod FileNotFoundError plasma/desktoptheme/EL-Azure/solid/widgets/.panel-background.svg.<rand>.svg; ET.parse FileNotFoundError plasma/desktoptheme/EL-Openglo/widgets/panel-background.svg. Fix (ordering made explicit): one exclusive flock on <root>/.emitters.lock spanning generate-through-copy in stage(), taken by run_all itself when called outside it; witness: a test that holds the lock in one fd and shows a second acquirer blocks (BlockingIOError on LOCK_NB) until release. | 2026-10-28: 2026-10-28 FIX WRITTEN (not landed, not yet claimed fixed): emitters.tree_lock (flock on <root>/.emitters.lock, .gitignore line added), emitters.run_all(hold=True default), make_deb.stage wraps generation through every copy from the real tree in the lock (run_all hold=False), check_emitters_run selftest 3 new arms (excludes a second acquirer while held, grants after release, run_all hold default) PASS. Verification bar: flake_hunt --key QML-TARGET -n 16 -j 4 with 0 failures (before: 2 of 12, 2 of 16), started.",
+      "issued_at": "2026-10-28T06:21:39Z",
+      "minted_during": "interrupt",
+      "caused_by": "W754",
+      "last_worked": "2026-10-28T09:07:17Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W761",
+      "title": "Flake: @CURRENCY (opa_gate action_key) fails in the closure-witness worklist and passes on replay",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "file:scripts/check_action_key.py"
+      ],
+      "blocked_on": [
+        "paperkit:W32"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Decide and implement in policy/action_key.rego plus scripts/check_action_key.py: outputs that are gitignored build products and entirely absent -> WITHHELD with the reason (the guard against a broken scan stays for tracked outputs and for a partly present set); mutation-control the rule; test both cold and warm trees; then the QML-TARGET root fix is safe.",
+      "evidence": "2026-10-28: 2026-10-28 instance 2: also failed once and passed on replay in the W759 refusal (invocation 7d9b56ed-22a4-4298-9c9f-b072902a2958, //:closure_witness), beside [@CONFIG-REACH] and [@QML-TARGET]. Class: W762. | 2026-10-28: 2026-10-28: the W761 proof is blocked on one missing fact: check_action_key denies \"output X is STALE: its inputs moved since it was built\" for the screens action (56 per-output keys over 1196 (output, input) edges: job bytes, repo reads, env, code, host) but does NOT name WHICH input moved, so a transient mover cannot be identified from the gate account. Candidate (unproven): the screens inputs include files that a parallel make_deb --stage clears and rewrites in the real tree (check_tree_writes: plasma-clock/** and EL-*.colors/.colorscheme are the tracked files QML-TARGET writes); the tree_lock of W762 does not hold for the check_action_key reader. | 2026-10-28: 2026-10-28 PROVED (both directions, deterministic, in a clean checkout = scratch worktree el-openglo-W757 at acdd13c): opa_gate.py action_key on a tree WITHOUT the gitignored generated outputs DENIES \"action wallpapers declares outputs but none were found: the output domain is broken, not clean\" (1 deny, 4 withheld, 2 admitted); after make_wallpaper.py generates them the same command ADMITS (0 deny, 4 withheld, 3 admitted). The kept gate accounts agree: five 782-byte accounts (00:40, 01:35, 02:26, 03:28, 06:01) are exactly that deny. So @CURRENCY is not a race: its verdict depends on whether a PRODUCER ran first in the gate tree (today QML-TARGET staging via emitters.run_all writes plasma/, wallpapers, EL-*.colors into the real tree, found by check_tree_writes), and the gate gives no order between claims, so it passes or fails by scheduling and \"passes on replay\" once a producer has run. ⚑ CONSEQUENCE: the planned root fix (stagings must not write the real tree) would make @CURRENCY deny EVERY time in a fresh tree unless @CURRENCY is made self-sufficient first. The decision for the check: a gitignored output absent from a clean tree is \"not built here\" = WITHHELD (a fact about the tree, like the unpinned host), or the claim depends explicitly on a generating claim; policy/action_key.rego holds the deny (the \"broken domain\" guard).",
+      "issued_at": "2026-10-28T07:03:32Z",
+      "minted_during": "interrupt",
+      "caused_by": "W756",
+      "last_worked": "2026-10-28T10:31:14Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W762",
+      "title": "Problem: host-heavy worklist checks (qml_target, action_key, config_reach) fail once under the commit gate and pass on replay, refusing three stacks in a row",
+      "status": "working",
+      "enables": [
+        "W760",
+        "W761"
+      ],
+      "touches": [
+        "file:scripts/worklist_gate.py"
+      ],
+      "blocked_on": [
+        "luthen-observability:W1713"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When luthen-observability sends the card symbol for the buildctl classification, cite it in W762 blocked_on and repin to the commit that carries it (catalog/luthen_pin.json); meanwhile W763 (self-sufficient @CURRENCY) is the el-openglo-side step and the witness for it is the first thing to write.",
+      "evidence": "2026-10-28: 2026-10-28: github-8f reviewer ruled (pass 45): line 27 governs; W757+W756+W759 do not go in as one stack; the fix is by PROOF from the code and is NOT blocked on paperkit:W32 (that would only speed it). Tool already exists: scripts/flake_hunt.py (N runs, J at a time, the gate own env and RLIMIT_CPU, keeps the first failing run account). Started: flake_hunt --key QML-TARGET -n 12 -j 4 under systemd-run MemoryMax=12G. | 2026-10-28: 2026-10-28 FIRST HARD EVIDENCE: the gate keeps first-failure accounts under /var/tmp/el-openglo-gate-accounts/ (so W32 is not the only route). The @CURRENCY one (20261028T023121-460805.log, 9907 bytes; the same size at 00:09 and 23:22, i.e. three gate runs): \"action screens output <every png> is STALE: its inputs moved since it was built\" (55 deny) while on replay the same check admits (0 deny, 3 admitted): so a hashed input of the screens action differed DURING the check and not after. Hypothesis to prove: a check running in parallel in the same tree rewrites an input in the screens domain and restores it. Tool: check_tree_writes.py (who writes tracked files), started under systemd-run MemoryMax=12G. Also: flake_hunt --key QML-TARGET fails 12 of 12 with ModuleNotFoundError mikemol because its clean env has no venv on PATH: a harness gap to fix (not the flake). | 2026-10-28: 2026-10-28 check_tree_writes (full run, 28 min, 129 of 129 claims measured, 937 tracked files fingerprinted): exactly 1 of 129 claims WRITES THE TRACKED TREE: QML-TARGET (tool:opa_gate.py qml_target) rewrites EL-<variant>.colors and EL-<variant>.colorscheme for all six variants and plasma-clock/org.el.segclock/{metadata.json, contents/ui/*.qml, contents/config/*}, through make_deb --stage -> emitters.run_all(ROOT) (the W68 rule says no gated check writes the real tree). That is the link between the three flakes: @CURRENCY keys the screens/schemes actions over inputs that include the EL-*.colors files, and a parallel qml_target rewrites them under it (\"inputs moved since it was built\", 55 stale, replay admits). The tree_lock (W760) stops stage-vs-stage races but NOT a reader of the same tracked files, so it does not close @CURRENCY or @CONFIG-REACH. The root fix is that a staging must not generate into the real tree at all: run_all into a private copy (or make_deb.stage render straight into DEB_ROOT, as the other emitters already do). Card that as the real fix and keep the lock as the interim. | 2026-10-28: 2026-10-28: flake_hunt --key QML-TARGET -n 16 -j 4 WITH the tree_lock: 0 of 16 FAILED (cpu 62.4-64.6 s each, slowest wall 1138.8 s because the stagings now serialize); before the lock: 2 of 12 and 2 of 16. 16 is short of the 30-run bar of W454, so this is evidence, not closure. Action keys schemes and wallpapers went stale (emitters.py is in their domain): rebuilt make_schemes.py and make_wallpaper.py under systemd-run MemoryMax=12G (outputs byte-identical, no tracked file changed), check_action_key --write re-recorded. Submitted as the fix stack, alone (without the held W756/W757/W759 content). | 2026-10-28: 2026-10-28 W762 fix stack (b6rt6qu6x) REFUSED at //:closure_witness (invocation aa3547eb-7b66-4b68-9d19-2e09b99dd4c2, 1138 s): the failed-log blob is BYTE-IDENTICAL (same digest b790474447..., 2813 bytes) to the W756 refusal, i.e. the same [@QML-TARGET] and [@CURRENCY] first-run failures and replays, with the tree_lock in the commit. So the lock does not touch the closure-witness failure: it is not the same race. Findings since: (1) @CURRENCY is a COLD-ORDER dependency, proved both ways (W761); (2) QML-TARGET PASSES cold in a fresh worktree (opa_gate qml_target in el-openglo-cold: 41 admitted, 114 s wall, 70.7 s CPU), so QML-TARGET failing first in the closure-only tree is not a plain cold start either; the kept-accounts dir holds no QML-TARGET account from the gate, consistent with a first run that died without output (a kill or a missing tool in that tree) and not with a Python traceback. Started: check_closure --witness scripts/worklist_gate.py locally under MemoryMax=14G to reproduce the closure-only run with its own account. | 2026-10-28: 2026-10-28: opa_gate closure locally = admitted, 116 admitted in 2.6 s (it reads the recorded closures; it does NOT run the witnesses), and check_closure --witness scripts/worklist_gate.py = arm1 pass in 2 s (the stage selftest). The failing //:closure_witness runs the WORKLIST inside a tree holding only the worklist stage closure (L5). Started the local equivalent: check_closure --witness worklist (MemoryMax=14G). | 2026-10-28: 2026-10-28: check_closure --witness worklist (the local equivalent of //:closure_witness, 9 min, 17 min CPU) PASSES arm 1: \"arm1 known ... (@CURRENCY: reads the untracked emitted outputs (screens, wallpapers): a closure of TRACKED)\". I.e. in a closure-only tree the ONLY expected red is @CURRENCY (declared known; this is the cold-order dependency proved on W761), and L5 denies when anything else is red. In the bazel gate @QML-TARGET (and once @CONFIG-REACH) are ALSO red on their first run, and not locally, in the same tree: so the cause is specific to the bazel test environment (hermetic sandbox, the test_env list in .bazelrc, 117 targets in parallel), not to the tree. The tree_lock is irrelevant to it (byte-identical failing log with and without). No QML-TARGET account is kept by the gate, consistent with a first run that dies without output. | 2026-10-28: Card W763 minted for the @CURRENCY self-sufficiency step (github-8f ask). | 2026-10-28: 2026-10-28 FORCED-FAILURE WITNESS (no load, no buildkit), per github-8f: a stub buildctl that exits 1 placed first on PATH, then python3 -m checks.qml_check --src S --entry main.qml --out O run from luthen-observability: prints {\"state\": \"refused\", \"step\": \"buildctl\", \"why\": \"error: failed to solve: transient buildkitd failure (stub)\"} and exits 1. El-openglo check_qml_target treats exit 2 as withheld and any other verdict as a result, so a failed buildctl is a DENY of @QML-TARGET, though the lint and load results live in the status file and a QML defect never fails buildctl. Whether that is what happened in the four gate first runs is unproven (first-run output not kept, paperkit:W32); the classification is wrong either way. Letter with the reproducer: luthen-observability/inbox/2026-10-28-el-openglo-qml-check-buildctl-failure-is-a-deny.md, and a message to luthen-observability-ab. Stub files are in the session scratchpad (stub-bin/buildctl is a python script: the shellcheck hook could not render a verdict on a sh stub, an infrastructure fault noted, not routed around). | 2026-10-28: 2026-10-28: luthen-observability carded the buildctl classification as luthen-observability:W1713 and decided from images/qml-check/Containerfile (\"No RUN step in the check stage may fail\"; lint and load record their exit in the status file): any non-zero buildctl, and an unreadable status file after a built image, becomes state cannot-run, step buildctl, exit 2; a QML defect still refuses with exit 1. Test: a faked buildctl exiting 1 gives cannot-run/2. They keep 2 (not the fleet 7) because check_qml_target reads exactly 2 as withheld. They will send the commit sha; we repin catalog/luthen_pin.json ourselves. Meanwhile W763 (self-sufficient @CURRENCY) is the el-openglo-side step. | 2026-10-28: 2026-10-28: luthen-observability:W1713 landed as c2c505b7 (a failed buildctl, and a built image with no status file, give cannot-run exit 2; a QML defect still refuses exit 1). Moved catalog/luthen_pin.json to c2c505b76aa4e7817f30b7a59f45e7e058c627ef; check_qml_target --selftest PASS and opa_gate qml_target admitted (exit 0) at the new pin. The fix stack now carries: the tree_lock (stage-vs-stage race), W763 (@CURRENCY self-sufficient), the luthen pin.",
+      "issued_at": "2026-10-28T08:02:04Z",
+      "minted_during": "interrupt",
+      "caused_by": "W760",
+      "last_worked": "2026-10-28T12:07:04Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W763",
+      "title": "Make @CURRENCY self-sufficient: gitignored emitted outputs entirely absent from a clean tree are WITHHELD, not denied, before any staging stops writing the real tree",
+      "status": "working",
+      "enables": [
+        "W762"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After it lands: the root fix (stagings must not write the real tree) is safe to build; and W764 (reader takes exit 7).",
+      "evidence": "2026-10-28: 2026-10-28 DONE LOCALLY, in the fix stack: witness first (policy/action_key_test.rego test_cold_tree_gitignored_outputs_withheld_not_denied FAILED on the old policy, 1 of 1305), then policy/action_key.rego built_elsewhere plus a withheld rule (n_outputs 0 and outputs_gitignored: withheld; tracked-absent and a partly built set still deny; 1305 of 1305 pass), scripts/check_action_key.py BUILD_PRODUCTS = {wallpapers} declared (not asked of git: the witness tree has an EMPTY .gitignore stub, which failed arm 1 of the closure witness until the selftest arm learned to require a usable canary), measurement emits outputs_gitignored. Cold-tree proof: a fresh worktree (HEAD plus the patch, no emitted outputs) opa_gate.py action_key = admitted (0 deny, 5 withheld, 2 admitted) with the line \"wallpapers: its outputs are gitignored build products and none are built in this tree\"; the unpatched cold tree DENIED. Closure witness check_action_key arm1 pass arm2 refused; selftest PASS; action keys still current.",
+      "issued_at": "2026-10-28T11:01:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W761",
+      "last_worked": "2026-10-28T12:07:27Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_action_key.py",
+        "policy/action_key.rego",
+        "policy/action_key_test.rego",
+        "policy/action_key.cases.json"
+      ],
+      "size_class": "medium",
+      "completed": null
+    },
+    {
+      "symbol": "W764",
+      "title": "check_qml_target reads the fleet exit table: exit 7 (CANNOT_RUN) from the qml_check runner is withheld, exit 2 kept for now",
+      "status": "ready",
+      "enables": [
+        "luthen-observability:W1714"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/check_qml_target.py measure(): the runner exit that means withheld is rc in (2, 7), named once as a constant with the fleet table cited (mtools corpus/exit-table.json: CANNOT_RUN=7; 2 is USAGE/BLOCK there and stays only until luthen-observability:W1714 moves qml_check to 7); selftest arm that a verdict-less run with exit 7 is withheld and exit 2 still is, and that exit 1 with a refused verdict is still a result. Step order (luthen): this card first, then luthen-observability:W1714, then a follow-up here that drops 2. Not gate-blocked work in itself, but it lands through the gate: it waits on W762 like the rest.",
+      "evidence": "",
+      "issued_at": "2026-10-28T11:14:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability:W1714",
+      "last_worked": "2026-10-28T11:14:23Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_qml_target.py"
       ],
       "size_class": "small"
     }
@@ -19521,15 +19805,6 @@
       "taken_at": "2026-10-28T02:04:15Z",
       "renewed_at": "2026-10-28T02:04:15Z",
       "expires_at": "2026-10-28T02:34:15Z"
-    },
-    {
-      "tag": "file:make_plasma.py!w",
-      "holder": "(unlocked)",
-      "waypoint": "W719",
-      "base_sha": "7ddc5480c4160445ab766043c37e52ec237ec031",
-      "taken_at": "2026-10-28T04:17:18Z",
-      "renewed_at": "2026-10-28T04:17:18Z",
-      "expires_at": "2026-10-28T04:47:18Z"
     }
   ],
   "advice": [
@@ -20232,7 +20507,7 @@
       "subject": "W509",
       "action": "update W509",
       "first_run": "2026-10-18T00:11:43Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     },
     {
@@ -20817,7 +21092,7 @@
       "subject": "W250",
       "action": "update W250",
       "first_run": "2026-10-19T01:01:25Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     },
     {
@@ -20835,7 +21110,7 @@
       "subject": "W259",
       "action": "update W259",
       "first_run": "2026-10-19T01:01:25Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     },
     {
@@ -20880,7 +21155,7 @@
       "subject": "W492",
       "action": "update W492",
       "first_run": "2026-10-19T01:01:25Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     },
     {
@@ -20889,7 +21164,7 @@
       "subject": "W505",
       "action": "update W505",
       "first_run": "2026-10-19T01:01:25Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     },
     {
@@ -20898,7 +21173,1312 @@
       "subject": "W506",
       "action": "update W506",
       "first_run": "2026-10-19T01:01:25Z",
-      "last_run": "2026-10-19T01:01:25Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W250",
+      "action": "block W250 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W259",
+      "action": "block W259 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W275",
+      "action": "block W275 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W276",
+      "action": "block W276 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W277",
+      "action": "block W277 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W278",
+      "action": "block W278 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W279",
+      "action": "block W279 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W281",
+      "action": "block W281 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W282",
+      "action": "block W282 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W283",
+      "action": "block W283 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W284",
+      "action": "block W284 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W285",
+      "action": "block W285 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W286",
+      "action": "block W286 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W287",
+      "action": "block W287 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W289",
+      "action": "block W289 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W290",
+      "action": "block W290 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W291",
+      "action": "block W291 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W292",
+      "action": "block W292 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W293",
+      "action": "block W293 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W294",
+      "action": "block W294 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W295",
+      "action": "block W295 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W296",
+      "action": "block W296 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W297",
+      "action": "block W297 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W298",
+      "action": "block W298 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W299",
+      "action": "block W299 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W300",
+      "action": "block W300 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W301",
+      "action": "block W301 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W302",
+      "action": "block W302 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W303",
+      "action": "block W303 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W304",
+      "action": "block W304 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W305",
+      "action": "block W305 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W306",
+      "action": "block W306 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W307",
+      "action": "block W307 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W308",
+      "action": "block W308 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W310",
+      "action": "block W310 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W324",
+      "action": "block W324 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W483",
+      "action": "block W483 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W492",
+      "action": "block W492 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W505",
+      "action": "block W505 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W506",
+      "action": "block W506 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W509",
+      "action": "block W509 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W677",
+      "action": "block W677 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W678",
+      "action": "block W678 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W694",
+      "action": "block W694 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W703",
+      "action": "block W703 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W708",
+      "action": "block W708 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W709",
+      "action": "block W709 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W712",
+      "action": "block W712 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W714",
+      "action": "block W714 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W715",
+      "action": "block W715 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W716",
+      "action": "block W716 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W717",
+      "action": "block W717 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W718",
+      "action": "block W718 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W719",
+      "action": "block W719 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W720",
+      "action": "block W720 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W721",
+      "action": "block W721 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W722",
+      "action": "block W722 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W723",
+      "action": "block W723 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W724",
+      "action": "block W724 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W725",
+      "action": "block W725 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W733",
+      "action": "block W733 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W734",
+      "action": "block W734 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W735",
+      "action": "block W735 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W736",
+      "action": "block W736 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W739",
+      "action": "block W739 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W743",
+      "action": "block W743 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W744",
+      "action": "block W744 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W751",
+      "action": "block W751 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W753",
+      "action": "block W753 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W754",
+      "action": "block W754 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W755",
+      "action": "block W755 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W756",
+      "action": "block W756 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W757",
+      "action": "block W757 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W758",
+      "action": "block W758 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W759",
+      "action": "block W759 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W760",
+      "action": "block W760 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "freeze",
+      "rule": "W762",
+      "subject": "W761",
+      "action": "block W761 on W762",
+      "first_run": "2026-10-28T09:38:44Z",
+      "last_run": "2026-10-28T09:38:44Z",
+      "status": "open"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W275",
+      "action": "update W275",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W276",
+      "action": "update W276",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W277",
+      "action": "update W277",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W278",
+      "action": "update W278",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W279",
+      "action": "update W279",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W281",
+      "action": "update W281",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W282",
+      "action": "update W282",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W283",
+      "action": "update W283",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W284",
+      "action": "update W284",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W285",
+      "action": "update W285",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W286",
+      "action": "update W286",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W287",
+      "action": "update W287",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W289",
+      "action": "update W289",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W290",
+      "action": "update W290",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W291",
+      "action": "update W291",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W292",
+      "action": "update W292",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W293",
+      "action": "update W293",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W294",
+      "action": "update W294",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W295",
+      "action": "update W295",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W296",
+      "action": "update W296",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W297",
+      "action": "update W297",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W298",
+      "action": "update W298",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W299",
+      "action": "update W299",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W300",
+      "action": "update W300",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W301",
+      "action": "update W301",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W302",
+      "action": "update W302",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W303",
+      "action": "update W303",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W304",
+      "action": "update W304",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W305",
+      "action": "update W305",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W306",
+      "action": "update W306",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W307",
+      "action": "update W307",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W308",
+      "action": "update W308",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W310",
+      "action": "update W310",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W324",
+      "action": "update W324",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W483",
+      "action": "update W483",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W677",
+      "action": "update W677",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W678",
+      "action": "update W678",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "open"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W694",
+      "action": "update W694",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W703",
+      "action": "update W703",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W708",
+      "action": "update W708",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W709",
+      "action": "update W709",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W712",
+      "action": "update W712",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W714",
+      "action": "update W714",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W715",
+      "action": "update W715",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W716",
+      "action": "update W716",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W717",
+      "action": "update W717",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W718",
+      "action": "update W718",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W719",
+      "action": "update W719",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W720",
+      "action": "update W720",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W721",
+      "action": "update W721",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W722",
+      "action": "update W722",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W723",
+      "action": "update W723",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W724",
+      "action": "update W724",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W725",
+      "action": "update W725",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W733",
+      "action": "update W733",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W734",
+      "action": "update W734",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W735",
+      "action": "update W735",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W736",
+      "action": "update W736",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W739",
+      "action": "update W739",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W743",
+      "action": "update W743",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W744",
+      "action": "update W744",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W751",
+      "action": "update W751",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W753",
+      "action": "update W753",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W754",
+      "action": "update W754",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W756",
+      "action": "update W756",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W757",
+      "action": "update W757",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W758",
+      "action": "update W758",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
+      "status": "applied"
+    },
+    {
+      "tool": "update-many",
+      "rule": "update-many",
+      "subject": "W759",
+      "action": "update W759",
+      "first_run": "2026-10-28T09:39:06Z",
+      "last_run": "2026-10-28T09:39:06Z",
       "status": "applied"
     }
   ],

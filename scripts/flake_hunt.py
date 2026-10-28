@@ -54,7 +54,14 @@ def limits():
             "paperkit not importable: runs use the plain environment and no CPU cap",
         )
     cpu = int(os.environ.get("PAPERKIT_CHECK_CPU", PKR.CHECK_CPU))
-    return PKR.clean_env(), cpu, f"paperkit's clean env and RLIMIT_CPU {cpu} s"
+    # the gate's own PATH carries the project venv (.bazelrc test --test_env=PATH, started from it); paperkit's
+    # clean env alone does not, and every `python3 scripts/...` check then fails with ModuleNotFoundError: mikemol
+    # 12 of 12 (2026-10-28), a harness gap that read as a flake
+    env = dict(PKR.clean_env())
+    env["PATH"] = os.pathsep.join(
+        [os.path.join(ROOT, ".venv", "bin"), env.get("PATH", os.defpath)]
+    )
+    return env, cpu, f"paperkit's clean env (+ .venv/bin) and RLIMIT_CPU {cpu} s"
 
 
 def run_one(cmd, cwd, env, cpu, shell):

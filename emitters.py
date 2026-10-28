@@ -348,11 +348,60 @@ STAGE = (
 )
 
 
-def run_all(root, python=None, quiet=True, only=None):
+LOCK_NAME = ".emitters.lock"
+
+
+class tree_lock:
+    """`with tree_lock(root):` — ONE writer of the generators' shared output dirs at a time (W760).
+
+    ⚑ WHY.  Every generator's __main__ writes cwd-relative directories under the real tree and
+    first clears them (make_clock: shutil.rmtree("plasma-clock"), then render and check;
+    make_plasma writes plasma/desktoptheme/...), and make_deb.stage() copies from those
+    directories into its private stage. The gate runs several stagings at once (qml_target,
+    deb, ebuild, ...), so one process cleared what another was checking or copying:
+    FileNotFoundError on plasma-clock/org.el.segclock/metadata.json, on a
+    .panel-background.svg temp file, on panel-background.svg itself — a check that failed
+    in the gate and passed on replay (flake_hunt, 4 of 28 at j=4, 2026-10-28). The ordering was
+    assumed (nobody else is generating); this makes it a lock.
+
+    An exclusive flock on <root>/.emitters.lock (gitignored; in the tree rather than /tmp so a
+    Portage sandbox, which can write the tree and not /tmp, can take it). Held from the first
+    generator through the last read of its outputs: run_all takes it for the generation alone,
+    and a caller that also READS the outputs (make_deb.stage) takes it around both and calls
+    run_all(hold=False). A class, not @contextmanager, so emitters.py stays free of contextlib.
+    flock locks the open file description, so a second tree_lock in the SAME process blocks too:
+    never nest one inside another."""
+
+    def __init__(self, root):
+        self.path = os.path.join(root, LOCK_NAME)
+        self.fd = -1
+
+    def __enter__(self):
+        import fcntl
+
+        self.fd = os.open(self.path, os.O_RDWR | os.O_CREAT, 0o666)
+        fcntl.flock(self.fd, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        import fcntl
+
+        fcntl.flock(self.fd, fcntl.LOCK_UN)
+        os.close(self.fd)
+        return False
+
+
+def run_all(root, python=None, quiet=True, only=None, hold=True):
     """Run every emitter in ORDER (or the `only` subset) from `root`.
 
     Returns [(module, returncode, stderr_tail)]. A non-zero rc is returned, not
-    raised, so a caller can report n of m rather than stop at the first."""
+    raised, so a caller can report n of m rather than stop at the first.
+
+    `hold` takes tree_lock(root) for the run (the default). A caller that already holds it,
+    because it also reads the outputs, passes hold=False."""
+    if hold:
+        with tree_lock(root):
+            return run_all(root, python, quiet, only, hold=False)
     out = []
     for mod, _why in ORDER:
         if only is not None and mod not in only:

@@ -802,6 +802,15 @@ def per_output_key(action):
     ), per
 
 
+# ⚑ W763: THE ACTIONS WHOSE OUTPUTS ARE GITIGNORED BUILD PRODUCTS, declared once. A clean tree
+# (the gate's closure-only tree, a fresh clone) holds none of them until a generator has run, so
+# "none found" there is "not built here", not a broken search (policy/action_key.rego,
+# built_elsewhere). Declared and not asked of git because the closure-only tree has no .git; the
+# selftest checks the declaration against .gitignore wherever a repository is present. schemes
+# (./*.colors) and screens (catalog/library/screens/*.png) are TRACKED and stay out.
+BUILD_PRODUCTS = frozenset({"wallpapers"})
+
+
 def measure():
     """{action: {key, recorded, outputs, current}} — what IS, not what should be."""
     recorded = _manifest().get("actions", {})
@@ -891,6 +900,7 @@ def measure():
                 # which is the original incident, seen from the other side.
                 "undeclared_outputs": undeclared,
                 "declared_absent": absent,
+                "outputs_gitignored": name in BUILD_PRODUCTS,
                 # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
                 # so currency is UNMEASURED here — not confirmed, and not failed. An
                 # absent host input is withheld for the same reason, one level out.
@@ -1403,6 +1413,30 @@ def _selftest():
     # distinct actions must not collide
     keys = {x[0]: key_of(x).key for x in ACTIONS}
     chk("distinct actions have distinct keys", len(set(keys.values())), len(ACTIONS))
+
+    # ⚑ W763: BUILD_PRODUCTS IS A DECLARATION, SO IT IS HELD TO .gitignore wherever the ignore
+    # rules are USABLE: an action is a build product exactly when a probe name of each of its
+    # output suffixes is ignored. The gate's closure-only tree is a repository whose .gitignore is
+    # an EMPTY stub (a name a stage only stat-ed), so "a repository is here" is not enough: a
+    # canary that .gitignore is known to ignore must be ignored first, else the arm is SKIPPED,
+    # printed, not passed (the first cut asked only for a repository and failed arm 1 of the
+    # closure witness, 2026-10-28).
+    def is_ignored(path):
+        r = subprocess.run(["git", "-C", ROOT, "check-ignore", "-q", path], check=False)
+        return r.returncode == 0
+
+    if is_ignored(os.path.join("__pycache__", "canary.pyc")):
+        for x in ACTIONS:
+            probes = [os.path.normpath(os.path.join(x[4], "sample" + s)) for s in x[5]]
+            chk(
+                f"{x[0]}: BUILD_PRODUCTS agrees with .gitignore (all outputs ignored iff declared)",
+                all(is_ignored(p) for p in probes),
+                x[0] in BUILD_PRODUCTS,
+            )
+    else:
+        print(
+            "  SKIP BUILD_PRODUCTS vs .gitignore: the ignore rules are not usable here (counted, not passed)"
+        )
     print("action_key selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

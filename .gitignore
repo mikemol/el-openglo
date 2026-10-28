@@ -21,6 +21,8 @@ catalog/cotype/.delta-cache.json
 .palette-cache.json
 # W68's flock sidecar: serialises the cold solve; empty, per-machine
 .palette-cache.json.lock
+# W760's flock for the generators' shared output dirs (emitters.tree_lock): empty, per-machine
+.emitters.lock
 # W30's compiled fonts: keyed on font sha256 + method fingerprint, per-machine
 .font-cache/
 # check_ebuild's work dir: the index tree staged under sys-apps/sandbox. Under

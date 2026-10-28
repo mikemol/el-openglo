@@ -267,6 +267,37 @@ test_zero_outputs_is_not_also_admitted if {
 	count(action_key.admitted) == 0 with input as {"cases": [c]}
 }
 
+# ⚑ W763: A GITIGNORED BUILD PRODUCT ENTIRELY ABSENT IS "NOT BUILT HERE", NOT A BROKEN SEARCH.
+# A clean checkout (the gate's closure-only tree, a fresh clone) has none of the emitted
+# wallpapers, so the check used to DENY there and ADMIT once some other claim had generated
+# them (proved both ways on a clean worktree, W761): its verdict depended on scheduling. The
+# measurement says whether every output pattern is gitignored; only then is zero outputs a
+# withholding.
+test_cold_tree_gitignored_outputs_withheld_not_denied if {
+	c := object.union(_current, {"n_outputs": 0, "outputs_gitignored": true})
+	i := {"cases": [c]}
+	d := action_key.deny with input as i
+	w := action_key.withheld with input as i
+	count(d) == 0
+	count(w) == 1
+	count(action_key.admitted) == 0 with input as i
+}
+
+# the guard stays for what is TRACKED: its outputs absent is a broken search
+test_tracked_outputs_absent_still_denies if {
+	c := object.union(_current, {"n_outputs": 0, "outputs_gitignored": false})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 1
+}
+
+# ...and the flag excuses only an ENTIRELY absent set: a partly built one is still a build that
+# did not finish
+test_gitignored_flag_does_not_excuse_a_partial_set if {
+	c := object.union(_current, {"n_outputs": 3, "outputs_gitignored": true, "declared_absent": ["a-wallpaper.png"]})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 1
+}
+
 test_withheld_beside_admitted if {
 	c := object.union(_current, {"action": "schemes", "state": "unrecorded", "recorded_key": null})
 	i := {"cases": [_current, c]}

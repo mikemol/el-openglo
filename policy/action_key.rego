@@ -82,7 +82,26 @@ deny contains msg if {
 deny contains msg if {
 	some c in judged
 	c.n_outputs == 0
+	not built_elsewhere(c)
 	msg := sprintf("action %q declares outputs but none were found: the output domain is broken, not clean", [c.action])
+}
+
+# ⚑ W763: A GITIGNORED BUILD PRODUCT ENTIRELY ABSENT IS NOT A BROKEN SEARCH. The measurement
+# says whether every output pattern of the action is gitignored; a clean checkout (the gate's
+# closure-only tree, a fresh clone) then holds none of them until a generator has run, and the
+# verdict used to depend on whether some OTHER claim had generated them first (proved both ways on
+# a clean worktree, W761). Only the all-absent case is excused: a partly built set keeps its
+# declared_absent denial above, and a TRACKED output that is absent still denies.
+built_elsewhere(c) if {
+	truth.py(object.get(c, "outputs_gitignored", false))
+	c.n_outputs == 0
+}
+
+withheld contains msg if {
+	some c in judged
+	c.n_outputs == 0
+	built_elsewhere(c)
+	msg := sprintf("action %q: its outputs are gitignored build products and none are built in this tree: currency is not measurable here (generate them, then re-measure)", [c.action])
 }
 
 deny contains msg if {

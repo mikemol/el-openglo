@@ -899,32 +899,38 @@ def stage(root):
     # emitters.ORDER, the same list the @EMITTERS gate runs.
     import emitters
 
-    failed = [
-        (m, rc, err)
-        for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE)
-        if rc != 0
-    ]
-    if failed:
-        raise SystemExit(
-            "make_deb: emitter(s) failed before staging:\n  "
-            + "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed)
-        )
+    # ⚑ ONE STAGING AT A TIME READS THE GENERATORS' OUTPUT DIRS (W760): the emitters clear and
+    # rewrite plasma/, plasma-clock/ ... in the real tree, and the copies below read them; two
+    # stagings in parallel (the gate runs several) deleted each other's files mid-copy. The lock
+    # spans the generation AND every copy from the tree; the rest of the staging writes only
+    # into DEB_ROOT, which is private.
+    with emitters.tree_lock(ROOT):
+        failed = [
+            (m, rc, err)
+            for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE, hold=False)
+            if rc != 0
+        ]
+        if failed:
+            raise SystemExit(
+                "make_deb: emitter(s) failed before staging:\n  "
+                + "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed)
+            )
 
-    mapping = system_mapping() + helper_source_mapping()
-    missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]
-    if missing:
-        raise SystemExit(f"payload sources missing: {missing}")
-    for src, dst in mapping:
-        copy_into(src, dst)
+        mapping = system_mapping() + helper_source_mapping()
+        missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]
+        if missing:
+            raise SystemExit(f"payload sources missing: {missing}")
+        for src, dst in mapping:
+            copy_into(src, dst)
 
-    # Look-and-Feel packages (staged absolute sources; built after the rmtree)
-    lnf_mapping = build_lnf_packages()
-    for abs_src, dst in lnf_mapping:
-        d = os.path.join(DEB_ROOT, dst)
-        os.makedirs(os.path.dirname(d), exist_ok=True)
-        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
-        shutil.copytree(abs_src, d, dirs_exist_ok=True)
-    mapping = mapping + lnf_mapping
+        # Look-and-Feel packages (staged absolute sources; built after the rmtree)
+        lnf_mapping = build_lnf_packages()
+        for abs_src, dst in lnf_mapping:
+            d = os.path.join(DEB_ROOT, dst)
+            os.makedirs(os.path.dirname(d), exist_ok=True)
+            # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
+            shutil.copytree(abs_src, d, dirs_exist_ok=True)
+        mapping = mapping + lnf_mapping
 
     # the widget icon: a phosphor segment-clock rendered from each variant's
     # tokens (make_preview.icon_svg — a recovery gap until W25; its absence is a
