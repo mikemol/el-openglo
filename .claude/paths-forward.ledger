@@ -1442,3 +1442,12 @@
 2026-10-28T14:44:41Z  interrupt W772 minted    -         "Bound make_deb.stage lock hold time (or remove the lock by the root fix W766): after the tree_lock the slowest @QML-TARGET run took 1138.8 s wall against 215 s before, past the 600 s backstop that kills it with no account in the gate"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W762
 2026-10-28T14:46:38Z  interrupt W773 minted    -         "flake_hunt reports each claim CPU share of the CPU cap and WALL share of the wall backstop, the wall one labelled load-dependent (github-8f: a CPU-time margin is load-agnostic, a wall bar moves with the host)"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W762
 2026-10-28T15:16:50Z  status W771 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T15:44:46Z  interrupt W774 minted    -         "Answer mtools:W1925: send the benchmark of hand-fixed typing files as (file, before sha, after sha) at pushed commits"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=mtools:W1925
+2026-10-28T15:45:35Z  status W774 ready>done writer    "ready -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T16:04:14Z  interrupt W775 minted    -         "Measure what each STAGE generator writes into the real tree and which make_deb sources read it"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W766
+2026-10-28T16:04:14Z  interrupt W776 minted    -         "Give run_all and the STAGE generators one output root so a staging generates into a private directory"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W766
+2026-10-28T16:04:14Z  interrupt W777 minted    -         "Retire emitters.tree_lock: make_deb.stage reads the private root and no gated check writes the tracked tree"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W766
+2026-10-28T16:24:17Z  status W775 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T16:34:13Z  status W771 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T16:34:14Z  status W767 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T16:34:36Z  interrupt W778 minted    -         "Bib-side guard: every SHARDS entry of check_config_reach has a warrant that runs exactly that shard, so a dropped shard cannot vanish"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W771

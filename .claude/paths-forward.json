@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 773,
+  "counter": 778,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-19T23:30:08Z",
   "job_id": "d70a38f0",
@@ -19750,7 +19750,7 @@
     {
       "symbol": "W766",
       "title": "Root fix: make_deb --stage generates into a private copy so no gated check writes the real tree (check_tree_writes: QML-TARGET is the only one of 129)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W762"
       ],
@@ -19758,20 +19758,25 @@
         "file:make_deb.py",
         "file:emitters.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W775",
+        "W776",
+        "W777"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "",
       "evidence": "",
       "issued_at": "2026-10-28T12:57:39Z",
       "minted_during": "interrupt",
       "caused_by": "W762",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-28T16:04:14Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W767",
       "title": "Prove the @CONFIG-REACH first-run red: it failed once and passed on replay in the W759 refusal (invocation 7d9b56ed) and nothing explains it yet",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W762"
       ],
@@ -19780,14 +19785,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-28: 2026-10-28: started flake_hunt --key CONFIG-REACH -n 12 -j 4 under systemd-run MemoryMax=12G (first-run failures of the claim are what to capture, the way the QML-TARGET hunt captured make_deb --stage FileNotFoundError); reading scripts/check_config_reach.py for shared writers meanwhile. | 2026-10-28: 2026-10-28: flake_hunt --key CONFIG-REACH -n 12 -j 4: 0 of 12 FAILED (cpu 125.9-128.7 s each against a 600 s cap, slowest wall 578.8 s). So the claim does not fail against ITSELF under contention and a CPU-cap kill is ruled out. Hypothesis to force, not to wait for: the three first-run reds (QML-TARGET, CURRENCY, CONFIG-REACH) are one cause, the single tracked-tree writer (check_tree_writes: QML-TARGET via make_deb --stage -> emitters.run_all(ROOT)) rewriting files the other two read (EL-*.colors/.colorscheme feed theme_probe and the renders; CURRENCY keys them). Forced interleave started: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 runs as the writer (systemd unit w767-writer). A CONFIG-REACH failure there gives the first-run account the gate never kept. | 2026-10-28: 2026-10-28: forced interleave result: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 ran as the writer for about 12 min: 0 of 6 FAILED (cpu 122.8 to 124.2 s, slowest wall 537.4 s). The writer-vs-reader hypothesis is NOT supported by it (and an overlap of unknown depth is not a proof either way). What the numbers DO show: the claim takes 537 to 579 s of wall standalone against paperkit wall backstop of 600 s (paperkit/resolver.py:433), so any slowdown of 4 to 12 percent under the gate parallel load kills it with rc None -> FAIL and no account. That is the named mechanism (W762 evidence). Fix by line 25: shard per mount. | 2026-10-28: 2026-10-28: the failing-before reading is on W771 (CONFIG-REACH killed at --wall 300 with no account of its own, wall, load-dependent). W767 (prove the CONFIG-REACH red) is answered by the wall-backstop mechanism plus that reading; the load-agnostic witness remains paperkit:W567.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-28: 2026-10-28: started flake_hunt --key CONFIG-REACH -n 12 -j 4 under systemd-run MemoryMax=12G (first-run failures of the claim are what to capture, the way the QML-TARGET hunt captured make_deb --stage FileNotFoundError); reading scripts/check_config_reach.py for shared writers meanwhile. | 2026-10-28: 2026-10-28: flake_hunt --key CONFIG-REACH -n 12 -j 4: 0 of 12 FAILED (cpu 125.9-128.7 s each against a 600 s cap, slowest wall 578.8 s). So the claim does not fail against ITSELF under contention and a CPU-cap kill is ruled out. Hypothesis to force, not to wait for: the three first-run reds (QML-TARGET, CURRENCY, CONFIG-REACH) are one cause, the single tracked-tree writer (check_tree_writes: QML-TARGET via make_deb --stage -> emitters.run_all(ROOT)) rewriting files the other two read (EL-*.colors/.colorscheme feed theme_probe and the renders; CURRENCY keys them). Forced interleave started: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 runs as the writer (systemd unit w767-writer). A CONFIG-REACH failure there gives the first-run account the gate never kept. | 2026-10-28: 2026-10-28: forced interleave result: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 ran as the writer for about 12 min: 0 of 6 FAILED (cpu 122.8 to 124.2 s, slowest wall 537.4 s). The writer-vs-reader hypothesis is NOT supported by it (and an overlap of unknown depth is not a proof either way). What the numbers DO show: the claim takes 537 to 579 s of wall standalone against paperkit wall backstop of 600 s (paperkit/resolver.py:433), so any slowdown of 4 to 12 percent under the gate parallel load kills it with rc None -> FAIL and no account. That is the named mechanism (W762 evidence). Fix by line 25: shard per mount. | 2026-10-28: 2026-10-28: the failing-before reading is on W771 (CONFIG-REACH killed at --wall 300 with no account of its own, wall, load-dependent). W767 (prove the CONFIG-REACH red) is answered by the wall-backstop mechanism plus that reading; the load-agnostic witness remains paperkit:W567. | 2026-10-28: 2026-10-28: answered. The @CONFIG-REACH first-run red has a named mechanism (paperkit wall backstop CHECK_TIMEOUT = 600 s killing a claim that took 537 to 579 s standalone, rc None -> FAIL with no account) and a witness that failed before and passes after: the whole claim killed at --wall 300, the shards landed as b6ad782 pass the same cap (wall, load-dependent; the load-agnostic witness is paperkit:W567). Writer-versus-reader was tested and not supported.",
       "issued_at": "2026-10-28T12:57:40Z",
       "minted_during": "interrupt",
       "caused_by": "W762",
-      "last_worked": "2026-10-28T14:50:23Z",
+      "last_worked": "2026-10-28T16:34:14Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261028T163414Z"
     },
     {
       "symbol": "W768",
@@ -19851,7 +19856,7 @@
     {
       "symbol": "W771",
       "title": "Shard @CONFIG-REACH per mount so each shard stays under 50 percent of the 600 s wall backstop (loop prompt line 25): it takes 537 to 579 s standalone today and is killed with no account the first time the gate load adds 4 to 12 percent",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W762"
       ],
@@ -19860,14 +19865,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read the two shard readings; run check_config_reach --selftest and time it; closure witness; then land. Card the bib-side guard and the CONFIG-REACH-SEES wall measurement.",
-      "evidence": "2026-10-28: 2026-10-28 FAILING-BEFORE READING (wall, load-dependent; interim until paperkit:W567): flake_hunt --key CONFIG-REACH -n 1 -j 1 --wall 300 -> 1 of 1 FAILED: signal SIGKILL at wall 300.0 s, the account is ONLY the hunt own line \"KILLED by the wall backstop at 300 s (paperkit run_capped: rc None -> FAIL, no account)\" (1 line captured): a wall-killed check leaves no output of its own, the same nothing the gate account store holds for QML-TARGET and CONFIG-REACH. The shard must pass the same command per mount (each shard well under 300 s wall standalone). Caveat on the tool: the killed run reports 0.1 s CPU because only the wrapper is reaped by wait4; the service-level CPU was 77.9 s. | 2026-10-28: 2026-10-28: scripts/check_config_reach.py measure(only=None) and main take mount operands: --json clock|marquee|wallpaper (the registry names; an unknown mount is refused, exit 2, listing the registry; an operand without --json is refused). The policy needs no change (it judges the cases it is given; R0 still denies an empty shard). So a shard claim is tool:opa_gate.py config_reach MOUNT (opa_gate passes operands to --json). Not yet landed, no warrant shards yet, no selftest arm yet. Timing each shard standalone with flake_hunt (marquee first, task b3n36bs8j) to see which mount carries the 537 to 579 s. | 2026-10-28: 2026-10-28 SHARD WALLS, standalone (flake_hunt, wall, load-dependent): marquee 218.9 s wall / 72.0 s CPU; clock 137.4 s / 27.0 s; wallpaper 127.6 s / 25.9 s; the whole claim 537 to 579 s. So two claims, not three: CONFIG-REACH = clock + wallpaper (about 265 s, 44 percent of the 600 s backstop) and CONFIG-REACH-MARQUEE (219 s, 36 percent), both under the 50 percent bar. warrants.bib edited: CONFIG-REACH check is now opa_gate.py config_reach clock wallpaper (its claim text no longer says the marquee is unmeasured), new CONFIG-REACH-MARQUEE (rests-on CONFIG-PAGE, check opa_gate.py config_reach marquee); WORKLIST.md projected. check_config_reach.py: SHARDS = ((\"clock\",\"wallpaper\"),(\"marquee\",)) declared, selftest arms: shards partition the registry exactly, unknown mount refused (2), operand without --json refused (2). RUNNING: flake_hunt --key CONFIG-REACH -n 1 --wall 300 (the passing reading for the same command that was killed whole), then the marquee claim, then the full selftest. NOT done: the bib-side guard that every SHARDS entry has a warrant (the selftest checks the declaration, not the bib), and CONFIG-REACH-SEES (check_config_reach --selftest) wall is unmeasured against the same backstop.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-28: 2026-10-28 FAILING-BEFORE READING (wall, load-dependent; interim until paperkit:W567): flake_hunt --key CONFIG-REACH -n 1 -j 1 --wall 300 -> 1 of 1 FAILED: signal SIGKILL at wall 300.0 s, the account is ONLY the hunt own line \"KILLED by the wall backstop at 300 s (paperkit run_capped: rc None -> FAIL, no account)\" (1 line captured): a wall-killed check leaves no output of its own, the same nothing the gate account store holds for QML-TARGET and CONFIG-REACH. The shard must pass the same command per mount (each shard well under 300 s wall standalone). Caveat on the tool: the killed run reports 0.1 s CPU because only the wrapper is reaped by wait4; the service-level CPU was 77.9 s. | 2026-10-28: 2026-10-28: scripts/check_config_reach.py measure(only=None) and main take mount operands: --json clock|marquee|wallpaper (the registry names; an unknown mount is refused, exit 2, listing the registry; an operand without --json is refused). The policy needs no change (it judges the cases it is given; R0 still denies an empty shard). So a shard claim is tool:opa_gate.py config_reach MOUNT (opa_gate passes operands to --json). Not yet landed, no warrant shards yet, no selftest arm yet. Timing each shard standalone with flake_hunt (marquee first, task b3n36bs8j) to see which mount carries the 537 to 579 s. | 2026-10-28: 2026-10-28 SHARD WALLS, standalone (flake_hunt, wall, load-dependent): marquee 218.9 s wall / 72.0 s CPU; clock 137.4 s / 27.0 s; wallpaper 127.6 s / 25.9 s; the whole claim 537 to 579 s. So two claims, not three: CONFIG-REACH = clock + wallpaper (about 265 s, 44 percent of the 600 s backstop) and CONFIG-REACH-MARQUEE (219 s, 36 percent), both under the 50 percent bar. warrants.bib edited: CONFIG-REACH check is now opa_gate.py config_reach clock wallpaper (its claim text no longer says the marquee is unmeasured), new CONFIG-REACH-MARQUEE (rests-on CONFIG-PAGE, check opa_gate.py config_reach marquee); WORKLIST.md projected. check_config_reach.py: SHARDS = ((\"clock\",\"wallpaper\"),(\"marquee\",)) declared, selftest arms: shards partition the registry exactly, unknown mount refused (2), operand without --json refused (2). RUNNING: flake_hunt --key CONFIG-REACH -n 1 --wall 300 (the passing reading for the same command that was killed whole), then the marquee claim, then the full selftest. NOT done: the bib-side guard that every SHARDS entry has a warrant (the selftest checks the declaration, not the bib), and CONFIG-REACH-SEES (check_config_reach --selftest) wall is unmeasured against the same backstop. | 2026-10-28: 2026-10-28: LANDED as b6ad782 (7 paths, HEAD matches the ask). The shard held the passing reading: CONFIG-REACH (clock + wallpaper) 266.4 s wall and CONFIG-REACH-MARQUEE 234.4 s wall, both admitted inside the same --wall 300 that killed the whole claim (wall, load-dependent). Done means each claim stays under half of paperkit wall backstop standalone; it does NOT close W762: paperkit:W567 removes the silent wall-kill, and no bib-side guard yet checks that every SHARDS entry has a warrant.",
       "issued_at": "2026-10-28T14:44:34Z",
       "minted_during": "interrupt",
       "caused_by": "W767",
-      "last_worked": "2026-10-28T15:29:05Z",
+      "last_worked": "2026-10-28T16:34:13Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261028T163413Z"
     },
     {
       "symbol": "W772",
@@ -19882,12 +19887,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Measure the lock hold time: time emitters.tree_lock acquire-to-release inside make_deb.stage per run (a temporary print or a kept account), before deciding to narrow the locked region to the generation alone.",
+      "evidence": "2026-10-28: 2026-10-28: a correction to how W772 was framed. The generation inside the lock is cheap: all six STAGE generators run in 5.7 s wall (check_tree_writes --generators). So the 215 s -> 1138.8 s rise of the slowest @QML-TARGET run under the tree_lock (16 runs at j=4) is NOT explained by the generation; the rest of what the lock holds (system_mapping and helper copies, build_lnf_packages) or the CPU contention must account for it, and which it is has not been measured.",
       "issued_at": "2026-10-28T14:44:41Z",
       "minted_during": "interrupt",
       "caused_by": "W762",
-      "last_worked": null,
+      "last_worked": "2026-10-28T16:25:16Z",
       "ticks_blocked": 0
     },
     {
@@ -19905,6 +19910,118 @@
       "issued_at": "2026-10-28T14:46:38Z",
       "minted_during": "interrupt",
       "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W774",
+      "title": "Answer mtools:W1925: send the benchmark of hand-fixed typing files as (file, before sha, after sha) at pushed commits",
+      "status": "done",
+      "enables": [
+        "mtools:W1925"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-28: 2026-10-28: sent mtools-ad the twelve hand-fixed files as (file, before sha, after sha) read from git log: check_modes, check_cotype_coherence, capture_baseline, identify, plasma_rewrite, check_wall_limits, cotype_index, check_plasma_air, extract_template, svg_setdiff, drop_lines, catalog/fixtures/deps/undeclared.py (all on origin/main); caveats sent: house count not pycodemod count, several afters are not annotation-only, undeclared.py is deliberately wider. Not re-verified that each commit touches one file (read the subjects).",
+      "issued_at": "2026-10-28T15:44:46Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools:W1925",
+      "last_worked": "2026-10-28T15:45:35Z",
+      "ticks_blocked": 0,
+      "completed": "20261028T154535Z"
+    },
+    {
+      "symbol": "W775",
+      "title": "Measure what each STAGE generator writes into the real tree and which make_deb sources read it",
+      "status": "working",
+      "enables": [
+        "W766",
+        "W776"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Land (small), then W776: the output root.",
+      "evidence": "2026-10-28: 2026-10-28: scripts/check_tree_writes.py gains untracked(root) and generator_writes(root, modules): each emitters.STAGE generator is run ALONE as __main__ in the scratch copy (STAGE order, not restored between), reporting its rc, the TRACKED files it changes and the untracked or ignored files it creates; new flag --generators [--json]. Run started under systemd-run MemoryMax=8G (task b1uzhlh42). Not yet: a selftest arm for the new mode, and the join to make_deb.system_mapping sources (the readers) that W775 asks for. | 2026-10-28: 2026-10-28 TABLE (check_tree_writes --generators, 5.7 s wall, each STAGE generator run alone in a scratch copy, n of m = 6 of 6 write the real tree): make_schemes rc 0 TRACKED 12 (EL-<variant>.colors and .colorscheme x6) and 5 new under __pycache__; make_aurorae 0 tracked, 43 new (aurorae/, __pycache__); make_plasma 0 tracked, 48 new (plasma/); make_wallpaper 0 tracked, 22 new (the 12 EL-*-wallpaper.png/.svg, preview.png, .build/, __pycache__); make_clock TRACKED 10 (plasma-clock/org.el.segclock/{metadata.json, contents/ui/*.qml x8, contents/config/*}) and 6 new; make_font 0 tracked, 8 new (fonts/, __pycache__). So the TRACKED writers are exactly make_schemes and make_clock (what check_tree_writes named under QML-TARGET) and the gitignored shared dirs the stagings clear and rewrite are aurorae/, plasma/, fonts/, the wallpapers and .build/. Still open: the join to make_deb.system_mapping sources (the readers) and a selftest arm. | 2026-10-28: 2026-10-28 DONE LOCALLY: check_tree_writes --generators now joins each written path to the make_deb mapping sources that read it (readers(paths, sources): a source reads a path when it is that path or a directory above it; the unread paths are listed, never dropped). Measured on the real tree, 6.2 s: 6 of 6 STAGE generators write the real tree; 124 of 154 written paths are read by a make_deb mapping source (make_schemes 12 tracked EL-*.colors/.colorscheme -> usr/share/color-schemes and konsole; make_plasma 48 of 48 -> plasma/desktoptheme/<variant>; make_aurorae 42 of 43; make_clock 10 tracked -> plasma-clock/org.el.segclock; make_font 6 of 8; make_wallpaper 6 of 22: the 12 SVGs, preview.png, .build/ and bytecode are written and not shipped). So the SHARED READ SURFACE a private output root must cover is: EL-*.colors/.colorscheme (tracked, 12), aurorae/themes, plasma/desktoptheme, plasma-clock/org.el.segclock (tracked, 10), fonts/, and the 6 wallpaper PNGs. selftest 12 ok (2 new arms: a generator run alone in a fixture repo is attributed its tracked rewrite and new file; readers on a fixture), closure witness arm1 pass arm2 refused.",
+      "issued_at": "2026-10-28T16:04:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "W766",
+      "last_worked": "2026-10-28T16:54:44Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/check_tree_writes.py"
+      ],
+      "size_class": "small",
+      "completed": null
+    },
+    {
+      "symbol": "W776",
+      "title": "Give run_all and the STAGE generators one output root so a staging generates into a private directory",
+      "status": "ready",
+      "enables": [
+        "W766",
+        "W777"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After W775 names the written paths: emitters.run_all takes an out root (default the real root, so nothing else changes) and each STAGE generator writes its cwd-relative outputs under it; make_deb.stage passes a private temp root. Witness first, failing on the current tree: a staging run with git status read before and after must show the tracked tree untouched; today it rewrites EL-*.colors, EL-*.colorscheme and plasma-clock/** (check_tree_writes). Then the same make_deb --stage output (diff of the staged install tree) before and after the change.",
+      "evidence": "",
+      "issued_at": "2026-10-28T16:04:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "W766",
+      "last_worked": "2026-10-28T16:04:30Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "emitters.py",
+        "make_deb.py"
+      ],
+      "size_class": "medium"
+    },
+    {
+      "symbol": "W777",
+      "title": "Retire emitters.tree_lock: make_deb.stage reads the private root and no gated check writes the tracked tree",
+      "status": "ready",
+      "enables": [
+        "W766"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After W776 lands: delete emitters.tree_lock and its use in make_deb.stage (and the check_emitters_run arms for it, replaced by the W768 forced-interleave proof if the lock is still needed anywhere). Witness: scripts/check_tree_writes.py reports 0 of 129 claims write the tracked tree, and flake_hunt --key QML-TARGET -n 4 -j 4 shows the wall back near the pre-lock 215 s (W772). Prerequisite already met: @CURRENCY is self-sufficient on a clean tree (W763, landed 9d5dd20).",
+      "evidence": "",
+      "issued_at": "2026-10-28T16:04:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "W766",
+      "last_worked": "2026-10-28T16:04:32Z",
+      "ticks_blocked": 0,
+      "manifest": [
+        "emitters.py",
+        "make_deb.py",
+        "scripts/check_emitters_run.py"
+      ],
+      "size_class": "small"
+    },
+    {
+      "symbol": "W778",
+      "title": "Bib-side guard: every SHARDS entry of check_config_reach has a warrant that runs exactly that shard, so a dropped shard cannot vanish",
+      "status": "ready",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:scripts/check_config_reach.py",
+        "file:catalog/worklist/warrants.bib"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T16:34:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W771",
       "last_worked": null,
       "ticks_blocked": 0
     }

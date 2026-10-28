@@ -266,6 +266,86 @@ def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
     }
 
 
+def untracked(root):
+    """Every untracked path of `root`, gitignored ones included (the emitted dirs are ignored)."""
+    # population: UNTRACKED files (--others, ignored included) of the scratch copy of a real repo
+    out = subprocess.run(
+        ["git", "-C", root, "ls-files", "-z", "--others"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8")
+    return sorted(p for p in out.split("\0") if p)
+
+
+def readers(paths, sources):
+    """({path: [source, ...]}, [path]) — which make_deb mapping sources read each written path: a
+    source reads a path when it is that path or a directory above it. The second value is the paths
+    NO source reads (caches and bytecode a staging writes and never ships), listed, never dropped."""
+    attributed, orphans = {}, []
+    for p in paths:
+        hit = sorted(s for s in sources if p == s or p.startswith(s.rstrip("/") + "/"))
+        if hit:
+            attributed[p] = hit
+        else:
+            orphans.append(p)
+    return attributed, orphans
+
+
+def generator_writes(root=ROOT, modules=None, timeout=TIMEOUT):
+    """{module: {rc, tracked, new}} for each emitters.STAGE generator run ALONE as __main__ in a
+    scratch copy, from the copy's root (W775): which TRACKED files its run changes, and which
+    untracked or ignored files it creates. The generators run in STAGE order and are not restored
+    between, so a later one reads the earlier ones' outputs, as make_deb.stage runs them.
+    WEAKNESS: a generator that rewrites a file with the same bytes shows as tracked only if its
+    mtime or inode moved, which atomic_write always does; one that creates nothing new and
+    changes nothing is listed with empty lists, never dropped."""
+    if modules is None:
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        import emitters
+
+        chosen = list(emitters.STAGE)
+    else:
+        chosen = list(modules)
+    env = dict(
+        os.environ,
+        PATH=os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", ""),
+        OPENBLAS_NUM_THREADS="1",
+    )
+    work = os.environ.get("EL_TREE_WRITES_DIR", os.path.join(root, ".tree-writes"))
+    os.makedirs(work, exist_ok=True)
+    out = {}
+    with tempfile.TemporaryDirectory(prefix="el-", dir=work) as parent:
+        copy = make_copy(root, parent)
+        try:
+            paths = tracked(copy)
+            for mod in chosen:
+                before = fingerprint(copy, paths)
+                had = set(untracked(copy))
+                try:
+                    r = subprocess.run(
+                        [sys.executable, mod + ".py"],
+                        cwd=copy,
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout,
+                        check=False,
+                    )
+                    rc = r.returncode
+                except subprocess.TimeoutExpired:
+                    rc = None
+                after = fingerprint(copy, paths)
+                out[mod] = {
+                    "rc": rc,
+                    "tracked": sorted(p for p in paths if before[p] != after[p]),
+                    "new": sorted(set(untracked(copy)) - had),
+                }
+        finally:
+            drop_copy(root, copy)
+    return out
+
+
 def main(argv):
     args, only, i = argv[1:], None, 0
     flags = set()
@@ -278,11 +358,45 @@ def main(argv):
             only = set(args[i + 1].split(","))
             i += 2
             continue
-        if a not in ("--json", "--list"):
+        if a not in ("--json", "--list", "--generators"):
             print(f"check_tree_writes: unknown flag {a!r}", file=sys.stderr)
             return 2
         flags.add(a)
         i += 1
+    if "--generators" in flags:
+        doc = generator_writes()
+        if "--json" in flags:
+            print(json.dumps(doc, indent=1))
+            return 0
+        import make_deb
+
+        sources = [
+            s for s, _d in make_deb.system_mapping() + make_deb.helper_source_mapping()
+        ]
+        n_paths = n_read = 0
+        for mod, rec in doc.items():
+            both = rec["tracked"] + rec["new"]
+            attributed, orphans = readers(both, sources)
+            n_paths += len(both)
+            n_read += len(attributed)
+            tops = sorted({p.split("/", 1)[0] for p in rec["new"]})
+            print(
+                f"  {mod:16s} rc {rec['rc']}  tracked changed {len(rec['tracked'])}  "
+                f"new {len(rec['new'])}  read by a mapping source {len(attributed)}, "
+                f"by none {len(orphans)}  (new under {', '.join(tops) or '-'})"
+            )
+            for p in rec["tracked"]:
+                print(
+                    f"      tracked {p}  <- {', '.join(attributed.get(p, ['NO SOURCE']))}"
+                )
+        written = sum(1 for r in doc.values() if r["tracked"] or r["new"])
+        print(
+            f"check_tree_writes: {written} of {len(doc)} STAGE generator(s) write the real "
+            f"tree; {n_read} of {n_paths} written path(s) are read by a make_deb mapping "
+            f"source (the rest are written and not shipped: bytecode, build caches, SVG and "
+            f"preview intermediates)"
+        )
+        return 0
     if "--list" in flags:
         for key, check in claims():
             cmd, why = resolve(check)
@@ -396,6 +510,32 @@ def _selftest():
             check=False,
         ).stdout
         see("the scratch worktree was removed", len(wl.splitlines()) == 1)
+    # W775: a generator run alone is attributed its tracked rewrite and its new file, and nothing else
+    with tempfile.TemporaryDirectory() as repo:
+        stub = (
+            'open("out.txt", "w").write("B\\n")\nopen("new.txt", "w").write("N\\n")\n'
+        )
+        for name, body in (("make_stub.py", stub), ("out.txt", "A\n")):
+            with open(
+                os.path.join(repo, name), "w"
+            ) as fh:  # atomic-write: exempt — selftest fixture
+                fh.write(body)
+        for c in (
+            ["init", "-q"],
+            ["add", "."],
+            ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "x"],
+        ):
+            subprocess.run(["git", "-C", repo] + c, check=True)
+        gen = generator_writes(repo, ["make_stub"])["make_stub"]
+        see(
+            "a generator run alone: its tracked rewrite and its new file, attributed (W775)",
+            (gen["rc"], gen["tracked"], gen["new"]) == (0, ["out.txt"], ["new.txt"]),
+        )
+    got, orphans = readers(["a/b.txt", "c.txt", "d/e"], ["a", "c.txt"])
+    see(
+        "readers: a directory source reads what is under it, a file its own path, an unread path is listed",
+        (got, orphans) == ({"a/b.txt": ["a"], "c.txt": ["c.txt"]}, ["d/e"]),
+    )
     print("check_tree_writes selftest:", "PASS" if ok else "FAIL")
     return ok
 
