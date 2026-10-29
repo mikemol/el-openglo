@@ -63,12 +63,31 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 CLOSURES_BZL = os.path.join(ROOT, "closures.bzl")
 
 
-def stale_closures(closures, roster, names):
+# ⚑ W779: A DECLARED JUDGEMENT, NOT A SILENCE. stale_closures infers "reads the roster" from a closure
+# holding every OTHER roster template, which is wrong for a stage that holds them for another reason
+# (its docstring says so). Each entry is {stage: {component: the witness that shows it is not needed}};
+# the claim is falsifiable by the gate itself, since //:closure_witness runs the stage in a tree holding
+# only its closure, so a component the stage came to need would fail it. A dead entry (a stage with no
+# closure, or a name not in the roster) is refused by the selftest.
+ROSTER_EXEMPT = {
+    "scripts/check_marquee_live.py": {
+        "SegmentChar.qml": (
+            "check_closure --witness scripts/check_marquee_live.py, 2026-10-29: arm 1 pass (closure "
+            "sufficient), arm 2 refused, and a fresh --write-narrow observed 43 files none of them "
+            "SegmentChar.qml: the marquee does not read the segment component"
+        ),
+    },
+}
+
+
+def stale_closures(closures, roster, names, exempt=None):
     """The closure keys that hold EVERY roster template but `names` and lack at least one of `names`.
 
     closures: {key: [files]} (check_closure.load_closures); roster: the bare file names of every shared
     component; names: the new component(s). A whole-tree closure (["*"]) holds everything and is never
-    stale. Pure, so the selftest drives it without a tree."""
+    stale. `exempt` ({stage: {component: reason}}, ROSTER_EXEMPT) names the lacks a stage is declared
+    not to need: a stage is stale only for a lack that is not declared. Pure, so the selftest drives it
+    without a tree."""
     new = {f"templates/{n}" for n in names}
     siblings = {f"templates/{n}" for n in roster} - new
     out = []
@@ -76,7 +95,8 @@ def stale_closures(closures, roster, names):
         if files == ["*"]:
             continue
         held = set(files)
-        if siblings <= held and not new <= held:
+        declared = {f"templates/{n}" for n in (exempt or {}).get(key, {})}
+        if siblings <= held and (new - held) - declared:
             out.append(key)
     return out
 
@@ -110,7 +130,7 @@ def closures_report(names):
     closures = stored_closures()
     if not closures:
         return [], 0, "closures.bzl holds no closure: a broken read, not a clean tree"
-    return stale_closures(closures, roster, names), len(closures), None
+    return stale_closures(closures, roster, names, ROSTER_EXEMPT), len(closures), None
 
 
 SHIPPED_SUFFIXES = (".qml", ".js")
@@ -629,7 +649,30 @@ def plan_report(names):
     return 0
 
 
-def main(argv):
+def main(argv, dispatch=None):
+    """The command, with an operating-system failure NAMED (W755).
+
+    A land died in posix_spawn of /usr/bin/git with Errno 38 and, in the same window, the shell
+    itself returned ENOSYS spawning bash; the only record was a traceback and the evidence is
+    gone with the host's reboot. An OSError from any of the spawn or read sites below is a fact
+    about the machine, so it prints the errno number and symbolic name and the path it concerned,
+    and exits 7 (CANNOT_RUN in the fleet exit table), never a bare traceback or a rerun."""
+    import errno
+
+    try:
+        return (dispatch or _dispatch)(argv)
+    except OSError as e:
+        name = errno.errorcode.get(e.errno or 0, "?")
+        print(
+            f"land_template: CANNOT RUN: an operating-system call failed: errno {e.errno} ({name}) "
+            f"{e.strerror} on {e.filename or '(no path)'}; this is the machine, not the tree: "
+            "keep this line, do not rerun past it",
+            file=sys.stderr,
+        )
+        return 7
+
+
+def _dispatch(argv):
     args = argv[1:]
     flags = [a for a in args if a.startswith("--")]
     for a in flags:
@@ -746,6 +789,37 @@ def _selftest():
         ["j", "k"],
     )
     chk("no closures is an empty answer", stale_closures({}, roster, ["New.qml"]), [])
+    import io
+
+    def enosys(_argv):
+        raise OSError(38, "Function not implemented", "/usr/bin/git")
+
+    saved_err = sys.stderr
+    sys.stderr = io.StringIO()
+    try:
+        rc = main(["land_template"], dispatch=enosys)
+        said = sys.stderr.getvalue()
+    finally:
+        sys.stderr = saved_err
+    chk(
+        "an ENOSYS spawn failure names errno 38, ENOSYS and the path, and exits 7 (W755)",
+        (rc, "errno 38 (ENOSYS)" in said, "/usr/bin/git" in said),
+        (7, True, True),
+    )
+    chk("a clean dispatch is returned as it is", main(["x"], dispatch=lambda _a: 3), 3)
+    declared = {"reads_roster_lacks_new": {"New.qml": "witness: not needed"}}
+    chk(
+        "a lack declared in the exemption table is not stale (W779)",
+        stale_closures(closures, roster, ["New.qml"], declared),
+        [],
+    )
+    chk(
+        "...but a declared lack of ANOTHER component hides nothing",
+        stale_closures(
+            closures, roster, ["New.qml"], {"reads_roster_lacks_new": {"A.qml": "x"}}
+        ),
+        ["reads_roster_lacks_new"],
+    )
     # the REAL tree: the roster is declared, the closures are read, and every roster
     # component is current (a stale closure here is exactly what the next landing
     # would be refused for)
@@ -753,11 +827,22 @@ def _selftest():
     chk("the roster declares components", len(r) > 0, True)
     real = stored_closures()
     chk("closures.bzl holds closures", len(real) > 0, True)
-    behind = {n: stale_closures(real, r, [n]) for n in r}
+    behind = {n: stale_closures(real, r, [n], ROSTER_EXEMPT) for n in r}
     chk(
         "every stored closure is current for every roster component",
         {n: ks for n, ks in behind.items() if ks},
         {},
+    )
+    dead = [
+        (key, n)
+        for key, names in ROSTER_EXEMPT.items()
+        for n in names
+        if key not in real or n not in r
+    ]
+    chk(
+        "every declared exemption names a stored closure and a roster component",
+        dead,
+        [],
     )
     porcelain = (
         " M templates/marquee-main.qml\n"
