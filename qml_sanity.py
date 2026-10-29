@@ -118,8 +118,16 @@ def render_nonempty(surface, variant="EL-Openglo", min_lit=20):
         )
     with tempfile.TemporaryDirectory() as td:
         out = os.path.join(td, "r.png")
+        # ⚑ W780: the settled harness, not the fixed-1200-ms-after-the-window default. This gate
+        # staged 17 at once and 4 grabbed a frame before the clock had drawn (`0 lit px`): the
+        # default times the grab from the WINDOW, the settled one from the subject's LOAD.
         rc, err = RQ.render(
-            surface, variant, 400, 48 if surface == "clock" else 200, out
+            surface,
+            variant,
+            400,
+            48 if surface == "clock" else 200,
+            out,
+            harness=RQ.HARNESS_SETTLED,
         )
         if not os.path.exists(out):
             # ⚑ NO PICTURE AT ALL is the RUNNER failing (no scene graph under a
