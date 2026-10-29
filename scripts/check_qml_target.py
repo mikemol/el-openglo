@@ -204,6 +204,18 @@ def run_check(src, entry, out, host, luthen):
     return verdict, r.returncode, (r.stderr or r.stdout)[-300:]
 
 
+# The runner exits that mean "it could not evaluate": a fact about the machine, never a verdict (W764).
+# 7 is CANNOT_RUN in the fleet exit table (mtools corpus/exit-table.json); 2 is what luthen-observability's
+# qml_check emits TODAY (luthen-observability:W1713) and is USAGE/BLOCK in that table. Keep both until
+# luthen-observability:W1714 moves qml_check to 7, then drop 2.
+RUNNER_CANNOT_RUN = (2, 7)
+
+
+def runner_withheld(rc, verdict):
+    """True when the runner's exit code `rc` (or an empty `verdict`) says it could not run."""
+    return rc in RUNNER_CANNOT_RUN or not verdict
+
+
 def measure(stage_dir=None):
     cases = []
     with tempfile.TemporaryDirectory() as td:
@@ -238,7 +250,7 @@ def measure(stage_dir=None):
             else:
                 out = os.path.join(td, "out-" + pkg)
                 verdict, rc, tail = run_check(d, entry, out, host_of(kind), luthen)
-                if rc == 2 or not verdict:
+                if runner_withheld(rc, verdict):
                     case["withheld"] = f"qml_check could not run (exit {rc}): {tail}"
                 else:
                     case.update(
@@ -358,6 +370,20 @@ def _selftest():
         "in_group is true for a group the process holds and false for one that is not there",
         (held is None or in_group(held), in_group("no-such-group-zz9")),
         (True, False),
+    )
+    # W764: the runner's "could not run" exits are withheld whether it speaks the fleet code (7) or
+    # luthen's current one (2); a refused QML verdict at exit 1 and a clean one at 0 stay results.
+    refused = {"state": "refused", "step": "lint"}
+    chk(
+        "exits 7 and 2 are withheld (CANNOT_RUN now and luthen's current code), 1 and 0 are results, no verdict is withheld",
+        [
+            runner_withheld(7, {}),
+            runner_withheld(2, refused),
+            runner_withheld(1, refused),
+            runner_withheld(0, {"state": "ok"}),
+            runner_withheld(1, {}),
+        ],
+        [True, True, False, False, True],
     )
     why = runner_unavailable()
     if why:
