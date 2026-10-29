@@ -205,10 +205,28 @@ def run_check(src, entry, out, host, luthen):
 
 
 # The runner exits that mean "it could not evaluate": a fact about the machine, never a verdict (W764).
-# 7 is CANNOT_RUN in the fleet exit table (mtools corpus/exit-table.json); 2 is what luthen-observability's
-# qml_check emits TODAY (luthen-observability:W1713) and is USAGE/BLOCK in that table. Keep both until
-# luthen-observability:W1714 moves qml_check to 7, then drop 2.
-RUNNER_CANNOT_RUN = (2, 7)
+# 7 is CANNOT_RUN in the fleet exit table (mtools corpus/exit-table.json). luthen-observability's qml_check
+# emitted 2 (USAGE/BLOCK in that table) until luthen-observability:W1714 (85603ff1) moved every cannot-run
+# path to 7; this reads the pin that carries it (catalog/luthen_pin.json), so 2 is dropped (W769). An exit 2
+# with a verdict is now a RESULT, and one with none is still withheld by runner_withheld's empty-verdict rule.
+RUNNER_CANNOT_RUN = (7,)
+
+
+def timing_report(timings, n_cases):
+    """One line saying where a run's wall went: the staging, then the qml_check runs (W783).
+
+    `timings` is measure's list of (what, seconds); n_cases is how many cases it measured, so the
+    count of runs is read as `n of m` and a case sharing a tree digest shows as not run."""
+    stage_s = sum(s for what, s in timings if what == "stage")
+    built = sorted(((s, what) for what, s in timings if what != "stage"), reverse=True)
+    total = sum(s for s, _ in built)
+    median = built[len(built) // 2][0] if built else 0.0
+    slow = ", ".join(f"{what} {s:.1f} s" for s, what in built[:3]) or "none"
+    return (
+        f"check_qml_target: stage {stage_s:.1f} s; {len(built)} of {n_cases} case(s) ran a "
+        f"qml_check ({n_cases - len(built)} share a tree digest); qml_check total {total:.1f} s, "
+        f"median {median:.1f} s; slowest: {slow}"
+    )
 
 
 def runner_withheld(rc, verdict):
@@ -216,12 +234,20 @@ def runner_withheld(rc, verdict):
     return rc in RUNNER_CANNOT_RUN or not verdict
 
 
-def measure(stage_dir=None):
+def measure(stage_dir=None, timings=None):
+    """The cases. `timings`, a list, collects (what, seconds): ("stage", s) for the staging and
+    (package, s) for each qml_check actually RUN (a case sharing a tree digest runs none), so one
+    run says where its wall goes (W783)."""
+    import time
+
     cases = []
     with tempfile.TemporaryDirectory() as td:
         sd = stage_dir or os.path.join(td, "stage")
         if stage_dir is None:
+            started = time.monotonic()
             stage(sd)
+            if timings is not None:
+                timings.append(("stage", time.monotonic() - started))
         why = runner_unavailable()
         luthen = None
         if not why:
@@ -249,7 +275,10 @@ def measure(stage_dir=None):
                 )
             else:
                 out = os.path.join(td, "out-" + pkg)
+                started = time.monotonic()
                 verdict, rc, tail = run_check(d, entry, out, host_of(kind), luthen)
+                if timings is not None:
+                    timings.append((pkg, time.monotonic() - started))
                 if runner_withheld(rc, verdict):
                     case["withheld"] = f"qml_check could not run (exit {rc}): {tail}"
                 else:
@@ -371,11 +400,12 @@ def _selftest():
         (held is None or in_group(held), in_group("no-such-group-zz9")),
         (True, False),
     )
-    # W764: the runner's "could not run" exits are withheld whether it speaks the fleet code (7) or
-    # luthen's current one (2); a refused QML verdict at exit 1 and a clean one at 0 stay results.
+    # W764, W769: the runner's "could not run" exit is the fleet code 7 alone (luthen-observability:W1714
+    # moved qml_check off 2); a refused QML verdict at exit 1 or a verdict at exit 2 and a clean one at 0
+    # stay results, and no verdict at all is withheld whatever the exit.
     refused = {"state": "refused", "step": "lint"}
     chk(
-        "exits 7 and 2 are withheld (CANNOT_RUN now and luthen's current code), 1 and 0 are results, no verdict is withheld",
+        "exit 7 is withheld, 2 with a verdict is a result now (W769), 1 and 0 are results, no verdict is withheld",
         [
             runner_withheld(7, {}),
             runner_withheld(2, refused),
@@ -383,7 +413,18 @@ def _selftest():
             runner_withheld(0, {"state": "ok"}),
             runner_withheld(1, {}),
         ],
-        [True, True, False, False, True],
+        [True, False, False, False, True],
+    )
+    chk(
+        "timing_report reads n of m: 2 qml_check runs for 5 cases, 3 sharing a digest, the slowest first",
+        timing_report([("stage", 25.0), ("a", 4.0), ("b", 9.0)], 5),
+        "check_qml_target: stage 25.0 s; 2 of 5 case(s) ran a qml_check (3 share a tree digest); "
+        "qml_check total 13.0 s, median 4.0 s; slowest: b 9.0 s, a 4.0 s",
+    )
+    chk(
+        "timing_report with no run says none, not a division",
+        timing_report([("stage", 1.0)], 0).endswith("slowest: none"),
+        True,
     )
     why = runner_unavailable()
     if why:
@@ -431,14 +472,18 @@ def _selftest():
 
 
 def main(argv):
-    known = {"--json", "--list", "--selftest"}
+    known = {"--json", "--list", "--selftest", "--timing"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_qml_target: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in argv:
         return 0 if _selftest() else 1
-    doc = measure()
+    timings = [] if "--timing" in argv else None
+    doc = measure(timings=timings)
+    if timings is not None:
+        print(timing_report(timings, len(doc["cases"])))
+        return 0 if doc["cases"] else 1
     if not doc["cases"]:
         print(
             "check_qml_target: REFUSED - no staged QML package found; the stage is broken, not the tree clean",
