@@ -1175,6 +1175,6 @@
 @misc{TEMP-LEAKS,
   section  = {tooling},
   rests-on = {EMITTERS},
-  claim    = {A generator removes the temp directories it creates on every exit path: run in its own subprocess with a private TMPDIR, importing make_deb, measuring the cursors and measuring one variant of the urgency cues leave nothing behind, where the old code left an el-openglo-lnf, an el-cursors and an urgency-cues directory each (the 12018 leaked directories that filled the host's zram until /tmp and /var/tmp went read-only); the urgency stills are kept only when --stills DIR asks (W784)},
+  claim    = {A generator removes the temp directories it creates on every exit path: run in its own subprocess with a private TMPDIR, importing make_deb, measuring the cursors and measuring one variant of the urgency cues leave nothing behind, where the old code left an el-openglo-lnf, an el-cursors and an urgency-cues directory each (the 12018 leaked directories that filled the host's zram until /tmp and /var/tmp went read-only); the urgency stills are kept only when --stills DIR asks (W784); and the shared staged-tree cache, which persists on purpose, holds at most its bound of trees and no partial staging after three stagings under three keys (W787)},
   check    = {tool:opa_gate.py temp_leaks}
 }

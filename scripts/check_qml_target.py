@@ -110,19 +110,6 @@ ENTRIES = (
 )
 
 
-def stage(dest):
-    """The install tree the .deb ships, staged by the one authority that builds it."""
-    r = subprocess.run(
-        [sys.executable, os.path.join(ROOT, "make_deb.py"), "--stage", dest],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if r.returncode != 0:
-        raise RuntimeError(f"make_deb --stage exited {r.returncode}: {r.stderr[-300:]}")
-
-
 def entries(stage_dir):
     """[(kind, id, entry_dir, entry_file)] for every staged package, in stable order."""
     share = os.path.join(stage_dir, "usr", "share")
@@ -242,10 +229,14 @@ def measure(stage_dir=None, timings=None):
 
     cases = []
     with tempfile.TemporaryDirectory() as td:
-        sd = stage_dir or os.path.join(td, "stage")
+        sd = stage_dir
         if stage_dir is None:
+            # W788: the staged tree is SHARED (one per tree digest, staged once under a lock), where
+            # it was a private 40 s make_deb --stage per run; it is frozen, and this check only reads it
+            import staging_cache
+
             started = time.monotonic()
-            stage(sd)
+            sd = staging_cache.shared_stage()
             if timings is not None:
                 timings.append(("stage", time.monotonic() - started))
         why = runner_unavailable()
@@ -473,14 +464,30 @@ def _selftest():
 
 def main(argv):
     known = {"--json", "--list", "--selftest", "--timing"}
-    for a in argv[1:]:
-        if a not in known:
-            print(f"check_qml_target: unknown flag {a!r}", file=sys.stderr)
+    stage_dir = None
+    args = argv[1:]
+    seen = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--stage":
+            if i + 1 >= len(args) or not os.path.isdir(args[i + 1]):
+                print(
+                    "check_qml_target: --stage needs an existing directory",
+                    file=sys.stderr,
+                )
+                return 2
+            stage_dir = args[i + 1]
+            i += 2
+            continue
+        if args[i] not in known:
+            print(f"check_qml_target: unknown flag {args[i]!r}", file=sys.stderr)
             return 2
-    if "--selftest" in argv:
+        seen.append(args[i])
+        i += 1
+    if "--selftest" in seen:
         return 0 if _selftest() else 1
-    timings = [] if "--timing" in argv else None
-    doc = measure(timings=timings)
+    timings = [] if "--timing" in seen else None
+    doc = measure(stage_dir, timings=timings)
     if timings is not None:
         print(timing_report(timings, len(doc["cases"])))
         return 0 if doc["cases"] else 1

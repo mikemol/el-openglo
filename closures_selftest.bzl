@@ -5344,6 +5344,7 @@ CLOSURES = {
         "scripts/check_temp_leaks.py",
         "scripts/check_urgency_cues.py",
         "scripts/plasma_rewrite.py",
+        "scripts/staging_cache.py",
         "scripts/variant_roster.py",
         "segment_topology.py",
         "templates/ApertureField.qml",

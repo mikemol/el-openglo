@@ -139,11 +139,11 @@ def measure(stage):
 def staged_measure(stage=None):
     if stage:
         return measure(stage)
-    import make_deb
+    # W788: the staged tree is SHARED (one per tree digest, staged once under a lock), where it was
+    # a private 40 s make_deb --stage per check; it is frozen, so a load that writes into it fails
+    import staging_cache
 
-    with tempfile.TemporaryDirectory() as td:
-        make_deb.stage(td)
-        return measure(td)
+    return measure(staging_cache.shared_stage())
 
 
 def _selftest():
