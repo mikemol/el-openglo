@@ -1457,3 +1457,11 @@
 2026-10-28T22:41:48Z  status W773 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T23:03:33Z  status W766 blocked>ready writer    "blocked -> ready"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T23:03:33Z  status W777 ready>done writer    "ready -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T23:37:58Z  interrupt W779 minted    -         "land_template selftest is red: the stored SegmentChar.qml closure lacks scripts/check_marquee_live.py, which the roster check says it must hold"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W762
+2026-10-28T23:56:09Z  status W773 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T00:16:45Z  status W766 ready>done writer    "ready -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T00:16:47Z  status W778 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T01:23:07Z  interrupt W780 minted    -         "render_qml single-still harness waits for the subject to be ready before it grabs, as the multi-frame harness does, so a loaded host cannot grab a blank frame"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=W762
+2026-10-29T01:23:16Z  status W759 blocked>working writer    "blocked -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T01:23:17Z  status W780 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T01:24:22Z  status W764 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0

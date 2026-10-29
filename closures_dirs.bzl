@@ -28,6 +28,8 @@ DIRS = {
     ],
     "scripts/check_bazel_build.py": [
     ],
+    "scripts/check_bes_failures.py": [
+    ],
     "scripts/check_census.py": [
     ],
     "scripts/check_chrome.py": [
@@ -47,6 +49,8 @@ DIRS = {
     ],
     "scripts/check_config_reach.py": [
         ".",
+    ],
+    "scripts/check_config_reach_shards.py": [
     ],
     "scripts/check_consumers.py": [
     ],
@@ -580,6 +584,8 @@ STATS = {
     "scripts/check_atomic_writes.py": [
     ],
     "scripts/check_bazel_build.py": [
+    ],
+    "scripts/check_bes_failures.py": [
     ],
     "scripts/check_census.py": [
     ],
@@ -1546,6 +1552,8 @@ STATS = {
         "uv.lock",
     ],
     "scripts/check_config_reach.py": [
+    ],
+    "scripts/check_config_reach_shards.py": [
     ],
     "scripts/check_consumers.py": [
     ],

@@ -1,0 +1,4 @@
+@misc{CONFIG-REACH,
+  claim = {the clock and wallpaper mounts are measured},
+  check = {tool:opa_gate.py config_reach clock wallpaper},
+}

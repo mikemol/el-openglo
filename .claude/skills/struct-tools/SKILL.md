@@ -48,6 +48,8 @@ the emitters agree on one palette); they are not general readers and do not repl
 | markdown — headers, tables, cells; `append-section`/`replace-section --apply` WRITE (the published `mikemol-mdstruct`, installed by `uv sync --extra tooling`; substrate's scratch copy is retired) | `mdstruct` | `uv run --no-sync mdstruct` | `.md` |
 | this repo's Python: does it compile / import (compile: `--json` is what policy/compiles.rego decides) | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | `opa_gate.py compiles` |
 | the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --summary` | — |
+| **why a gate was REFUSED**: the failed test targets, their logs and the failure lines of a BuildBuddy invocation, from the id in the printed URL (the record is 97K tokens; `--shape` lists its key paths) | `scripts/check_bes_failures.py` | `python3 scripts/check_bes_failures.py --selftest` | — |
+| **does every shard of @CONFIG-REACH have a warrant that runs exactly it** (the declared SHARDS against the operands of every `opa_gate.py config_reach` warrant in warrants.bib; `--json [BIB]` is what policy/config_reach_shards.rego decides) | `scripts/check_config_reach_shards.py` | `python3 scripts/check_config_reach_shards.py --selftest` | `opa_gate.py config_reach_shards` |
 | **what to work on next** | `scripts/worklist_gate.py --next` | `python3 scripts/worklist_gate.py --next` | — |
 | **what KIND of content is this** | `scripts/identify.py` | `python3 scripts/identify.py --db` | — |
 | markup embedded in source | `scripts/check_embedded_markup.py` | `python3 scripts/check_embedded_markup.py --report` | — |

@@ -1150,3 +1150,17 @@
   claim    = {The stylesheet gate DENIES a known-bad sheet end to end: a stylesheet with a :root block and no variant blocks is refused by the measurement, the policy and the exit (K1 every variant block missing, K4 the polarity map unmet), so the gate is shown to fail and not only to admit (W75)},
   check    = {tool:opa_gate.py css catalog/fixtures/css/no-variant-blocks.txt --expect denied:K1,K4}
 }
+
+@misc{CONFIG-REACH-SHARDS,
+  section  = {tooling},
+  rests-on = {CONFIG-REACH},
+  claim    = {Every shard of the config-reach check has a warrant in warrants.bib that runs exactly that shard, so a dropped or drifted warrant cannot leave a slice of the mount registry unmeasured while the remaining claims stay green over a smaller population (W778)},
+  check    = {tool:opa_gate.py config_reach_shards}
+}
+
+@misc{CONFIG-REACH-SHARDS-DENIES,
+  section  = {tooling},
+  rests-on = {CONFIG-REACH-SHARDS},
+  claim    = {The shard guard DENIES a known-bad warrants file end to end: a bib that runs the clock and wallpaper shard and has dropped the marquee warrant is refused by the measurement, the policy and the exit (S1, the marquee shard has no warrant running exactly it), so the guard is shown to fail and not only to admit (W778)},
+  check    = {tool:opa_gate.py config_reach_shards catalog/fixtures/config_reach_shards/dropped-shard.txt --expect denied:S1}
+}
