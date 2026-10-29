@@ -47,6 +47,9 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 PREFIX = "stage-"
 PART = ".part-"
 KEEP = 2
+# The paths-forward loop rewrites these tracked files every tick; make_deb --stage does not read
+# them, and keyed in they gave each run of a hunt its own key, so 16 of 17 staged ~40 s serially.
+LOOP_STATE = ".claude/paths-forward."
 
 
 def tree_key(root=ROOT, files=None):
@@ -59,7 +62,7 @@ def tree_key(root=ROOT, files=None):
     names = files if files is not None else git_tracked.files(root=root)
     h = hashlib.sha256()
     h.update(sys.version.encode())
-    for name in sorted(names):
+    for name in sorted(n for n in names if not n.startswith(LOOP_STATE)):
         path = os.path.join(root, name)
         h.update(b"\0" + name.encode() + b"\0")
         if os.path.islink(path):
@@ -194,6 +197,20 @@ def _selftest():
         chk(
             "one changed byte changes the key",
             tree_key(tree, ["a.txt", "b.txt"]) != k1,
+            True,
+        )
+
+        os.makedirs(os.path.join(tree, ".claude"))
+        state = os.path.join(tree, ".claude", "paths-forward.ledger")
+        names = ["a.txt", ".claude/paths-forward.ledger"]
+        for body in (b"tick 1", b"tick 2"):
+            with open(state, "wb") as fh:
+                fh.write(body)
+            if body == b"tick 1":
+                k_state = tree_key(tree, names)
+        chk(
+            "a rewritten loop-state file does not change the key",
+            tree_key(tree, names) == k_state,
             True,
         )
 
