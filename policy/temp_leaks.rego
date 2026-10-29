@@ -28,6 +28,28 @@ deny contains msg if {
 	msg := sprintf("T1: %s left %d temp entr(ies): %v", [c.subject, count(c.leaked), c.leaked])
 }
 
+# METADATA
+# title: "T2 — a kept cache directory is not bounded (W787)"
+# description: |
+#   The shared staged-tree cache persists on purpose, so it is not a T1 leak, but a cache keyed per
+#   tree digest grows with every edit unless it prunes. It may hold at most `cache_keep` stage-*
+#   trees and no .part-* leftover of a staging that died.
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	some dir, entries in object.get(c, "persistent", {})
+	n := count([e | some e in entries; startswith(e, "stage-")])
+	n > object.get(input, "cache_keep", 2)
+	msg := sprintf("T2: %s kept %d trees in %s, over the bound %d", [c.subject, n, dir, object.get(input, "cache_keep", 2)])
+}
+
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	some dir, entries in object.get(c, "persistent", {})
+	some e in entries
+	startswith(e, ".part-")
+	msg := sprintf("T2: %s left a partial staging %s in %s", [c.subject, e, dir])
+}
+
 withheld contains msg if {
 	some w in object.get(input, "withheld", [])
 	msg := sprintf("T0: not measured: %s", [w])

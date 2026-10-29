@@ -26,6 +26,24 @@ test_leaky_is_not_admitted if {
 	temp_leaks.admitted == {"import make_deb"} with input as {"cases": [clean, leaky]}
 }
 
+cache_ok := {"subject": "staging_cache.shared_stage", "leaked": [], "persistent": {"el-openglo-stage": [".lock", "stage-aaaa", "stage-bbbb"]}}
+
+test_bounded_cache_admitted if {
+	count(temp_leaks.deny) == 0 with input as {"cases": [cache_ok], "cache_keep": 2}
+}
+
+test_unbounded_cache_denied if {
+	big := object.union(cache_ok, {"persistent": {"el-openglo-stage": [".lock", "stage-a", "stage-b", "stage-c"]}})
+	some m in temp_leaks.deny with input as {"cases": [big], "cache_keep": 2}
+	startswith(m, "T2: staging_cache.shared_stage kept 3 trees")
+}
+
+test_partial_staging_denied if {
+	dead := object.union(cache_ok, {"persistent": {"el-openglo-stage": [".lock", "stage-a", ".part-xyz"]}})
+	some m in temp_leaks.deny with input as {"cases": [dead], "cache_keep": 2}
+	startswith(m, "T2: staging_cache.shared_stage left a partial staging .part-xyz")
+}
+
 test_deferred_is_withheld_not_denied if {
 	i := {"cases": [clean], "withheld": ["check_urgency_cues.measure: deferred"]}
 	count(temp_leaks.deny) == 0 with input as i

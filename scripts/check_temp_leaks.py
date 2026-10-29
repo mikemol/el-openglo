@@ -37,9 +37,18 @@ SUBJECTS = {
         "import sys; import check_urgency_cues as C; "
         "sys.exit(0 if C.measure(only='EL-Openglo')['cases'] else 3)"
     ),
+    # three trees staged with a no-op stager: the cache keeps ON PURPOSE its newest KEEP of them, and
+    # the policy bounds it (W787); an unbounded cache is the leak W784 removed from /var/tmp
+    "staging_cache.shared_stage": (
+        "import staging_cache as S; "
+        "[S.shared_stage(stager=lambda d: None, key=c * 64) for c in 'abc']"
+    ),
 }
 # a subject measured elsewhere on purpose, with the reason it is not run here
 DEFERRED: dict[str, str] = {}
+# directories a subject keeps on purpose (the shared staged-tree cache, W787): not a leak, but BOUNDED
+# by policy/temp_leaks.rego (at most `cache_keep` trees, no .part-* leftover)
+PERSISTENT = frozenset({"el-openglo-stage"})
 
 
 def run_subject(name, source):
@@ -55,10 +64,17 @@ def run_subject(name, source):
             text=True,
             check=False,
         )
+        names = sorted(os.listdir(private))
         return {
             "subject": name,
             "rc": r.returncode,
-            "leaked": sorted(os.listdir(private)),
+            "leaked": [n for n in names if n not in PERSISTENT],
+            # a directory a subject keeps ON PURPOSE, with what it holds: bounded by the policy
+            "persistent": {
+                n: sorted(os.listdir(os.path.join(private, n)))
+                for n in names
+                if n in PERSISTENT
+            },
             "stderr": r.stderr[-200:],
         }
 
@@ -71,10 +87,18 @@ def measure():
         if got["rc"] != 0:
             withheld.append(f"{name}: exited {got['rc']}: {got['stderr']}")
         else:
-            cases.append({"subject": name, "leaked": got["leaked"]})
+            cases.append(
+                {
+                    "subject": name,
+                    "leaked": got["leaked"],
+                    "persistent": got["persistent"],
+                }
+            )
     for name, why in DEFERRED.items():
         withheld.append(f"{name}: deferred — {why}")
-    return {"cases": cases, "withheld": withheld}
+    import staging_cache
+
+    return {"cases": cases, "withheld": withheld, "cache_keep": staging_cache.KEEP}
 
 
 def main(argv):
@@ -116,6 +140,20 @@ def _selftest():
     )
     got = run_subject("clean", clean)
     chk("a subject that cleans up leaves nothing", (got["rc"], got["leaked"]), (0, []))
+    keeper = (
+        "import os, tempfile; "
+        "d = os.path.join(tempfile.gettempdir(), 'el-openglo-stage'); "
+        "os.makedirs(os.path.join(d, 'stage-x')); tempfile.mkdtemp(prefix='leak-')"
+    )
+    got = run_subject("keeper", keeper)
+    chk(
+        "a kept cache dir is PERSISTENT with its entries, any other leftover is still a leak",
+        (
+            [n.split("-")[0] for n in got["leaked"]],
+            got["persistent"],
+        ),
+        (["leak"], {"el-openglo-stage": ["stage-x"]}),
+    )
     got = run_subject("broken", "raise SystemExit(3)")
     chk("a subject that fails is reported by its exit code", got["rc"], 3)
     import check_cursors
