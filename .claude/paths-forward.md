@@ -3,7 +3,7 @@
 
 state file: `.claude/paths-forward.json`
 
-counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:15876d7370720b83`
+counter 785 · heartbeat 2026-10-29T14:02:56Z · job `e83035c8` · hash `v2:d1b9fbb86e92a2b9`
 
 | # | symbol | status |
 |---|---|---|
@@ -11,295 +11,295 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
 | 2 | W678 | working |
 | 3 | W782 | working |
 | 4 | W783 | working |
-| 5 | W755 | working |
-| 6 | W765 | working |
-| 7 | W769 | working |
-| 8 | W779 | working |
-| 9 | W784 | working |
-| 10 | W760 | ready |
-| 11 | W761 | ready |
-| 12 | W281 | blocked |
-| 13 | W284 | blocked |
-| 14 | W279 | blocked |
-| 15 | W285 | blocked |
-| 16 | W292 | blocked |
-| 17 | W275 | blocked |
-| 18 | W307 | blocked |
-| 19 | W301 | blocked |
-| 20 | W295 | blocked |
-| 21 | W293 | blocked |
-| 22 | W296 | blocked |
-| 23 | W278 | blocked |
-| 24 | W289 | blocked |
-| 25 | W299 | blocked |
-| 26 | W276 | blocked |
-| 27 | W282 | blocked |
-| 28 | W300 | blocked |
-| 29 | W294 | blocked |
-| 30 | W274 | blocked |
-| 31 | W277 | blocked |
-| 32 | W302 | blocked |
-| 33 | W310 | blocked |
-| 34 | W311 | blocked |
-| 35 | W280 | blocked |
-| 36 | W315 | blocked |
-| 37 | W325 | blocked |
-| 38 | W313 | blocked |
-| 39 | W309 | blocked |
-| 40 | W326 | blocked |
-| 41 | W316 | blocked |
-| 42 | W312 | blocked |
-| 43 | W317 | blocked |
-| 44 | W314 | blocked |
-| 45 | W321 | blocked |
-| 46 | W327 | blocked |
-| 47 | W319 | blocked |
-| 48 | W330 | blocked |
-| 49 | W329 | blocked |
-| 50 | W318 | blocked |
-| 51 | W331 | blocked |
-| 52 | W324 | blocked |
-| 53 | W322 | blocked |
-| 54 | W323 | blocked |
-| 55 | W320 | blocked |
-| 56 | W349 | blocked |
-| 57 | W347 | blocked |
-| 58 | W346 | blocked |
-| 59 | W348 | blocked |
-| 60 | W356 | blocked |
-| 61 | W354 | blocked |
-| 62 | W358 | blocked |
-| 63 | W367 | blocked |
-| 64 | W368 | blocked |
-| 65 | W355 | blocked |
-| 66 | W372 | blocked |
-| 67 | W371 | blocked |
-| 68 | W375 | blocked |
-| 69 | W373 | blocked |
-| 70 | W362 | blocked |
-| 71 | W363 | blocked |
-| 72 | W366 | blocked |
-| 73 | W360 | blocked |
-| 74 | W361 | blocked |
-| 75 | W328 | blocked |
-| 76 | W365 | blocked |
-| 77 | W387 | blocked |
-| 78 | W364 | blocked |
-| 79 | W385 | blocked |
-| 80 | W386 | blocked |
-| 81 | W389 | blocked |
-| 82 | W388 | blocked |
-| 83 | W390 | blocked |
-| 84 | W340 | blocked |
-| 85 | W342 | blocked |
-| 86 | W343 | blocked |
-| 87 | W332 | blocked |
-| 88 | W345 | blocked |
-| 89 | W333 | blocked |
-| 90 | W337 | blocked |
-| 91 | W344 | blocked |
-| 92 | W339 | blocked |
-| 93 | W334 | blocked |
-| 94 | W351 | blocked |
-| 95 | W338 | blocked |
-| 96 | W341 | blocked |
-| 97 | W335 | blocked |
-| 98 | W336 | blocked |
-| 99 | W353 | blocked |
-| 100 | W350 | blocked |
-| 101 | W393 | blocked |
-| 102 | W359 | blocked |
-| 103 | W352 | blocked |
-| 104 | W357 | blocked |
-| 105 | W391 | blocked |
-| 106 | W392 | blocked |
-| 107 | W369 | blocked |
-| 108 | W401 | blocked |
-| 109 | W376 | blocked |
-| 110 | W370 | blocked |
-| 111 | W403 | blocked |
-| 112 | W374 | blocked |
-| 113 | W380 | blocked |
-| 114 | W378 | blocked |
-| 115 | W377 | blocked |
-| 116 | W382 | blocked |
-| 117 | W383 | blocked |
-| 118 | W381 | blocked |
-| 119 | W379 | blocked |
-| 120 | W400 | blocked |
-| 121 | W399 | blocked |
-| 122 | W396 | blocked |
-| 123 | W394 | blocked |
-| 124 | W398 | blocked |
-| 125 | W397 | blocked |
-| 126 | W395 | blocked |
-| 127 | W402 | blocked |
-| 128 | W384 | blocked |
-| 129 | W404 | blocked |
-| 130 | W407 | blocked |
-| 131 | W406 | blocked |
-| 132 | W405 | blocked |
-| 133 | W408 | blocked |
-| 134 | W412 | blocked |
-| 135 | W411 | blocked |
-| 136 | W409 | blocked |
-| 137 | W410 | blocked |
-| 138 | W415 | blocked |
-| 139 | W419 | blocked |
-| 140 | W414 | blocked |
-| 141 | W418 | blocked |
-| 142 | W413 | blocked |
-| 143 | W422 | blocked |
-| 144 | W416 | blocked |
-| 145 | W417 | blocked |
-| 146 | W420 | blocked |
-| 147 | W421 | blocked |
-| 148 | W423 | blocked |
-| 149 | W424 | blocked |
-| 150 | W426 | blocked |
-| 151 | W425 | blocked |
-| 152 | W428 | blocked |
-| 153 | W427 | blocked |
-| 154 | W431 | blocked |
-| 155 | W430 | blocked |
-| 156 | W216 | blocked |
-| 157 | W222 | blocked |
-| 158 | W433 | blocked |
-| 159 | W235 | blocked |
-| 160 | W436 | blocked |
-| 161 | W435 | blocked |
-| 162 | W429 | blocked |
-| 163 | W440 | blocked |
-| 164 | W439 | blocked |
-| 165 | W432 | blocked |
-| 166 | W434 | blocked |
-| 167 | W221 | blocked |
-| 168 | W120 | blocked |
-| 169 | W220 | blocked |
-| 170 | W437 | blocked |
-| 171 | W445 | blocked |
-| 172 | W283 | blocked |
-| 173 | W194 | blocked |
-| 174 | W122 | blocked |
-| 175 | W133 | blocked |
-| 176 | W438 | blocked |
-| 177 | W448 | blocked |
-| 178 | W531 | blocked |
-| 179 | W447 | blocked |
-| 180 | W71 | blocked |
-| 181 | W449 | blocked |
-| 182 | W75 | blocked |
-| 183 | W450 | blocked |
-| 184 | W286 | blocked |
-| 185 | W446 | blocked |
-| 186 | W441 | blocked |
-| 187 | W247 | blocked |
-| 188 | W246 | blocked |
-| 189 | W248 | blocked |
-| 190 | W249 | blocked |
-| 191 | W451 | blocked |
-| 192 | W156 | blocked |
-| 193 | W78 | blocked |
-| 194 | W154 | blocked |
-| 195 | W155 | blocked |
-| 196 | W157 | blocked |
-| 197 | W197 | blocked |
-| 198 | W204 | blocked |
-| 199 | W513 | blocked |
-| 200 | W514 | blocked |
-| 201 | W442 | blocked |
-| 202 | W443 | blocked |
-| 203 | W212 | blocked |
-| 204 | W537 | blocked |
-| 205 | W539 | blocked |
-| 206 | W111 | blocked |
-| 207 | W163 | blocked |
-| 208 | W245 | blocked |
-| 209 | W250 | blocked |
-| 210 | W259 | blocked |
-| 211 | W260 | blocked |
-| 212 | W269 | blocked |
-| 213 | W270 | blocked |
-| 214 | W287 | blocked |
-| 215 | W290 | blocked |
-| 216 | W291 | blocked |
-| 217 | W297 | blocked |
-| 218 | W298 | blocked |
-| 219 | W303 | blocked |
-| 220 | W304 | blocked |
-| 221 | W305 | blocked |
-| 222 | W306 | blocked |
-| 223 | W308 | blocked |
-| 224 | W462 | blocked |
-| 225 | W483 | blocked |
-| 226 | W486 | blocked |
-| 227 | W492 | blocked |
-| 228 | W505 | blocked |
-| 229 | W506 | blocked |
-| 230 | W518 | blocked |
-| 231 | W540 | blocked |
-| 232 | W543 | blocked |
-| 233 | W549 | blocked |
-| 234 | W444 | blocked |
-| 235 | W128 | blocked |
-| 236 | W41 | blocked |
-| 237 | W113 | blocked |
-| 238 | W710 | blocked |
-| 239 | W736 | blocked |
-| 240 | W126 | blocked |
-| 241 | W190 | blocked |
-| 242 | W191 | blocked |
-| 243 | W225 | blocked |
-| 244 | W239 | blocked |
-| 245 | W694 | blocked |
-| 246 | W64 | blocked |
-| 247 | W70 | blocked |
-| 248 | W136 | blocked |
-| 249 | W137 | blocked |
-| 250 | W192 | blocked |
-| 251 | W195 | blocked |
-| 252 | W224 | blocked |
-| 253 | W227 | blocked |
-| 254 | W240 | blocked |
-| 255 | W703 | blocked |
-| 256 | W706 | blocked |
-| 257 | W708 | blocked |
-| 258 | W709 | blocked |
-| 259 | W714 | blocked |
-| 260 | W715 | blocked |
-| 261 | W716 | blocked |
-| 262 | W717 | blocked |
-| 263 | W718 | blocked |
-| 264 | W719 | blocked |
-| 265 | W720 | blocked |
-| 266 | W721 | blocked |
-| 267 | W722 | blocked |
-| 268 | W723 | blocked |
-| 269 | W724 | blocked |
-| 270 | W725 | blocked |
-| 271 | W734 | blocked |
-| 272 | W735 | blocked |
-| 273 | W739 | blocked |
-| 274 | W743 | blocked |
-| 275 | W754 | blocked |
-| 276 | W756 | blocked |
-| 277 | W757 | blocked |
-| 278 | W758 | blocked |
-| 279 | W116 | blocked |
-| 280 | W123 | blocked |
-| 281 | W124 | blocked |
-| 282 | W125 | blocked |
-| 283 | W127 | blocked |
-| 284 | W129 | blocked |
-| 285 | W130 | blocked |
-| 286 | W131 | blocked |
-| 287 | W132 | blocked |
-| 288 | W515 | blocked |
-| 289 | W542 | blocked |
-| 290 | W705 | blocked |
-| 291 | W753 | blocked |
-| 292 | W781 | blocked |
-| 293 | W785 | blocked |
+| 5 | W785 | working |
+| 6 | W755 | working |
+| 7 | W765 | working |
+| 8 | W769 | working |
+| 9 | W779 | working |
+| 10 | W784 | working |
+| 11 | W760 | ready |
+| 12 | W761 | ready |
+| 13 | W281 | blocked |
+| 14 | W284 | blocked |
+| 15 | W279 | blocked |
+| 16 | W285 | blocked |
+| 17 | W292 | blocked |
+| 18 | W275 | blocked |
+| 19 | W307 | blocked |
+| 20 | W301 | blocked |
+| 21 | W295 | blocked |
+| 22 | W293 | blocked |
+| 23 | W296 | blocked |
+| 24 | W278 | blocked |
+| 25 | W289 | blocked |
+| 26 | W299 | blocked |
+| 27 | W276 | blocked |
+| 28 | W282 | blocked |
+| 29 | W300 | blocked |
+| 30 | W294 | blocked |
+| 31 | W274 | blocked |
+| 32 | W277 | blocked |
+| 33 | W302 | blocked |
+| 34 | W310 | blocked |
+| 35 | W311 | blocked |
+| 36 | W280 | blocked |
+| 37 | W315 | blocked |
+| 38 | W325 | blocked |
+| 39 | W313 | blocked |
+| 40 | W309 | blocked |
+| 41 | W326 | blocked |
+| 42 | W316 | blocked |
+| 43 | W312 | blocked |
+| 44 | W317 | blocked |
+| 45 | W314 | blocked |
+| 46 | W321 | blocked |
+| 47 | W327 | blocked |
+| 48 | W319 | blocked |
+| 49 | W330 | blocked |
+| 50 | W329 | blocked |
+| 51 | W318 | blocked |
+| 52 | W331 | blocked |
+| 53 | W324 | blocked |
+| 54 | W322 | blocked |
+| 55 | W323 | blocked |
+| 56 | W320 | blocked |
+| 57 | W349 | blocked |
+| 58 | W347 | blocked |
+| 59 | W346 | blocked |
+| 60 | W348 | blocked |
+| 61 | W356 | blocked |
+| 62 | W354 | blocked |
+| 63 | W358 | blocked |
+| 64 | W367 | blocked |
+| 65 | W368 | blocked |
+| 66 | W355 | blocked |
+| 67 | W372 | blocked |
+| 68 | W371 | blocked |
+| 69 | W375 | blocked |
+| 70 | W373 | blocked |
+| 71 | W362 | blocked |
+| 72 | W363 | blocked |
+| 73 | W366 | blocked |
+| 74 | W360 | blocked |
+| 75 | W361 | blocked |
+| 76 | W328 | blocked |
+| 77 | W365 | blocked |
+| 78 | W387 | blocked |
+| 79 | W364 | blocked |
+| 80 | W385 | blocked |
+| 81 | W386 | blocked |
+| 82 | W389 | blocked |
+| 83 | W388 | blocked |
+| 84 | W390 | blocked |
+| 85 | W340 | blocked |
+| 86 | W342 | blocked |
+| 87 | W343 | blocked |
+| 88 | W332 | blocked |
+| 89 | W345 | blocked |
+| 90 | W333 | blocked |
+| 91 | W337 | blocked |
+| 92 | W344 | blocked |
+| 93 | W339 | blocked |
+| 94 | W334 | blocked |
+| 95 | W351 | blocked |
+| 96 | W338 | blocked |
+| 97 | W341 | blocked |
+| 98 | W335 | blocked |
+| 99 | W336 | blocked |
+| 100 | W353 | blocked |
+| 101 | W350 | blocked |
+| 102 | W393 | blocked |
+| 103 | W359 | blocked |
+| 104 | W352 | blocked |
+| 105 | W357 | blocked |
+| 106 | W391 | blocked |
+| 107 | W392 | blocked |
+| 108 | W369 | blocked |
+| 109 | W401 | blocked |
+| 110 | W376 | blocked |
+| 111 | W370 | blocked |
+| 112 | W403 | blocked |
+| 113 | W374 | blocked |
+| 114 | W380 | blocked |
+| 115 | W378 | blocked |
+| 116 | W377 | blocked |
+| 117 | W382 | blocked |
+| 118 | W383 | blocked |
+| 119 | W381 | blocked |
+| 120 | W379 | blocked |
+| 121 | W400 | blocked |
+| 122 | W399 | blocked |
+| 123 | W396 | blocked |
+| 124 | W394 | blocked |
+| 125 | W398 | blocked |
+| 126 | W397 | blocked |
+| 127 | W395 | blocked |
+| 128 | W402 | blocked |
+| 129 | W384 | blocked |
+| 130 | W404 | blocked |
+| 131 | W407 | blocked |
+| 132 | W406 | blocked |
+| 133 | W405 | blocked |
+| 134 | W408 | blocked |
+| 135 | W412 | blocked |
+| 136 | W411 | blocked |
+| 137 | W409 | blocked |
+| 138 | W410 | blocked |
+| 139 | W415 | blocked |
+| 140 | W419 | blocked |
+| 141 | W414 | blocked |
+| 142 | W418 | blocked |
+| 143 | W413 | blocked |
+| 144 | W422 | blocked |
+| 145 | W416 | blocked |
+| 146 | W417 | blocked |
+| 147 | W420 | blocked |
+| 148 | W421 | blocked |
+| 149 | W423 | blocked |
+| 150 | W424 | blocked |
+| 151 | W426 | blocked |
+| 152 | W425 | blocked |
+| 153 | W428 | blocked |
+| 154 | W427 | blocked |
+| 155 | W431 | blocked |
+| 156 | W430 | blocked |
+| 157 | W216 | blocked |
+| 158 | W222 | blocked |
+| 159 | W433 | blocked |
+| 160 | W235 | blocked |
+| 161 | W436 | blocked |
+| 162 | W435 | blocked |
+| 163 | W429 | blocked |
+| 164 | W440 | blocked |
+| 165 | W439 | blocked |
+| 166 | W432 | blocked |
+| 167 | W434 | blocked |
+| 168 | W221 | blocked |
+| 169 | W120 | blocked |
+| 170 | W220 | blocked |
+| 171 | W437 | blocked |
+| 172 | W445 | blocked |
+| 173 | W283 | blocked |
+| 174 | W194 | blocked |
+| 175 | W122 | blocked |
+| 176 | W133 | blocked |
+| 177 | W438 | blocked |
+| 178 | W448 | blocked |
+| 179 | W531 | blocked |
+| 180 | W447 | blocked |
+| 181 | W71 | blocked |
+| 182 | W449 | blocked |
+| 183 | W75 | blocked |
+| 184 | W450 | blocked |
+| 185 | W286 | blocked |
+| 186 | W446 | blocked |
+| 187 | W441 | blocked |
+| 188 | W247 | blocked |
+| 189 | W246 | blocked |
+| 190 | W248 | blocked |
+| 191 | W249 | blocked |
+| 192 | W451 | blocked |
+| 193 | W156 | blocked |
+| 194 | W78 | blocked |
+| 195 | W154 | blocked |
+| 196 | W155 | blocked |
+| 197 | W157 | blocked |
+| 198 | W197 | blocked |
+| 199 | W204 | blocked |
+| 200 | W513 | blocked |
+| 201 | W514 | blocked |
+| 202 | W442 | blocked |
+| 203 | W443 | blocked |
+| 204 | W212 | blocked |
+| 205 | W537 | blocked |
+| 206 | W539 | blocked |
+| 207 | W111 | blocked |
+| 208 | W163 | blocked |
+| 209 | W245 | blocked |
+| 210 | W250 | blocked |
+| 211 | W259 | blocked |
+| 212 | W260 | blocked |
+| 213 | W269 | blocked |
+| 214 | W270 | blocked |
+| 215 | W287 | blocked |
+| 216 | W290 | blocked |
+| 217 | W291 | blocked |
+| 218 | W297 | blocked |
+| 219 | W298 | blocked |
+| 220 | W303 | blocked |
+| 221 | W304 | blocked |
+| 222 | W305 | blocked |
+| 223 | W306 | blocked |
+| 224 | W308 | blocked |
+| 225 | W462 | blocked |
+| 226 | W483 | blocked |
+| 227 | W486 | blocked |
+| 228 | W492 | blocked |
+| 229 | W505 | blocked |
+| 230 | W506 | blocked |
+| 231 | W518 | blocked |
+| 232 | W540 | blocked |
+| 233 | W543 | blocked |
+| 234 | W549 | blocked |
+| 235 | W444 | blocked |
+| 236 | W128 | blocked |
+| 237 | W41 | blocked |
+| 238 | W113 | blocked |
+| 239 | W710 | blocked |
+| 240 | W736 | blocked |
+| 241 | W126 | blocked |
+| 242 | W190 | blocked |
+| 243 | W191 | blocked |
+| 244 | W225 | blocked |
+| 245 | W239 | blocked |
+| 246 | W694 | blocked |
+| 247 | W64 | blocked |
+| 248 | W70 | blocked |
+| 249 | W136 | blocked |
+| 250 | W137 | blocked |
+| 251 | W192 | blocked |
+| 252 | W195 | blocked |
+| 253 | W224 | blocked |
+| 254 | W227 | blocked |
+| 255 | W240 | blocked |
+| 256 | W703 | blocked |
+| 257 | W706 | blocked |
+| 258 | W708 | blocked |
+| 259 | W709 | blocked |
+| 260 | W714 | blocked |
+| 261 | W715 | blocked |
+| 262 | W716 | blocked |
+| 263 | W717 | blocked |
+| 264 | W718 | blocked |
+| 265 | W719 | blocked |
+| 266 | W720 | blocked |
+| 267 | W721 | blocked |
+| 268 | W722 | blocked |
+| 269 | W723 | blocked |
+| 270 | W724 | blocked |
+| 271 | W725 | blocked |
+| 272 | W734 | blocked |
+| 273 | W735 | blocked |
+| 274 | W739 | blocked |
+| 275 | W743 | blocked |
+| 276 | W754 | blocked |
+| 277 | W756 | blocked |
+| 278 | W757 | blocked |
+| 279 | W758 | blocked |
+| 280 | W116 | blocked |
+| 281 | W123 | blocked |
+| 282 | W124 | blocked |
+| 283 | W125 | blocked |
+| 284 | W127 | blocked |
+| 285 | W129 | blocked |
+| 286 | W130 | blocked |
+| 287 | W131 | blocked |
+| 288 | W132 | blocked |
+| 289 | W515 | blocked |
+| 290 | W542 | blocked |
+| 291 | W705 | blocked |
+| 292 | W753 | blocked |
+| 293 | W781 | blocked |
 | 294 | W12 | blocked |
 | 295 | W43 | blocked |
 | 296 | W65 | blocked |
@@ -795,629 +795,633 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
    prompt line 25)
    - next: wait for W1750; then (1) a controlled -n 24 -j 24 run to test the N~27 prediction, (2) decide staging-once vs
      one-build-for-17 with luthen
-5. **W755** (working) Flake: ENOSYS spawning /usr/bin/git inside land_template (posix_spawn errno 38), found by proof
+5. **W785** (working) Install the BES-degrade wrapper tools/bazel (mikemol-bazel-admit --install) with the repin so a
+   gate degrades while BES refuses
+   - next: submit stack: pyproject.toml, uv.lock, tools/bazel, queue files; on landing mark W785 and W754 done, then
+     resubmit the four-entry code stack unchanged
+6. **W755** (working) Flake: ENOSYS spawning /usr/bin/git inside land_template (posix_spawn errno 38), found by proof
    not reruns
    - next: a recurrence: keep the printed errno line and find which syscall returned ENOSYS; submit this entry after
      W779 in the stack
-6. **W765** (working) I still need to adopt the reviewed-loop skill: spawn the persistent reviewer over this session
+7. **W765** (working) I still need to adopt the reviewed-loop skill: spawn the persistent reviewer over this session
    control law, write G0 before each --tick-open and send G0 and G1 after each --tick-close, then idle until it returns
    (loop prompt line 31)
-7. **W769** (working) Follow-up to W764: after luthen-observability:W1714 moves qml_check to exit 7, drop 2 from
+8. **W769** (working) Follow-up to W764: after luthen-observability:W1714 moves qml_check to exit 7, drop 2 from
    RUNNER_CANNOT_RUN in check_qml_target (selftest arm: exit 2 becomes a result)
    - next: submit with the W781, W784 and W779 entries as one stack when BuildBuddy is back
-8. **W779** (working) land_template selftest is red: the stored SegmentChar.qml closure lacks
+9. **W779** (working) land_template selftest is red: the stored SegmentChar.qml closure lacks
    scripts/check_marquee_live.py, which the roster check says it must hold
    - next: submit in the same stack as W781 and W784 once luthen-observability:W1750 clears (paths:
      scripts/land_template.py plus the queue files)
-9. **W784** (working) Generators leak temp dirs in /var/tmp: remove them on every exit path
+10. **W784** (working) Generators leak temp dirs in /var/tmp: remove them on every exit path
    - next: after W781 lands: submit W784 (make_deb.py, check_cursors.py, check_urgency_cues.py, check_temp_leaks.py,
      policy/temp_leaks*.rego, warrants.bib, WORKLIST.md, closures, SKILL.md) as a stack; run opa_gate urgency_cues first
      when the host has headroom
-10. **W760** (ready) Flake: @QML-TARGET (opa_gate qml_target) fails in the //:worklist gate and passes on replay of the
+11. **W760** (ready) Flake: @QML-TARGET (opa_gate qml_target) fails in the //:worklist gate and passes on replay of the
    same tree
    - blocked on: paperkit:W569
    - next: Implement emitters.tree_lock(root) (fcntl.flock on `<root>`/.emitters.lock, gitignored), run_all(hold=True)
      default, make_deb.stage wraps run_all(hold=False) through the mapping copies, emitters selftest arm for mutual
      exclusion, .gitignore the lock file; then hunt QML-TARGET -n 16 -j 4 for 0 failures as the bar (W454).
-11. **W761** (ready) Flake: @CURRENCY (opa_gate action_key) fails in the closure-witness worklist and passes on replay
+12. **W761** (ready) Flake: @CURRENCY (opa_gate action_key) fails in the closure-witness worklist and passes on replay
    - blocked on: paperkit:W32
    - next: Decide and implement in policy/action_key.rego plus scripts/check_action_key.py: outputs that are gitignored
      build products and entirely absent -> WITHHELD with the reason (the guard against a broken scan stays for tracked
      outputs and for a partly present set); mutation-control the rule; test both cold and warm trees; then the
      QML-TARGET root fix is safe.
-12. **W281** (blocked) el-openglo typing: stubs/fontTools/ttLib/__init__.pyi (39 findings)
+13. **W281** (blocked) el-openglo typing: stubs/fontTools/ttLib/__init__.pyi (39 findings)
    - blocked on: W762
    - next: One house finding left in the stub: Table.__getattr__ returns Any because a font table attributes depend on
      the table. Give the tables this tree reads (head, hhea, OS/2, glyf, cmap) their own classes so the dynamic fallback
      goes, or keep the dynamic table and record why in the card. Close only when the census shows the stub at 0.
-13. **W284** (blocked) el-openglo typing: catalog/library/screens_sheets.py (28 findings)
+14. **W284** (blocked) el-openglo typing: catalog/library/screens_sheets.py (28 findings)
    - blocked on: W762
    - next: catalog/library/screens_sheets.py: 14 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x13: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-14. **W279** (blocked) el-openglo typing: templates/loader.py (966 findings)
+15. **W279** (blocked) el-openglo typing: templates/loader.py (966 findings)
    - blocked on: W762
    - next: templates/loader.py: 42 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x15:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-15. **W285** (blocked) el-openglo typing: scripts/el_serial_spec.py (45 findings)
+16. **W285** (blocked) el-openglo typing: scripts/el_serial_spec.py (45 findings)
    - blocked on: W762
    - next: scripts/el_serial_spec.py: 45 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x28: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-16. **W292** (blocked) el-openglo typing: scripts/check_cotype_open.py (67 findings)
+17. **W292** (blocked) el-openglo typing: scripts/check_cotype_open.py (67 findings)
    - blocked on: W762
    - next: scripts/check_cotype_open.py: 67 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x36: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-17. **W275** (blocked) el-openglo typing: emitters.py (2553 findings)
+18. **W275** (blocked) el-openglo typing: emitters.py (2553 findings)
    - blocked on: W762
    - next: emitters.py: 69 findings, 12 untyped defs (lines 91, 106, 226, 272, 275, 286, 306, 313, 318, 351, 371) plus
      untyped callees atomic_write, notice_text, atomic_path, _discard, write_notice, drift, declared, main; clear them
      with mikemol-pycodemod annotate over a cli_observe seen.json once W743 proves the mechanism, not by hand
-18. **W307** (blocked) el-openglo typing: scripts/pre_push_local.py (69 findings)
+19. **W307** (blocked) el-openglo typing: scripts/pre_push_local.py (69 findings)
    - blocked on: W762
    - next: scripts/pre_push_local.py: 69 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x30: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-19. **W301** (blocked) el-openglo typing: scripts/check_runtime_warnings.py (77 findings)
+20. **W301** (blocked) el-openglo typing: scripts/check_runtime_warnings.py (77 findings)
    - blocked on: W762
    - next: scripts/check_runtime_warnings.py: 77 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x41: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-20. **W295** (blocked) el-openglo typing: scripts/check_log_content.py (91 findings)
+21. **W295** (blocked) el-openglo typing: scripts/check_log_content.py (91 findings)
    - blocked on: W762
    - next: scripts/check_log_content.py: 91 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x49: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-21. **W293** (blocked) el-openglo typing: scripts/check_deb.py (96 findings)
+22. **W293** (blocked) el-openglo typing: scripts/check_deb.py (96 findings)
    - blocked on: W762
    - next: scripts/check_deb.py: 96 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x44:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-22. **W296** (blocked) el-openglo typing: scripts/check_marquee_host.py (129 findings)
+23. **W296** (blocked) el-openglo typing: scripts/check_marquee_host.py (129 findings)
    - blocked on: W762
    - next: scripts/check_marquee_host.py: 129 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x63: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-23. **W278** (blocked) el-openglo typing: palette_graph.py (3900 findings)
+24. **W278** (blocked) el-openglo typing: palette_graph.py (3900 findings)
    - blocked on: W762
    - next: palette_graph.py: 130 house finding(s) (typing_census --by-file-idiom); the dominant idiom is no-untyped-call
      x51: Call to untyped function "…" in typed context. Annotate from the consumers, judged by the house count of this
      file.
-24. **W289** (blocked) el-openglo typing: scripts/auto_push.py (143 findings)
+25. **W289** (blocked) el-openglo typing: scripts/auto_push.py (143 findings)
    - blocked on: W762
    - next: scripts/auto_push.py: 143 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x53:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-25. **W299** (blocked) el-openglo typing: scripts/check_qml_target.py (141 findings)
+26. **W299** (blocked) el-openglo typing: scripts/check_qml_target.py (141 findings)
    - blocked on: W762
    - next: scripts/check_qml_target.py: 143 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x65: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-26. **W276** (blocked) el-openglo typing: scripts/git_tracked.py (1068 findings)
+27. **W276** (blocked) el-openglo typing: scripts/git_tracked.py (1068 findings)
    - blocked on: W762
    - next: scripts/git_tracked.py: 178 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x78:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-27. **W282** (blocked) el-openglo typing: qt_sandbox.py (942 findings)
+28. **W282** (blocked) el-openglo typing: qt_sandbox.py (942 findings)
    - blocked on: W762
    - next: qt_sandbox.py: 179 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x68:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-28. **W300** (blocked) el-openglo typing: scripts/check_qt_sandbox.py (181 findings)
+29. **W300** (blocked) el-openglo typing: scripts/check_qt_sandbox.py (181 findings)
    - blocked on: W762
    - next: scripts/check_qt_sandbox.py: 181 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x93: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-29. **W294** (blocked) el-openglo typing: scripts/check_discriminates.py (184 findings)
+30. **W294** (blocked) el-openglo typing: scripts/check_discriminates.py (184 findings)
    - blocked on: W762
    - next: scripts/check_discriminates.py: 184 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x78: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-30. **W274** (blocked) el-openglo typing: segment_topology.py (9600 findings)
+31. **W274** (blocked) el-openglo typing: segment_topology.py (9600 findings)
    - blocked on: W743
    - next: pick the pycodemod mode that clears the most house findings on segment_topology.py (240), run it on that one
      file, judged by mypy, and record the before and after counts on this card
-31. **W277** (blocked) el-openglo typing: scripts/worklist_gate.py (2670 findings)
+32. **W277** (blocked) el-openglo typing: scripts/worklist_gate.py (2670 findings)
    - blocked on: W762
    - next: scripts/worklist_gate.py: 530 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x226: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-32. **W302** (blocked) el-openglo typing: scripts/check_use_of_colour.py (565 findings)
+33. **W302** (blocked) el-openglo typing: scripts/check_use_of_colour.py (565 findings)
    - blocked on: W762
    - next: scripts/check_use_of_colour.py: 565 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x240: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-33. **W310** (blocked) el-openglo typing: make_glyph_ink.py (2288 findings)
+34. **W310** (blocked) el-openglo typing: make_glyph_ink.py (2288 findings)
    - blocked on: W762
    - next: make_glyph_ink.py: 176 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x95:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-34. **W311** (blocked) el-openglo typing: make_inherit.py (272 findings)
+35. **W311** (blocked) el-openglo typing: make_inherit.py (272 findings)
    - blocked on: W275
    - next: make_inherit.py: 68 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x30:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-35. **W280** (blocked) el-openglo typing: display_params.py (1302 findings)
+36. **W280** (blocked) el-openglo typing: display_params.py (1302 findings)
    - blocked on: W275
    - next: display_params.py: 84 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x33:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-36. **W315** (blocked) el-openglo typing: scripts/check_atomic_writes.py (173 findings)
+37. **W315** (blocked) el-openglo typing: scripts/check_atomic_writes.py (173 findings)
    - blocked on: W275
    - next: scripts/check_atomic_writes.py: 173 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x69: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-37. **W325** (blocked) el-openglo typing: make_metrics.py (279 findings)
+38. **W325** (blocked) el-openglo typing: make_metrics.py (279 findings)
    - blocked on: W275
    - next: make_metrics.py: 93 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x44:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-38. **W313** (blocked) el-openglo typing: palette_relations.py (117 findings)
+39. **W313** (blocked) el-openglo typing: palette_relations.py (117 findings)
    - blocked on: W278
    - next: palette_relations.py: 39 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x19:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-39. **W309** (blocked) el-openglo typing: cvd_gate.py (6399 findings)
+40. **W309** (blocked) el-openglo typing: cvd_gate.py (6399 findings)
    - blocked on: W278
    - next: cvd_gate.py: 176 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x84: Expression
      has type "…". Annotate from the consumers, judged by the house count of this file.
-40. **W326** (blocked) el-openglo typing: netlist_render.py (322 findings)
+41. **W326** (blocked) el-openglo typing: netlist_render.py (322 findings)
    - blocked on: W313, W278
    - next: netlist_render.py: 161 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x68:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-41. **W316** (blocked) el-openglo typing: scripts/check_populations.py (325 findings)
+42. **W316** (blocked) el-openglo typing: scripts/check_populations.py (325 findings)
    - blocked on: W276
    - next: scripts/check_populations.py: 325 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x151: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-42. **W312** (blocked) el-openglo typing: scripts/build_graph.py (678 findings)
+43. **W312** (blocked) el-openglo typing: scripts/build_graph.py (678 findings)
    - blocked on: W276
    - next: scripts/build_graph.py: 339 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x153: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-43. **W317** (blocked) el-openglo typing: scripts/check_rego_lint.py (391 findings)
+44. **W317** (blocked) el-openglo typing: scripts/check_rego_lint.py (391 findings)
    - blocked on: W276
    - next: scripts/check_rego_lint.py: 391 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x164: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-44. **W314** (blocked) el-openglo typing: render_showcase.py (81 findings)
+45. **W314** (blocked) el-openglo typing: render_showcase.py (81 findings)
    - blocked on: W274
    - next: render_showcase.py: 81 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x48:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-45. **W321** (blocked) el-openglo typing: ghost_solve.py (4152 findings)
+46. **W321** (blocked) el-openglo typing: ghost_solve.py (4152 findings)
    - blocked on: W309, W278
    - next: ghost_solve.py: 173 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x80:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-46. **W327** (blocked) el-openglo typing: role_theme.py (624 findings)
+47. **W327** (blocked) el-openglo typing: role_theme.py (624 findings)
    - blocked on: W309
    - next: role_theme.py: 306 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x124:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-47. **W319** (blocked) el-openglo typing: scripts/read_serial.py (387 findings)
+48. **W319** (blocked) el-openglo typing: scripts/read_serial.py (387 findings)
    - blocked on: W285
    - next: scripts/read_serial.py: 387 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x170: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-48. **W330** (blocked) el-openglo typing: project_font.py (760 findings)
+49. **W330** (blocked) el-openglo typing: project_font.py (760 findings)
    - blocked on: W310, W274
    - next: project_font.py: 95 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x50:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-49. **W329** (blocked) el-openglo typing: display_types.py (3200 findings)
+50. **W329** (blocked) el-openglo typing: display_types.py (3200 findings)
    - blocked on: W310, W274
    - next: display_types.py: 320 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x135:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-50. **W318** (blocked) el-openglo typing: scripts/el_serial_emit.py (323 findings)
+51. **W318** (blocked) el-openglo typing: scripts/el_serial_emit.py (323 findings)
    - blocked on: W285, W319
    - next: scripts/el_serial_emit.py: 323 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x122: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-51. **W331** (blocked) el-openglo typing: glyph_match.py (2051 findings)
+52. **W331** (blocked) el-openglo typing: glyph_match.py (2051 findings)
    - blocked on: W330, W310, W274
    - next: glyph_match.py: 293 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x129:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-52. **W324** (blocked) el-openglo typing: schemes_artifact.py (4437 findings)
+53. **W324** (blocked) el-openglo typing: schemes_artifact.py (4437 findings)
    - blocked on: W762
    - next: schemes_artifact.py: 261 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x113:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-53. **W322** (blocked) el-openglo typing: make_preview.py (1938 findings)
+54. **W322** (blocked) el-openglo typing: make_preview.py (1938 findings)
    - blocked on: W275, W323, W324, W274
    - next: make_preview.py: 114 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x67:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-54. **W323** (blocked) el-openglo typing: make_wallpaper.py (1887 findings)
+55. **W323** (blocked) el-openglo typing: make_wallpaper.py (1887 findings)
    - blocked on: W275, W274
    - next: make_wallpaper.py: 111 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x72:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-55. **W320** (blocked) el-openglo typing: scripts/check_tree_writes.py (1272 findings)
+56. **W320** (blocked) el-openglo typing: scripts/check_tree_writes.py (1272 findings)
    - blocked on: W276, W277
    - next: scripts/check_tree_writes.py: 214 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x96: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-56. **W349** (blocked) el-openglo typing: make_windows.py (105 findings)
+57. **W349** (blocked) el-openglo typing: make_windows.py (105 findings)
    - blocked on: W322, W323, W324, W275
    - next: make_windows.py: 35 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x21:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-57. **W347** (blocked) el-openglo typing: make_chrome.py (186 findings)
+58. **W347** (blocked) el-openglo typing: make_chrome.py (186 findings)
    - blocked on: W322, W323, W324, W275
    - next: make_chrome.py: 62 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x28:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-58. **W346** (blocked) el-openglo typing: make_plymouth.py (620 findings)
+59. **W346** (blocked) el-openglo typing: make_plymouth.py (620 findings)
    - blocked on: W322, W323, W324, W275, W274
    - next: make_plymouth.py: 155 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x80:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-59. **W348** (blocked) el-openglo typing: make_font.py (1176 findings)
+60. **W348** (blocked) el-openglo typing: make_font.py (1176 findings)
    - blocked on: W329, W275, W274
    - next: make_font.py: 294 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x128:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-60. **W356** (blocked) el-openglo typing: scripts/publish_browsers.py (64 findings)
+61. **W356** (blocked) el-openglo typing: scripts/publish_browsers.py (64 findings)
    - blocked on: W347
    - next: scripts/publish_browsers.py: 64 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x33: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-61. **W354** (blocked) el-openglo typing: make_cursors.py (861 findings)
+62. **W354** (blocked) el-openglo typing: make_cursors.py (861 findings)
    - blocked on: W311, W322, W323, W324, W275
    - next: make_cursors.py: 287 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x127:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-62. **W358** (blocked) el-openglo typing: scripts/check_emitters_run.py (234 findings)
+63. **W358** (blocked) el-openglo typing: scripts/check_emitters_run.py (234 findings)
    - blocked on: W322, W323, W324, W275, W276
    - next: scripts/check_emitters_run.py: 234 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x110: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-63. **W367** (blocked) el-openglo typing: theme_probe.py (220 findings)
+64. **W367** (blocked) el-openglo typing: theme_probe.py (220 findings)
    - blocked on: W322, W323, W324, W282
    - next: theme_probe.py: 44 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x21:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-64. **W368** (blocked) el-openglo typing: make_konsole.py (996 findings)
+65. **W368** (blocked) el-openglo typing: make_konsole.py (996 findings)
    - blocked on: W309, W322, W323, W324, W275
    - next: make_konsole.py: 246 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x95:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-65. **W355** (blocked) el-openglo typing: make_glb.py (420 findings)
+66. **W355** (blocked) el-openglo typing: make_glb.py (420 findings)
    - blocked on: W348, W329, W275, W274
    - next: make_glb.py: 210 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x100:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-66. **W372** (blocked) el-openglo typing: make_union.py (192 findings)
+67. **W372** (blocked) el-openglo typing: make_union.py (192 findings)
    - blocked on: W321, W322, W323, W324, W309, W275
    - next: make_union.py: 64 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x36:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-67. **W371** (blocked) el-openglo typing: make_firefox.py (550 findings)
+68. **W371** (blocked) el-openglo typing: make_firefox.py (550 findings)
    - blocked on: W321, W322, W323, W324, W309, W275, W278
    - next: make_firefox.py: 110 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x54:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-68. **W375** (blocked) el-openglo typing: make_gtk.py (102 findings)
+69. **W375** (blocked) el-openglo typing: make_gtk.py (102 findings)
    - blocked on: W371, W275
    - next: make_gtk.py: 34 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x20: Expression
      has type "…". Annotate from the consumers, judged by the house count of this file.
-69. **W373** (blocked) el-openglo typing: scripts/check_action_key.py (1668 findings)
+70. **W373** (blocked) el-openglo typing: scripts/check_action_key.py (1668 findings)
    - blocked on: W322, W323, W324, W312, W275, W282, W276
    - next: scripts/check_action_key.py: 834 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x364: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-70. **W362** (blocked) el-openglo typing: make_palette.py (12140 findings)
+71. **W362** (blocked) el-openglo typing: make_palette.py (12140 findings)
    - blocked on: W321, W309, W360
    - next: make_palette.py: 595 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x262:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-71. **W363** (blocked) el-openglo typing: make_schemes.py (5140 findings)
+72. **W363** (blocked) el-openglo typing: make_schemes.py (5140 findings)
    - blocked on: W321, W275, W362
    - next: make_schemes.py: 257 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x144:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-72. **W366** (blocked) el-openglo typing: make_wallpaper_live.py (2380 findings)
+73. **W366** (blocked) el-openglo typing: make_wallpaper_live.py (2380 findings)
    - blocked on: W321, W280, W275, W274
    - next: make_wallpaper_live.py: 117 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x44:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-73. **W360** (blocked) el-openglo typing: glance_audit.py (2320 findings)
+74. **W360** (blocked) el-openglo typing: glance_audit.py (2320 findings)
    - blocked on: W321, W309, W366
    - next: glance_audit.py: 116 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x63:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-74. **W361** (blocked) el-openglo typing: make_clock.py (2120 findings)
+75. **W361** (blocked) el-openglo typing: make_clock.py (2120 findings)
    - blocked on: W321, W280, W275, W365, W274
    - next: make_clock.py: 105 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x51:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-75. **W328** (blocked) el-openglo typing: scripts/opa_gate.py (2160 findings)
+76. **W328** (blocked) el-openglo typing: scripts/opa_gate.py (2160 findings)
    - blocked on: W320
    - next: scripts/opa_gate.py: 535 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x216:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-76. **W365** (blocked) el-openglo typing: make_taskswitch.py (420 findings)
+77. **W365** (blocked) el-openglo typing: make_taskswitch.py (420 findings)
    - blocked on: W321, W275, W366
    - next: make_taskswitch.py: 21 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      no-untyped-call x8: Call to untyped function "…" in typed context. Annotate from the consumers, judged by the house
      count of this file.
-77. **W387** (blocked) el-openglo typing: make_css.py (98 findings)
+78. **W387** (blocked) el-openglo typing: make_css.py (98 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W275
    - next: make_css.py: 49 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x27: Expression
      has type "…". Annotate from the consumers, judged by the house count of this file.
-78. **W364** (blocked) el-openglo typing: make_segment_display.py (800 findings)
+79. **W364** (blocked) el-openglo typing: make_segment_display.py (800 findings)
    - blocked on: W321, W363, W274
    - next: make_segment_display.py: 52 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x20:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-79. **W385** (blocked) el-openglo typing: make_sddm.py (335 findings)
+80. **W385** (blocked) el-openglo typing: make_sddm.py (335 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W280, W275, W274
    - next: make_sddm.py: 65 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x33: Expression
      has type "…". Annotate from the consumers, judged by the house count of this file.
-80. **W386** (blocked) el-openglo typing: make_tokens.py (201 findings)
+81. **W386** (blocked) el-openglo typing: make_tokens.py (201 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W275
    - next: make_tokens.py: 67 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x25:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-81. **W389** (blocked) el-openglo typing: make_kvantum.py (80 findings)
+82. **W389** (blocked) el-openglo typing: make_kvantum.py (80 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W275
    - next: make_kvantum.py: 80 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x38:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-82. **W388** (blocked) el-openglo typing: make_aurorae.py (118 findings)
+83. **W388** (blocked) el-openglo typing: make_aurorae.py (118 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W275
    - next: make_aurorae.py: 118 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x56:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-83. **W390** (blocked) el-openglo typing: make_plasma.py (130 findings)
+84. **W390** (blocked) el-openglo typing: make_plasma.py (130 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W275
    - next: make_plasma.py: 130 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x49:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-84. **W340** (blocked) el-openglo typing: scripts/check_partial.py (44 findings)
+85. **W340** (blocked) el-openglo typing: scripts/check_partial.py (44 findings)
    - blocked on: W328
    - next: scripts/check_partial.py: 44 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x22: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-85. **W342** (blocked) el-openglo typing: scripts/check_routes.py (50 findings)
+86. **W342** (blocked) el-openglo typing: scripts/check_routes.py (50 findings)
    - blocked on: W328
    - next: scripts/check_routes.py: 50 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x23:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-86. **W343** (blocked) el-openglo typing: scripts/check_scope_recorded.py (51 findings)
+87. **W343** (blocked) el-openglo typing: scripts/check_scope_recorded.py (51 findings)
    - blocked on: W328
    - next: scripts/check_scope_recorded.py: 51 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x21: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-87. **W332** (blocked) el-openglo typing: scripts/check_compiles.py (59 findings)
+88. **W332** (blocked) el-openglo typing: scripts/check_compiles.py (59 findings)
    - blocked on: W328, W276
    - next: scripts/check_compiles.py: 59 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x27: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-88. **W345** (blocked) el-openglo typing: scripts/check_standards.py (71 findings)
+89. **W345** (blocked) el-openglo typing: scripts/check_standards.py (71 findings)
    - blocked on: W328
    - next: scripts/check_standards.py: 71 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x31: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-89. **W333** (blocked) el-openglo typing: scripts/check_consumers.py (74 findings)
+90. **W333** (blocked) el-openglo typing: scripts/check_consumers.py (74 findings)
    - blocked on: W328
    - next: scripts/check_consumers.py: 74 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x33: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-90. **W337** (blocked) el-openglo typing: scripts/check_guest_recipe.py (82 findings)
+91. **W337** (blocked) el-openglo typing: scripts/check_guest_recipe.py (82 findings)
    - blocked on: W328
    - next: scripts/check_guest_recipe.py: 82 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x41: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-91. **W344** (blocked) el-openglo typing: scripts/check_st_api.py (92 findings)
+92. **W344** (blocked) el-openglo typing: scripts/check_st_api.py (92 findings)
    - blocked on: W328, W276
    - next: scripts/check_st_api.py: 92 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x38:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-92. **W339** (blocked) el-openglo typing: scripts/check_mark.py (126 findings)
+93. **W339** (blocked) el-openglo typing: scripts/check_mark.py (126 findings)
    - blocked on: W328, W276
    - next: scripts/check_mark.py: 126 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x51:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-93. **W334** (blocked) el-openglo typing: scripts/check_contracts.py (139 findings)
+94. **W334** (blocked) el-openglo typing: scripts/check_contracts.py (139 findings)
    - blocked on: W328
    - next: scripts/check_contracts.py: 139 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x53: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-94. **W351** (blocked) el-openglo typing: scripts/check_embedded_markup.py (144 findings)
+95. **W351** (blocked) el-openglo typing: scripts/check_embedded_markup.py (144 findings)
    - blocked on: W328, W276, W286
    - next: scripts/check_embedded_markup.py: 144 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x57: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-95. **W338** (blocked) el-openglo typing: scripts/check_hooks.py (150 findings)
+96. **W338** (blocked) el-openglo typing: scripts/check_hooks.py (150 findings)
    - blocked on: W328
    - next: scripts/check_hooks.py: 150 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x64:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-96. **W341** (blocked) el-openglo typing: scripts/check_render_constants.py (157 findings)
+97. **W341** (blocked) el-openglo typing: scripts/check_render_constants.py (157 findings)
    - blocked on: W328, W276
    - next: scripts/check_render_constants.py: 157 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x72: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-97. **W335** (blocked) el-openglo typing: scripts/check_deps.py (173 findings)
+98. **W335** (blocked) el-openglo typing: scripts/check_deps.py (173 findings)
    - blocked on: W328, W276
    - next: scripts/check_deps.py: 173 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x69:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-98. **W336** (blocked) el-openglo typing: scripts/check_ebuild.py (262 findings)
+99. **W336** (blocked) el-openglo typing: scripts/check_ebuild.py (262 findings)
    - blocked on: W328, W276
    - next: scripts/check_ebuild.py: 394 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x153: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-99. **W353** (blocked) el-openglo typing: scripts/check_token_source.py (88 findings)
+100. **W353** (blocked) el-openglo typing: scripts/check_token_source.py (88 findings)
    - blocked on: W328, W275
    - next: scripts/check_token_source.py: 88 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x38: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-100. **W350** (blocked) el-openglo typing: scripts/check_publishing.py (123 findings)
+101. **W350** (blocked) el-openglo typing: scripts/check_publishing.py (123 findings)
    - blocked on: W328, W275
    - next: scripts/check_publishing.py: 123 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x52: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-101. **W393** (blocked) el-openglo typing: make_android_clock.py (148 findings)
+102. **W393** (blocked) el-openglo typing: make_android_clock.py (148 findings)
    - blocked on: W329, W386, W275, W274
    - next: make_android_clock.py: 74 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x30:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-102. **W359** (blocked) el-openglo typing: scripts/check_relations.py (153 findings)
+103. **W359** (blocked) el-openglo typing: scripts/check_relations.py (153 findings)
    - blocked on: W313, W328, W278
    - next: scripts/check_relations.py: 153 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x65: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-103. **W352** (blocked) el-openglo typing: scripts/check_package_imports.py (82 findings)
+104. **W352** (blocked) el-openglo typing: scripts/check_package_imports.py (82 findings)
    - blocked on: W328, W282
    - next: scripts/check_package_imports.py: 82 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x34: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-104. **W357** (blocked) el-openglo typing: scripts/check_codomain.py (91 findings)
+105. **W357** (blocked) el-openglo typing: scripts/check_codomain.py (91 findings)
    - blocked on: W350
    - next: scripts/check_codomain.py: 91 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x42: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-105. **W391** (blocked) el-openglo typing: scripts/variant_roster.py (246 findings)
+106. **W391** (blocked) el-openglo typing: scripts/variant_roster.py (246 findings)
    - blocked on: W360, W361, W362, W322, W363, W364, W365, W323, W366, W324, W276
    - next: scripts/variant_roster.py: 123 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x51: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-106. **W392** (blocked) el-openglo typing: scripts/check_symbol.py (852 findings)
+107. **W392** (blocked) el-openglo typing: scripts/check_symbol.py (852 findings)
    - blocked on: W360, W361, W362, W346, W363, W364, W365, W366
    - next: scripts/check_symbol.py: 855 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x328: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-107. **W369** (blocked) el-openglo typing: scripts/check_netlist_render.py (124 findings)
+108. **W369** (blocked) el-openglo typing: scripts/check_netlist_render.py (124 findings)
    - blocked on: W326, W328, W278, W313
    - next: scripts/check_netlist_render.py: 124 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x58: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-108. **W401** (blocked) el-openglo typing: make_vscode.py (270 findings)
+109. **W401** (blocked) el-openglo typing: make_vscode.py (270 findings)
    - blocked on: W360, W361, W371, W368, W362, W363, W364, W365, W366, W309, W275
    - next: make_vscode.py: 135 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x57:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-109. **W376** (blocked) el-openglo typing: scripts/check_metrics.py (112 findings)
+110. **W376** (blocked) el-openglo typing: scripts/check_metrics.py (112 findings)
    - blocked on: W325, W328, W282, W283
    - next: scripts/check_metrics.py: 112 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x47: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-110. **W370** (blocked) el-openglo typing: scripts/check_role_theme.py (268 findings)
+111. **W370** (blocked) el-openglo typing: scripts/check_role_theme.py (268 findings)
    - blocked on: W327, W328, W309
    - next: scripts/check_role_theme.py: 266 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x108: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-111. **W403** (blocked) el-openglo typing: scripts/check_cursors.py (244 findings)
+112. **W403** (blocked) el-openglo typing: scripts/check_cursors.py (244 findings)
    - blocked on: W354, W391, W311
    - next: scripts/check_cursors.py: 244 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x111: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-112. **W374** (blocked) el-openglo typing: scripts/check_projection.py (1908 findings)
+113. **W374** (blocked) el-openglo typing: scripts/check_projection.py (1908 findings)
    - blocked on: W331, W328
    - next: scripts/check_projection.py: 318 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x147: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-113. **W380** (blocked) el-openglo typing: scripts/check_chrome_zips.py (52 findings)
+114. **W380** (blocked) el-openglo typing: scripts/check_chrome_zips.py (52 findings)
    - blocked on: W328, W356
    - next: scripts/check_chrome_zips.py: 52 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x24: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-114. **W378** (blocked) el-openglo typing: scripts/check_plymouth_digits.py (69 findings)
+115. **W378** (blocked) el-openglo typing: scripts/check_plymouth_digits.py (69 findings)
    - blocked on: W346, W328, W274
    - next: scripts/check_plymouth_digits.py: 69 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x28: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-115. **W377** (blocked) el-openglo typing: scripts/check_font.py (246 findings)
+116. **W377** (blocked) el-openglo typing: scripts/check_font.py (246 findings)
    - blocked on: W348, W328, W329
    - next: scripts/check_font.py: 246 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x103:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-116. **W382** (blocked) el-openglo typing: scripts/check_glb.py (220 findings)
+117. **W382** (blocked) el-openglo typing: scripts/check_glb.py (220 findings)
    - blocked on: W355, W328
    - next: scripts/check_glb.py: 220 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x91:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-117. **W383** (blocked) el-openglo typing: scripts/check_matrix_input.py (110 findings)
+118. **W383** (blocked) el-openglo typing: scripts/check_matrix_input.py (110 findings)
    - blocked on: W329, W374, W310
    - next: scripts/check_matrix_input.py: 110 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x60: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-118. **W381** (blocked) el-openglo typing: scripts/check_display_registry.py (264 findings)
+119. **W381** (blocked) el-openglo typing: scripts/check_display_registry.py (264 findings)
    - blocked on: W329, W374, W328, W274
    - next: scripts/check_display_registry.py: 264 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x117: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-119. **W379** (blocked) el-openglo typing: font_compiler.py (1684 findings)
+120. **W379** (blocked) el-openglo typing: font_compiler.py (1684 findings)
    - blocked on: W329, W374, W310, W274
    - next: font_compiler.py: 842 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x379:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-120. **W400** (blocked) el-openglo typing: scripts/check_states.py (80 findings)
+121. **W400** (blocked) el-openglo typing: scripts/check_states.py (80 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309
    - next: scripts/check_states.py: 78 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x30:
      Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this file.
-121. **W399** (blocked) el-openglo typing: scripts/check_solver_roots.py (99 findings)
+122. **W399** (blocked) el-openglo typing: scripts/check_solver_roots.py (99 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309
    - next: scripts/check_solver_roots.py: 90 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x48: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-122. **W396** (blocked) el-openglo typing: scripts/check_palette_chain.py (103 findings)
+123. **W396** (blocked) el-openglo typing: scripts/check_palette_chain.py (103 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309, W276
    - next: scripts/check_palette_chain.py: 103 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x48: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-123. **W394** (blocked) el-openglo typing: scripts/check_ghost_balance.py (120 findings)
+124. **W394** (blocked) el-openglo typing: scripts/check_ghost_balance.py (120 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309, W321
    - next: scripts/check_ghost_balance.py: 120 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x57: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-124. **W398** (blocked) el-openglo typing: scripts/check_separation.py (188 findings)
+125. **W398** (blocked) el-openglo typing: scripts/check_separation.py (188 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309, W278
    - next: scripts/check_separation.py: 180 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x78: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-125. **W397** (blocked) el-openglo typing: scripts/check_palette_graph.py (211 findings)
+126. **W397** (blocked) el-openglo typing: scripts/check_palette_graph.py (211 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309, W278
    - next: scripts/check_palette_graph.py: 211 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x87: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-126. **W395** (blocked) el-openglo typing: scripts/check_nodal.py (281 findings)
+127. **W395** (blocked) el-openglo typing: scripts/check_nodal.py (281 findings)
    - blocked on: W360, W361, W362, W363, W364, W365, W366, W328, W309, W321, W278
    - next: scripts/check_nodal.py: 269 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x118: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-127. **W402** (blocked) el-openglo typing: scripts/check_css.py (138 findings)
+128. **W402** (blocked) el-openglo typing: scripts/check_css.py (138 findings)
    - blocked on: W387, W328
    - next: scripts/check_css.py: 138 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x61:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-128. **W384** (blocked) el-openglo typing: scripts/check_font_compiler.py (240 findings)
+129. **W384** (blocked) el-openglo typing: scripts/check_font_compiler.py (240 findings)
    - blocked on: W379, W329, W331, W374, W328, W274
    - next: scripts/check_font_compiler.py: 240 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x107: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of
      this file.
-129. **W404** (blocked) el-openglo typing: scripts/check_geometry_source.py (186 findings)
+130. **W404** (blocked) el-openglo typing: scripts/check_geometry_source.py (186 findings)
    - blocked on: W360, W361, W362, W322, W363, W364, W365, W323, W366, W324, W328, W274
    - next: scripts/check_geometry_source.py: 186 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x78: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-130. **W407** (blocked) el-openglo typing: scripts/check_rehue.py (114 findings)
+131. **W407** (blocked) el-openglo typing: scripts/check_rehue.py (114 findings)
    - blocked on: W328, W391, W309, W362, W366
    - next: scripts/check_rehue.py: 112 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x45:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-131. **W406** (blocked) el-openglo typing: scripts/check_monet.py (211 findings)
+132. **W406** (blocked) el-openglo typing: scripts/check_monet.py (211 findings)
    - blocked on: W328, W391, W309, W322
    - next: scripts/check_monet.py: 205 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x92:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-132. **W405** (blocked) el-openglo typing: scripts/check_selection_contrast.py (394 findings)
+133. **W405** (blocked) el-openglo typing: scripts/check_selection_contrast.py (394 findings)
    - blocked on: W328, W391, W309, W362
    - next: scripts/check_selection_contrast.py: 390 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x179: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-133. **W408** (blocked) el-openglo typing: scripts/check_chrome.py (164 findings)
+134. **W408** (blocked) el-openglo typing: scripts/check_chrome.py (164 findings)
    - blocked on: W347, W328, W391, W324
    - next: scripts/check_chrome.py: 164 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x67: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-134. **W412** (blocked) el-openglo typing: scripts/check_union.py (129 findings)
+135. **W412** (blocked) el-openglo typing: scripts/check_union.py (129 findings)
    - blocked on: W372, W328, W391
    - next: scripts/check_union.py: 129 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x55:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-135. **W411** (blocked) el-openglo typing: scripts/check_tokens.py (142 findings)
+136. **W411** (blocked) el-openglo typing: scripts/check_tokens.py (142 findings)
    - blocked on: W386, W328, W391
    - next: scripts/check_tokens.py: 142 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x61: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-136. **W409** (blocked) el-openglo typing: scripts/check_inherit.py (127 findings)
+137. **W409** (blocked) el-openglo typing: scripts/check_inherit.py (127 findings)
    - blocked on: W311, W328, W391
    - next: scripts/check_inherit.py: 127 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x55: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-137. **W410** (blocked) el-openglo typing: scripts/check_terminals.py (299 findings)
+138. **W410** (blocked) el-openglo typing: scripts/check_terminals.py (299 findings)
    - blocked on: W368, W328, W391
    - next: scripts/check_terminals.py: 299 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x109: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-138. **W415** (blocked) el-openglo typing: scripts/check_windows.py (138 findings)
+139. **W415** (blocked) el-openglo typing: scripts/check_windows.py (138 findings)
    - blocked on: W349, W405, W322, W328, W391
    - next: scripts/check_windows.py: 138 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x49: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-139. **W419** (blocked) el-openglo typing: scripts/check_vscode.py (295 findings)
+140. **W419** (blocked) el-openglo typing: scripts/check_vscode.py (295 findings)
    - blocked on: W401, W328, W391, W309
    - next: scripts/check_vscode.py: 295 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x125: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-140. **W414** (blocked) el-openglo typing: scripts/check_firefox.py (244 findings)
+141. **W414** (blocked) el-openglo typing: scripts/check_firefox.py (244 findings)
    - blocked on: W371, W405, W328
    - next: scripts/check_firefox.py: 244 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x109: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-141. **W418** (blocked) el-openglo typing: scripts/check_gtk.py (157 findings)
+142. **W418** (blocked) el-openglo typing: scripts/check_gtk.py (157 findings)
    - blocked on: W375, W405, W309, W328
    - next: scripts/check_gtk.py: 157 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x65:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-142. **W413** (blocked) el-openglo typing: make_notify_marquee.py (535 findings)
+143. **W413** (blocked) el-openglo typing: make_notify_marquee.py (535 findings)
    - blocked on: W329, W360, W361, W362, W363, W364, W365, W366, W374, W280, W275
    - next: make_notify_marquee.py: 105 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x43:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-143. **W422** (blocked) el-openglo typing: scripts/check_android_clock.py (157 findings)
+144. **W422** (blocked) el-openglo typing: scripts/check_android_clock.py (157 findings)
    - blocked on: W393, W328, W391, W363
    - next: scripts/check_android_clock.py: 157 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x77: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-144. **W416** (blocked) el-openglo typing: scripts/check_template_parity.py (164 findings)
+145. **W416** (blocked) el-openglo typing: scripts/check_template_parity.py (164 findings)
    - blocked on: W413, W280, W328
    - next: scripts/check_template_parity.py: 240 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x124: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-145. **W417** (blocked) el-openglo typing: scripts/check_ghost_composite.py (355 findings)
+146. **W417** (blocked) el-openglo typing: scripts/check_ghost_composite.py (355 findings)
    - blocked on: W413, W309, W321, W331, W363, W364, W278, W328, W274
    - next: scripts/check_ghost_composite.py: 355 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x171: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-146. **W420** (blocked) el-openglo typing: scripts/check_marquee_body.py (347 findings)
+147. **W420** (blocked) el-openglo typing: scripts/check_marquee_body.py (347 findings)
    - blocked on: W413, W282
    - next: scripts/check_marquee_body.py: 375 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x153: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of
      this file.
-147. **W421** (blocked) el-openglo typing: scripts/check_config_page.py (156 findings)
+148. **W421** (blocked) el-openglo typing: scripts/check_config_page.py (156 findings)
    - blocked on: W416, W280
    - next: scripts/check_config_page.py: 156 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x67: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-148. **W423** (blocked) el-openglo typing: scripts/check_config_load.py (140 findings)
+149. **W423** (blocked) el-openglo typing: scripts/check_config_load.py (140 findings)
    - blocked on: W416, W282
    - next: scripts/check_config_load.py: 140 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x59: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-149. **W424** (blocked) el-openglo typing: scripts/check_ghost_surfaces.py (197 findings)
+150. **W424** (blocked) el-openglo typing: scripts/check_ghost_surfaces.py (197 findings)
    - blocked on: W413, W346, W361, W322, W363, W365, W366
    - next: scripts/check_ghost_surfaces.py: 197 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x82: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-150. **W426** (blocked) el-openglo typing: scripts/check_marquee_live.py (950 findings)
+151. **W426** (blocked) el-openglo typing: scripts/check_marquee_live.py (950 findings)
    - blocked on: W413, W367, W280, W322, W366, W282, W283
    - next: scripts/check_marquee_live.py: 645 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x272: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-151. **W425** (blocked) el-openglo typing: catalog/library/render_samples.py (235 findings)
+152. **W425** (blocked) el-openglo typing: catalog/library/render_samples.py (235 findings)
    - blocked on: W413, W346, W391, W309, W329, W322, W323
    - next: catalog/library/render_samples.py: 235 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x101: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-152. **W428** (blocked) el-openglo typing: scripts/render_qml.py (1616 findings)
+153. **W428** (blocked) el-openglo typing: scripts/render_qml.py (1616 findings)
    - blocked on: W413, W385, W367, W280, W361, W322, W365, W366, W282, W283
    - next: scripts/render_qml.py: 403 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x216:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-153. **W427** (blocked) el-openglo typing: catalog/library/concepts.py (121 findings)
+154. **W427** (blocked) el-openglo typing: catalog/library/concepts.py (121 findings)
    - blocked on: W425, W329, W322
    - next: catalog/library/concepts.py: 121 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x50: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-154. **W431** (blocked) el-openglo typing: catalog/library/screens_viewport.py (18 findings)
+155. **W431** (blocked) el-openglo typing: catalog/library/screens_viewport.py (18 findings)
    - blocked on: W428
    - next: catalog/library/screens_viewport.py: 9 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x6: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-155. **W430** (blocked) el-openglo typing: qml_sanity.py (210 findings)
+156. **W430** (blocked) el-openglo typing: qml_sanity.py (210 findings)
    - blocked on: W428, W282
    - next: qml_sanity.py: 70 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x36:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-156. **W216** (blocked) SegmentChar axis 2: boundary depth, how far a segment cap fades before its tip, centre-fed and
+157. **W216** (blocked) SegmentChar axis 2: boundary depth, how far a segment cap fades before its tip, centre-fed and
    mirror-invariant, held by opa_gate symmetry
    - blocked on: W542
    - next: Rendered the calibration sheet (boundaryDepth 0.5, 0.4, 0.3 on the clock, EL-Openglo) and put the choice to
@@ -1425,82 +1429,82 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      fade near the tips. On the answer: change the one default in display_params if it is not 0.5, re-record the
      SegmentChar parity baseline, re-render clock, live-wallpaper and sddm screens. Also confirm W98 (RHI render with
      bloom) is still the render path the card named: the sheet rendered on the settled harness via render_qml.render.
-157. **W222** (blocked) Oxygen flavour renders with the EL scheme: apply org.el.openglo.elazureoxygen in the k8s+KVM VM
+158. **W222** (blocked) Oxygen flavour renders with the EL scheme: apply org.el.openglo.elazureoxygen in the k8s+KVM VM
    and screenshot a window
    - blocked on: luthen-observability:W163
    - next: Through luthen (k8s+KVM VM, per the k8s-test-harness memory): install the staged el-openglo tree,
      plasma-apply-lookandfeel -a org.el.openglo.elazureoxygen, open a window with a selection, buttons and a titlebar,
      screenshot; compare against org.el.openglo.elazure (Breeze) on the same scene - selection, button and titlebar
      colours must be the EL-Azure roles in both. check_lnf (W37) covers the keys; this covers the drawing.
-158. **W433** (blocked) el-openglo typing: scripts/check_legibility.py (158 findings)
+159. **W433** (blocked) el-openglo typing: scripts/check_legibility.py (158 findings)
    - blocked on: W428, W413
    - next: scripts/check_legibility.py: 158 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x70: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-159. **W235** (blocked) Guest image recipe: oci/guest/ mmdebstrap + containerDisk, refusing an unpinned snapshot
+160. **W235** (blocked) Guest image recipe: oci/guest/ mmdebstrap + containerDisk, refusing an unpinned snapshot
    (guest-image.md W71c)
    - blocked on: luthen-observability:W163
    - next: Re-scoped 2026-10-12 to option b: the guest-VM track waits behind luthen-observability:W163 (TTL reaper,
      itself behind the Gentoo base W41). The near-term path is the offscreen Pod soak (W515, W516, luthen W841). Resume
      the guest image recipe build when W163 ships
-160. **W436** (blocked) el-openglo typing: scripts/check_sddm.py (82 findings)
+161. **W436** (blocked) el-openglo typing: scripts/check_sddm.py (82 findings)
    - blocked on: W428, W391
    - next: scripts/check_sddm.py: 82 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x37:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-161. **W435** (blocked) el-openglo typing: scripts/check_aperture.py (119 findings)
+162. **W435** (blocked) el-openglo typing: scripts/check_aperture.py (119 findings)
    - blocked on: W428, W391, W322, W366
    - next: scripts/check_aperture.py: 119 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x52: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-162. **W429** (blocked) el-openglo typing: scripts/check_notify_roles.py (140 findings)
+163. **W429** (blocked) el-openglo typing: scripts/check_notify_roles.py (140 findings)
    - blocked on: W426
    - next: scripts/check_notify_roles.py: 140 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x61: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-163. **W440** (blocked) el-openglo typing: scripts/check_taskswitch.py (142 findings)
+164. **W440** (blocked) el-openglo typing: scripts/check_taskswitch.py (142 findings)
    - blocked on: W430, W391, W365, W366, W367
    - next: scripts/check_taskswitch.py: 142 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x68: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-164. **W439** (blocked) el-openglo typing: scripts/check_qml_lint.py (183 findings)
+165. **W439** (blocked) el-openglo typing: scripts/check_qml_lint.py (183 findings)
    - blocked on: W430, W416, W280, W328
    - next: scripts/check_qml_lint.py: 193 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x80: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-165. **W432** (blocked) el-openglo typing: scripts/check_config_reach.py (185 findings)
+166. **W432** (blocked) el-openglo typing: scripts/check_config_reach.py (185 findings)
    - blocked on: W428, W280, W282, W426, W328, W283
    - next: scripts/check_config_reach.py: 341 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x135: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-166. **W434** (blocked) el-openglo typing: scripts/check_urgency_cues.py (734 findings)
+167. **W434** (blocked) el-openglo typing: scripts/check_urgency_cues.py (734 findings)
    - blocked on: W420, W426, W391, W329, W413, W322
    - next: scripts/check_urgency_cues.py: 965 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x401: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-167. **W221** (blocked) Palette solver as a nodal solve: drive make_palette from the palette_relations netlist through
+168. **W221** (blocked) Palette solver as a nodal solve: drive make_palette from the palette_relations netlist through
    gcalc.solver, searching only the residual discrete choice
    - blocked on: W227
    - next: On the W227 ruling: core -> make_palette reads gcalc.solver for the linear relations (ghost divider first,
      then lightness/signed contrast), with N3 as the regression guard; sibling -> close W221 on the witness shape
      (check_nodal + policy/nodal N2/N3), its separation and ghost-floor work carried by W226 and W228.
-168. **W120** (blocked) Nothing bespoke: every tracked asset is either emitted or a named lift debt
+169. **W120** (blocked) Nothing bespoke: every tracked asset is either emitted or a named lift debt
    - blocked on: W190, W191, W192
    - next: Umbrella: done when W190-W192 land.
-169. **W220** (blocked) Solver contrast is two-rooted: search both polarity branches (text lighter AND darker than the
+170. **W220** (blocked) Solver contrast is two-rooted: search both polarity branches (text lighter AND darker than the
    field) and pale tints, instead of guessing one by ground L < 0.4
    - blocked on: W224
    - next: The fix is HELD as .claude/held/w220-two-roots.patch (make_palette.py + the six rebuilt .colors; the gates
      read the working tree, so it cannot sit uncommitted). On the W224 ruling: git apply it, adjust tints per the
      ruling, rebuild schemes AND every downstream emitter (make_css, screens via render_screens, action keys), commit
      with an @SOLVER-ROOTS warrant citing opa_gate solver_roots, then delete the patch.
-170. **W437** (blocked) el-openglo typing: scripts/check_symmetry.py (631 findings)
+171. **W437** (blocked) el-openglo typing: scripts/check_symmetry.py (631 findings)
    - blocked on: W426, W428, W361, W364, W365, W328
    - next: scripts/check_symmetry.py: 631 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x261: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-171. **W445** (blocked) el-openglo typing: make_deb.py (534 findings)
+172. **W445** (blocked) el-openglo typing: make_deb.py (534 findings)
    - blocked on: W347, W354, W348, W375, W368, W325, W346, W372, W349, W430, W275, W360, W361, W371, W311, W413, W322,
      W385, W365, W366
    - next: make_deb.py: 267 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x129:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-172. **W283** (blocked) el-openglo typing: scripts/plasma_rewrite.py (32 findings)
+173. **W283** (blocked) el-openglo typing: scripts/plasma_rewrite.py (32 findings)
    - blocked on: W762
    - next: scripts/plasma_rewrite.py: 8 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x3:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-173. **W194** (blocked) Thin Kotlin clock renderer drawn on a JVM bitmap from the emitted JSON, judged by the existing
+174. **W194** (blocked) Thin Kotlin clock renderer drawn on a JVM bitmap from the emitted JSON, judged by the existing
    screen checks
    - blocked on: operator: decide where the JDK for the thin Kotlin renderer comes from: a container via the k8s
      harness, or a host install
@@ -1508,99 +1512,99 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      backed by java.awt BufferedImage (a JDK image, lighter than Robolectric android-all), on Android by
      android.graphics.Canvas. Render each variant to PNG and run check_symmetry / pip-grid / token checks on it. Needs a
      JDK: a container or a host install is the operator call at that point.
-174. **W122** (blocked) An Android live wallpaper of the segment clock, emitted from the core
+175. **W122** (blocked) An Android live wallpaper of the segment clock, emitted from the core
    - blocked on: W194, W195
    - next: Umbrella: done when W193-W195 land.
-175. **W133** (blocked) Put WCAG contrast and colour-blindness separation inside the palette's conductance graph
+176. **W133** (blocked) Put WCAG contrast and colour-blindness separation inside the palette's conductance graph
    - blocked on: W197
    - next: Umbrella: done when W196-W198 land.
-176. **W438** (blocked) el-openglo typing: scripts/check_kerning.py (82 findings)
+177. **W438** (blocked) el-openglo typing: scripts/check_kerning.py (82 findings)
    - blocked on: W434, W329, W413
    - next: scripts/check_kerning.py: 106 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x39: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-177. **W448** (blocked) el-openglo typing: scripts/check_migration.py (58 findings)
+178. **W448** (blocked) el-openglo typing: scripts/check_migration.py (58 findings)
    - blocked on: W445, W282, W328
    - next: scripts/check_migration.py: 58 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x30: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-178. **W531** (blocked) Census the numeric literals inside render bindings (clock digit ratio 0.42, blink and timer
+179. **W531** (blocked) Census the numeric literals inside render bindings (clock digit ratio 0.42, blink and timer
    intervals, halo blur law, marquee paddings), each exposed or withheld with a reason
    - blocked on: W678
-179. **W447** (blocked) el-openglo typing: scripts/check_lnf.py (114 findings)
+180. **W447** (blocked) el-openglo typing: scripts/check_lnf.py (114 findings)
    - blocked on: W445, W328
    - next: scripts/check_lnf.py: 114 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x48:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-180. **W71** (blocked) Guest boot image for the VM probes: Plasma 6, SDDM and plymouth with our themes
+181. **W71** (blocked) Guest boot image for the VM probes: Plasma 6, SDDM and plymouth with our themes
    - blocked on: W240
    - next: Umbrella: closes when W236 (probe digest) and W240 (probe runs, behind W235/W237/W238/W239) land.
-181. **W449** (blocked) el-openglo typing: scripts/check_package_load.py (126 findings)
+182. **W449** (blocked) el-openglo typing: scripts/check_package_load.py (126 findings)
    - blocked on: W445, W282
    - next: scripts/check_package_load.py: 143 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x63: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-182. **W75** (blocked) Let a claim cite a gate that must deny, without sitting red forever
+183. **W75** (blocked) Let a claim cite a gate that must deny, without sitting red forever
    - blocked on: W756, W757, W758
    - next: Slices landed or queued: tokens (7ed6163), standards and css (bt0vvz6jt). The path-taking measures are used
      up; gtk, firefox and union main() call measure() with no argument and render live content, so each next slice needs
      measure to take the document (or text) first, then the fixture operand, the warrant and an --expect. Take them one
      policy per entry in a single stack.
-183. **W450** (blocked) el-openglo typing: scripts/check_plugin_ids.py (149 findings)
+184. **W450** (blocked) el-openglo typing: scripts/check_plugin_ids.py (149 findings)
    - blocked on: W445
    - next: scripts/check_plugin_ids.py: 149 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x66: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-184. **W286** (blocked) el-openglo typing: scripts/identify.py (105 findings)
+185. **W286** (blocked) el-openglo typing: scripts/identify.py (105 findings)
    - blocked on: W762
    - next: scripts/identify.py: 105 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x35:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-185. **W446** (blocked) el-openglo typing: scripts/check_license.py (477 findings)
+186. **W446** (blocked) el-openglo typing: scripts/check_license.py (477 findings)
    - blocked on: W445, W275, W276, W328
    - next: scripts/check_license.py: 477 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x193: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count of this
      file.
-186. **W441** (blocked) el-openglo typing: catalog/library/render_screens.py (1096 findings)
+187. **W441** (blocked) el-openglo typing: catalog/library/render_screens.py (1096 findings)
    - blocked on: W431, W373, W426, W284, W322, W366, W428
    - next: catalog/library/render_screens.py: 742 house finding(s) (typing_census --by-file-idiom); the dominant idiom
      is misc x290: Expression type contains "…" (has type "…"). Annotate from the consumers, judged by the house count
      of this file.
-187. **W247** (blocked) Declare more surfaces in policy/contracts.rego: screens still rows, make_preview.parse_scheme,
+188. **W247** (blocked) Declare more surfaces in policy/contracts.rego: screens still rows, make_preview.parse_scheme,
    make_schemes.GRID, and each check --json record
    - blocked on: W739
    - next: Umbrella, atomized 2026-10-18: W688 screens still rows, W689 make_preview.parse_scheme, W690
      make_schemes.GRID, each a declared surface measured in check_contracts (a chain, since they share
      policy/contracts.rego and scripts/check_contracts.py). Left for a leaf of its own once those land: the --json
      record of each check. Closes when the children are done.
-188. **W246** (blocked) check_contracts reads Rego consumers: policy/screens.rego reads the same animation rows
+189. **W246** (blocked) check_contracts reads Rego consumers: policy/screens.rego reads the same animation rows
    invisibly today; parse it with opa parse --format json into K2
    - blocked on: W247
    - next: policy/screens.rego reads a.frames, a.tears, a.seamless, a.shifts, a.logged_steps off the same render_screens
      animation rows: parse it with opa parse --format json (the Rego AST, not text), extract the field reads by
      receiver, and feed them into K2 beside check_screens reads; a refusing case: a Rego read of a field the declaration
      lacks is denied. Positive control: the five known reads are found.
-189. **W248** (blocked) Contracts flip to the producer: a producer-side test fails when a record omits a declared always
+190. **W248** (blocked) Contracts flip to the producer: a producer-side test fails when a record omits a declared always
    field, covering producers K3 cannot read statically (W203 make_preview.VARIANTS)
    - blocked on: W247
    - next: Make the declaration the source: a producer-side test (in the producer own selftest, importing the
      declaration) fails when a produced record omits a declared always field, so K3 also covers producers that are not
      statically readable - the W203 make_preview.VARIANTS case, where a key was dropped and every consumer was green.
      Refusing case: a producer that drops a declared field is denied.
-190. **W249** (blocked) Contracts: deny a consumer read of a when_exists field that is not guarded by the exists field
+191. **W249** (blocked) Contracts: deny a consumer read of a when_exists field that is not guarded by the exists field
    - blocked on: W246
    - next: In check_contracts, for a declared when_exists field (the 14 animation fields exist only when the animation
      exists), deny a consumer read that is not dominated by a check of the declared exists field; refusing case: an
      unguarded read is denied; admitting: a guarded one. The guard shape is the consumer own (an if on the exists key);
      read it from the AST.
-191. **W451** (blocked) el-openglo typing: scripts/check_root_helpers.py (234 findings)
+192. **W451** (blocked) el-openglo typing: scripts/check_root_helpers.py (234 findings)
    - blocked on: W445, W391, W346, W385
    - next: scripts/check_root_helpers.py: 234 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x103: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-192. **W156** (blocked) Unity package built on the engine core
+193. **W156** (blocked) Unity package built on the engine core
    - blocked on: operator: decide whether the Unity and Unreal engine packages are in scope for el-openglo. In scope:
      you then install the Unity Editor with a C# toolchain, and Unreal Engine with an Epic account that would publish on
      Fab, on a test machine, and say so here; out of scope: say so and W156 and W157 are dropped. There is no Unity,
      dotnet, mono, csc or Unreal Build Tool on this host, so nothing can be built until you answer.
    - next: On an editor + toolchain: a UPM package generated from the core (catalog/engines/*.glb, el-glyphs.json, the
      token material group), compiled and imported headless by Unity batchmode, listing the named segments.
-193. **W78** (blocked) Shift to the Bazel pattern the other repos use (per-output actions, declared populations, tiers)
+194. **W78** (blocked) Shift to the Bazel pattern the other repos use (per-output actions, declared populations, tiers)
    - blocked on: paperkit:W52
    - next: Independent of paperkit:W52, in order: (1) the executor image as a caller Containerfile for luthen W328
      (offscreen Qt6 + declared fonts + pinned layers; the toolchain-tier hermeticity the survey decomposed: tree inputs,
@@ -1609,92 +1613,92 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      reaches the verdict), standing, run by the gate; (3) BUILD generation from a declaration with a stale-BUILD gate,
      tiers per action (sandbox/toolchain/local). Then ask the operator whether mtools atoms satisfy no-fourth-copy so
      W52 stops being the blocker.
-194. **W154** (blocked) Blender add-on built on the engine core, for the Blender Extensions platform
+195. **W154** (blocked) Blender add-on built on the engine core, for the Blender Extensions platform
    - blocked on: W736
    - next: Keep oci/engines/Containerfile ready (blender + godot headless packages, snapshot-pinned like
      oci/guest/recipe.json) so the first W328 run is a one-step check; when W328 lands run the add-on checks through it.
-195. **W155** (blocked) Godot add-on built on the engine core
+196. **W155** (blocked) Godot add-on built on the engine core
    - blocked on: W736
    - next: When Godot can run headless (a container image from luthen or the operator): port
      catalog/engines/el-segment.glsl to a .gdshader and a Display node reading el-glyphs.json and the token file
      material group; check it loads and renders a named glyph.
-196. **W157** (blocked) Unreal plugin built on the engine core, for Fab
+197. **W157** (blocked) Unreal plugin built on the engine core, for Fab
    - blocked on: W156
    - next: On an engine install: a plugin generated from the core (the .glb meshes, el-glyphs.json, the token material
      group) that builds with UBT and loads in a headless editor commandlet, listing the named segments.
-197. **W197** (blocked) State the metric behind the selection-contrast floor of 3.0, and whether selected text needs 4.5
+198. **W197** (blocked) State the metric behind the selection-contrast floor of 3.0, and whether selected text needs 4.5
    - blocked on: W225, W220
    - next: Read scripts/check_selection_contrast.py FLOOR and its metric; record whether 3.0 is a WCAG ratio, APCA Lc or
      other; then ask the operator whether selected TEXT is held to 4.5.
-198. **W204** (blocked) Rego contracts for guaranteed information: each measurement record and authority surface
+199. **W204** (blocked) Rego contracts for guaranteed information: each measurement record and authority surface
    declares the fields it always carries, and consumers are checked against the declaration
    - blocked on: W246, W247, W248, W249
    - next: Umbrella: the first slice landed (render_screens.animation declared, consumer check, K0-K3); closes when
      W246-W249 land.
-199. **W513** (blocked) Memoise rendered glyphs on demand: key (codepoint, font, cell size, rule version), miss renders
+200. **W513** (blocked) Memoise rendered glyphs on demand: key (codepoint, font, cell size, rule version), miss renders
    once, the table persists across plasmashell restarts
    - blocked on: W678, W716, W717, W718
    - next: Decide in-process time-sliced versus helper process by measuring one page render cost under the Canvas route
      (after W512 fixes the rule), then implement the miss-first-then-page queue with the budget
-200. **W514** (blocked) Pre-render glyph tables from the system locale: map LANG and the installed scripts to Unicode
+201. **W514** (blocked) Pre-render glyph tables from the system locale: map LANG and the installed scripts to Unicode
    blocks and ship their tables through the font compiler (W30)
    - blocked on: W678
-201. **W442** (blocked) el-openglo typing: scripts/check_screens.py (192 findings)
+202. **W442** (blocked) el-openglo typing: scripts/check_screens.py (192 findings)
    - blocked on: W441, W322, W366
    - next: scripts/check_screens.py: 277 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x110: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-202. **W443** (blocked) el-openglo typing: scripts/readme_fragments.py (132 findings)
+203. **W443** (blocked) el-openglo typing: scripts/readme_fragments.py (132 findings)
    - blocked on: W441, W392, W391, W275, W322
    - next: scripts/readme_fragments.py: 132 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x53: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-203. **W212** (blocked) check_ebuild real-ebuild arm flakes: pkgcheck sometimes errors on repos.conf default repo
+204. **W212** (blocked) check_ebuild real-ebuild arm flakes: pkgcheck sometimes errors on repos.conf default repo
    gentoo, then passes on replay
    - blocked on: W703
    - next: Observation only, no code owed: the capture instrument is in (7ad7c12, 5d4a778). Count consecutive gate runs
      with check_ebuild --failures reading 0 record(s); so far 1 (the 5d4a778 gate). A flake leaves its record there (or
      in the bazel undeclared outputs if the sandbox forbids the temp dir): read it, then fix the cause it names. Close
      after a run of clean gates the operator finds convincing, or when a record names a cause and it is fixed.
-204. **W537** (blocked) check_config_reach: a marquee glow arm that sees the LIT pips dim at glow 0.5, not only the
+205. **W537** (blocked) check_config_reach: a marquee glow arm that sees the LIT pips dim at glow 0.5, not only the
    ghost and halo
    - blocked on: W678
    - next: Add to the sampled marquee cases a glow 0.5 run and assert the brightest lit pip (not the ghost floor) drops,
      with a selftest arm that fails on the pre-W534 template where the core ignored glow.
-205. **W539** (blocked) check_template_parity --record takes several templates in one call, and one command runs the
+206. **W539** (blocked) check_template_parity --record takes several templates in one call, and one command runs the
    four independent gates with one summary
    - blocked on: W678
    - next: github-8f census 2026-10-13: --record ran 4 times back to back (LitLayer, SegmentChar, ApertureField,
      Primitive). Make --record accept NAME.qml NAME.qml with n of m and a selftest arm; then a batch mode over the
      antichain render_constants, qml_lint, marquee_live, config_reach printing one verdict line each plus a total.
      Phases W538 composes.
-206. **W111** (blocked) A paths-forward mode that counts how many live waypoints are linked
+207. **W111** (blocked) A paths-forward mode that counts how many live waypoints are linked
    - blocked on: mtools
-207. **W163** (blocked) Rule the graphics-object-unplaced warning: reproduce it headless on the config page, then gate
+208. **W163** (blocked) Rule the graphics-object-unplaced warning: reproduce it headless on the config page, then gate
    it
    - blocked on: W239
    - next: When W239 gives a running Plasma guest: capture the unplaced line there, make that the positive control in
      check_config_load, then re-add the CONFIG-LOAD warrant (check = tool:opa_gate.py config_load) with the control
      cited.
-208. **W245** (blocked) Recolour emitter for the host Air Plasma Style: its 49 of 50 baked SVGZ rewritten from the
+209. **W245** (blocked) Recolour emitter for the host Air Plasma Style: its 49 of 50 baked SVGZ rewritten from the
    palette, as make_plasma does for Breeze
    - blocked on: W719, W720, W721
    - next: Read make_plasma.py and the Air layout (check_plasma_air --theme air --json lists the SVGZ and their literal
      colours); map each literal colour in Air to the nearest palette role, emit el-openglo-air-`<variant>` through
      make_plasma machinery with the colors file from the scheme, register it (ROLES emitter, ORDER, publishing.md row,
      warrant), and gate it with check_plasma_air --theme on the emitted flavour: follows, 0 literals.
-209. **W250** (blocked) policy/screens.rego: a stepped marquee capture series is exactly one run (the S-rule W200 named
+210. **W250** (blocked) policy/screens.rego: a stepped marquee capture series is exactly one run (the S-rule W200 named
    but could not own)
    - blocked on: W762
    - next: Make render_screens log the run count of each marquee-anim series (it already logs the steps: W209 logged S5)
      and add an S-rule in policy/screens.rego: runs == 1 per series, refusing case runs == 2 (a series that wrapped) and
      runs == 0 (a series that never ended); positive control the 18 current marquee-anims.
-210. **W259** (blocked) Marquee animation APNGs are not byte-reproducible: the el-frames log carries per-frame t values
+211. **W259** (blocked) Marquee animation APNGs are not byte-reproducible: the el-frames log carries per-frame t values
    that vary between renders (x steps and all 37 pixel frames are identical)
    - blocked on: W762
    - next: Decide what t is FOR: if S5/S8 read it, quantise it to the animation fixed step (it is virtual time under
      QSG_FIXED_ANIMATION_STEP, so a stable value exists); if nothing reads it, drop it from the logged record. Then
      re-render, confirm two renders are byte-identical, and promote the scratchpad apng diff tool to a repo check
      (frames identical, log x identical) so a diff reviewer has a tool.
-211. **W260** (blocked) Existing # noqa comments hide 38 ruff findings (about 30 broad except Exception nets, 8
+212. **W260** (blocked) Existing # noqa comments hide 38 ruff findings (about 30 broad except Exception nets, 8
    import-availability probes): narrow or restructure each, no suppression (mtools: declare, never suppress)
    - blocked on: W678, W722, W723, W724, W725
    - next: F401 probes: replace `import x # noqa: F401` with importlib.util.find_spec("x") is not None (the idiom ruff
@@ -1703,7 +1707,7 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      MEASUREMENT, keep it broad but state the could-not-run fact (return a withheld fact) instead of swallowing; add a
      selftest arm that a non-expected exception propagates or is withheld. Fan out by disjoint file sets like W254; no
      new noqa.
-212. **W269** (blocked) SDDM greeter gets a configuration view from the shared display declaration (operator:
+213. **W269** (blocked) SDDM greeter gets a configuration view from the shared display declaration (operator:
    conformity, no surface exempt): mount sddm in display_params, theme.conf keys read via config.*, a settings
    projection
    - blocked on: W678
@@ -1715,7 +1719,7 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      Kirigami settings page shipped with the theme and reachable from System Settings, or state precisely what the host
      allows; prove each key effectful with the reach witness (render_qml sddm). Ask the operator only if the host offers
      no view at all.
-213. **W270** (blocked) Login splash gets a configuration view from the shared display declaration (operator:
+214. **W270** (blocked) Login splash gets a configuration view from the shared display declaration (operator:
    conformity, no surface exempt): mount splash in display_params and a settings projection
    - blocked on: W678
    - next: Same shape as W269 for the look-and-feel splash (make_deb._splash_qml, templates/splash.qml): mount splash in
@@ -1723,43 +1727,43 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      project to what the splash host reads (the look-and-feel package defaults file, a Plasma KCM page via the same
      generator), prove effectful with the reach witness. The splash is a standard surface under the one declaration, not
      an exception.
-214. **W287** (blocked) el-openglo typing: catalog/fixtures/deps/undeclared.py (1 findings)
+215. **W287** (blocked) el-openglo typing: catalog/fixtures/deps/undeclared.py (1 findings)
    - blocked on: W762
-215. **W290** (blocked) el-openglo typing: scripts/capture_baseline.py (50 findings)
+216. **W290** (blocked) el-openglo typing: scripts/capture_baseline.py (50 findings)
    - blocked on: W762
    - next: scripts/capture_baseline.py: 50 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x26: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-216. **W291** (blocked) el-openglo typing: scripts/check_cotype_coherence.py (95 findings)
+217. **W291** (blocked) el-openglo typing: scripts/check_cotype_coherence.py (95 findings)
    - blocked on: W762
    - next: scripts/check_cotype_coherence.py: 95 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x42: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-217. **W297** (blocked) el-openglo typing: scripts/check_modes.py (204 findings)
+218. **W297** (blocked) el-openglo typing: scripts/check_modes.py (204 findings)
    - blocked on: W762
    - next: scripts/check_modes.py: 204 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x108: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-218. **W298** (blocked) el-openglo typing: scripts/check_plasma_air.py (95 findings)
+219. **W298** (blocked) el-openglo typing: scripts/check_plasma_air.py (95 findings)
    - blocked on: W762
    - next: scripts/check_plasma_air.py: 95 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x39: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-219. **W303** (blocked) el-openglo typing: scripts/check_wall_limits.py (373 findings)
+220. **W303** (blocked) el-openglo typing: scripts/check_wall_limits.py (373 findings)
    - blocked on: W762
    - next: scripts/check_wall_limits.py: 373 house finding(s) (typing_census --by-file-idiom); the dominant idiom is
      misc x162: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-220. **W304** (blocked) el-openglo typing: scripts/cotype_index.py (296 findings)
+221. **W304** (blocked) el-openglo typing: scripts/cotype_index.py (296 findings)
    - blocked on: W762
    - next: scripts/cotype_index.py: 296 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x147: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-221. **W305** (blocked) el-openglo typing: scripts/drop_lines.py (54 findings)
+222. **W305** (blocked) el-openglo typing: scripts/drop_lines.py (54 findings)
    - blocked on: W762
-222. **W306** (blocked) el-openglo typing: scripts/extract_template.py (50 findings)
+223. **W306** (blocked) el-openglo typing: scripts/extract_template.py (50 findings)
    - blocked on: W762
    - next: scripts/extract_template.py: 50 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc
      x33: Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-223. **W308** (blocked) el-openglo typing: scripts/svg_setdiff.py (72 findings)
+224. **W308** (blocked) el-openglo typing: scripts/svg_setdiff.py (72 findings)
    - blocked on: W762
    - next: scripts/svg_setdiff.py: 72 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x37:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-224. **W462** (blocked) Answer summit: the typed gate exit has landed; your prefix-selection may retire
+225. **W462** (blocked) Answer summit: the typed gate exit has landed; your prefix-selection may retire
    - blocked on: paperkit:W545
    - next: Status letter sent to summit 2026-10-16 (text still read in three places; the exit code in the rest). DONE in
      this tree: judge_worklist treats paperkit typed exit 3 (cannot run) as an explicit decision, never forgiven as
@@ -1767,47 +1771,47 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      once confirmed that --json carries the per-claim check string the replay needs; if it does not, file that as the
      ask to paperkit. Then retire _VERDICT and _FAILED substring scans in scripts/worklist_gate.py (lines 116-122, 400,
      704-705).
-225. **W483** (blocked) Answer paperkit: paperkit main is pushed; pin this sha for el-openglo:W455 (paperkit:W289)
+226. **W483** (blocked) Answer paperkit: paperkit main is pushed; pin this sha for el-openglo:W455 (paperkit:W289)
    - blocked on: W762
    - next: Move the paperkit pin b5877102 to 65f118e3e60de8d02c1d514ba8186739a11e5223 in the pyproject tooling extra, uv
      lock, uv sync both extras, run the worklist gate through land_template, then write paperkit citing paperkit:W289
      with the result or the reason it does not resolve. A pin move lands ALONE with nothing queued, so it follows the
      W666 and typing_census commits.
-226. **W486** (blocked) Settle every still render by frames swapped after load, not a delay: replace HARNESS_SETTLED
+227. **W486** (blocked) Settle every still render by frames swapped after load, not a delay: replace HARNESS_SETTLED
    4000 ms and move all surfaces onto one harness
    - blocked on: W678
-227. **W492** (blocked) Restore the non-blocking cotype queue report the old precommit.sh printed, as its own gate stage
+228. **W492** (blocked) Restore the non-blocking cotype queue report the old precommit.sh printed, as its own gate stage
    kind
    - blocked on: W762
    - next: Add a stage kind that runs the cotype queue report and prints it without failing the gate (the old
      precommit.sh printed it, non-blocking): a gate/stage.sh kind, its target in BUILD.bazel and its entry in
      closures_stages.bzl. Gate machinery: lands ALONE on an empty queue. WITNESS: a gate run prints the cotype queue
      report and its stage exits 0 whatever the report says.
-228. **W505** (blocked) check_ebuild leaves its .ebuild-witness temp trees behind when killed (17 found, each a full
+229. **W505** (blocked) check_ebuild leaves its .ebuild-witness temp trees behind when killed (17 found, each a full
    repo copy that every tool scan then reads): sweep stale ones at start
    - blocked on: W762
    - next: At the start of check_ebuild, sweep stale .ebuild-witness temp trees left by a killed run (each is a full
      repo copy that every tool scan then reads): name the directory pattern, remove only those whose owning process is
      gone, report n of m, selftest arm with a planted stale tree. WITNESS: a planted stale tree is removed by the next
      run and a live one is not.
-229. **W506** (blocked) render_qml.py --selftest fails two litGradient texture arms at HEAD (pre-existing) and no gate
+230. **W506** (blocked) render_qml.py --selftest fails two litGradient texture arms at HEAD (pre-existing) and no gate
    stage runs it
    - blocked on: W762
    - next: First measure: run render_qml.py --selftest and read the two failing litGradient texture arms (pre-existing
      at HEAD); fix what the arms name; then give the selftest a gate stage (a check_ wrapper or a stage kind) so it is
      run. Two slices; split if the fix and the stage do not fit one commit.
-230. **W518** (blocked) Let a tool outside scripts/check_ be a gated selftest stage with a closure (profile_shell,
+231. **W518** (blocked) Let a tool outside scripts/check_ be a gated selftest stage with a closure (profile_shell,
    marquee_soak, soak_pod run by hand today)
    - blocked on: W678
    - next: Let check_closure name a stage for a tool outside scripts/check_ (profile_shell, marquee_soak, soak_pod) so
      each selftest is a gated stage with a closure; WITNESS: check_closure --stats lists the three as stages.
-231. **W540** (blocked) Urgency cues: the voxel volume in the colour-vision views, not only gray
+232. **W540** (blocked) Urgency cues: the voxel volume in the colour-vision views, not only gray
    - blocked on: W678
    - next: voxel_facts builds the volume in the gray view only (volume takes a view parameter already). Emit the pair
      shape per view (gray, protanomaly, deuteranomaly, tritanomaly), have V1 judge the worst view as the static rule
      did, a selftest arm where a cue exists in gray and vanishes in a CVD view, and re-run opa_gate urgency_cues on all
      six.
-232. **W543** (blocked) Classify the 20 unresolved edges of the action keys (schemes 7, screens 5, wallpapers 8):
+233. **W543** (blocked) Classify the 20 unresolved edges of the action keys (schemes 7, screens 5, wallpapers 8):
    computed, or replaceable by a literal
    - blocked on: W678
    - next: From W229 (closed): classify each unresolved edge the gate reports as genuinely computed or replaceable by a
@@ -1815,7 +1819,7 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      a falsifiability arm for output and job (a site declared output that is in fact read as input must fail). Counts
      re-measured 2026-10-13 by opa_gate action_key: schemes 7, screens 5, wallpapers 8 (the card said 26 with schemes
      13). The fourth withheld, screens seeing an UNPINNED host, is a separate matter.
-233. **W549** (blocked) closure_witness @CURRENCY denied wallpapers outputs not found once in the worklist closure tree,
+234. **W549** (blocked) closure_witness @CURRENCY denied wallpapers outputs not found once in the worklist closure tree,
    then passed on re-run unchanged
    - blocked on: W678
    - next: Seen 2026-10-13 10:50 in the W545 gate (private EL_STAGED_DIR, no competing gate found): the worklist stage
@@ -1825,19 +1829,19 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      real tree). Next: make the witness say, on a missing output, WHICH output paths it looked for and whether each is a
      symlink into the host (a mode or a line in the account), then wait for a recurrence; not worked now, no cause
      proven.
-234. **W444** (blocked) el-openglo typing: scripts/check_readme.py (88 findings)
+235. **W444** (blocked) el-openglo typing: scripts/check_readme.py (88 findings)
    - blocked on: W443, W441, W275, W392, W391
    - next: scripts/check_readme.py: 88 house finding(s) (typing_census --by-file-idiom); the dominant idiom is misc x32:
      Expression has type "…". Annotate from the consumers, judged by the house count of this file.
-235. **W128** (blocked) Derive each palette variant's colour from its phosphor's emission spectrum
+236. **W128** (blocked) Derive each palette variant's colour from its phosphor's emission spectrum
    - blocked on: W41
    - next: Derive each variant colour from its phosphor emission, report delta-E from todays eyeballed swatch, propose
      refined lit/ghost/ground for operator review before any re-solve.
-236. **W41** (blocked) Browser publishing pipeline: signed Firefox and Chrome Web Store packages
+237. **W41** (blocked) Browser publishing pipeline: signed Firefox and Chrome Web Store packages
    - blocked on: W136, W137
    - next: Umbrella (split 2026-09-28 on ATOMIZE): closes when W134 Chrome zips, W135 Firefox dynamic-theme extension,
      W136 AMO signing (operator keys), W137 Chrome Web Store listing (operator registration) land.
-237. **W113** (blocked) Check each store's policy on promoting paid products, per venue
+238. **W113** (blocked) Check each store's policy on promoting paid products, per venue
    - blocked on: operator: act publishing, one sitting: (1) open https://store.kde.org/terms and
      opendesktop.org/terms/general in a browser (both return an Anubis bot-block to automated fetches) and paste or save
      the clauses on promotion, outbound links and in-widget content; (2) create an AMO API key and secret on your
@@ -1846,7 +1850,7 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      el-openglo:W136 and el-openglo:W137
    - next: Read the KDE Store / opendesktop terms in a real browser (bot-blocked for fetch) for listing text and
      in-widget promotion.
-238. **W710** (blocked) Operator: two segment-display questions in one sitting (the whole-pip alignment rule W541 and
+239. **W710** (blocked) Operator: two segment-display questions in one sitting (the whole-pip alignment rule W541 and
    the boundaryDepth default W542)
    - blocked on: operator: decide two segment-display questions in one sitting. (1) W541: must every marquee scroll pass
      through the alignment where every inked stroke pip is whole (measured: all six variants do, frame 13, score 1.000;
@@ -1855,7 +1859,7 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      fade near the tips); contact sheet sent; a change restyles the clock, live wallpaper and SDDM themes.
    - next: Waits on the operator. Each question carries its measurements and consequences on its own card (W541, W542);
      this card holds the ask so the operator answers both once.
-239. **W736** (blocked) First luthen oci_runner run of oci/engines/Containerfile, so the unverified blender and
+240. **W736** (blocked) First luthen oci_runner run of oci/engines/Containerfile, so the unverified blender and
    godot3-server package names resolve and both engine versions print
    - blocked on: W762
    - next: luthen-observability:W328 is DONE (landed 2026-10-03), so W154 and W155 are not waiting on luthen: the runner
@@ -1864,9 +1868,9 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      with a memory cap while nothing else heavy runs; read the verdict (ok, refused or cannot-run) and the printed
      versions. WITNESS: the verdict is ok and both versions print, or the refusal names the package that does not exist,
      which is then fixed in the Containerfile and check_engines_recipe.
-240. **W126** (blocked) A passive printed display family: teletype, ticker tape, dot-matrix print
+241. **W126** (blocked) A passive printed display family: teletype, ticker tape, dot-matrix print
    - blocked on: W41
-241. **W190** (blocked) Bespoke class table: which tracked file kinds are authored and which must be emitted, shown to
+242. **W190** (blocked) Bespoke class table: which tracked file kinds are authored and which must be emitted, shown to
    the operator
    - blocked on: operator: decide the three rows in catalog/bespoke-classes.md - plasma-clock/ produced or lift debt;
      library samples into actions.json; baselines PRODUCED or RECORDED
@@ -1874,12 +1878,12 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      templates/*, *.py, docs *.md, catalog/baselines/*, screens *.png, *.colors, wallpapers, fonts, plasma packages,
      .claude state) with AUTHORED or MUST-BE-EMITTED and the producer that owns each emitted kind; then ask the operator
      to confirm before W191/W192 deny anything.
-242. **W191** (blocked) check_bespoke.py --json: every tracked file as authored, produced (graph + actions.json +
+243. **W191** (blocked) check_bespoke.py --json: every tracked file as authored, produced (graph + actions.json +
    make_deb stage), lift debt or orphan, n of m
    - blocked on: W190
    - next: Build the measurement from the confirmed class table: produced = build_graph output edges +
      catalog/actions.json output globs + make_deb --stage paths.
-243. **W225** (blocked) Decide whether the selection field may step away from the ground (second root of
+244. **W225** (blocked) Decide whether the selection field may step away from the ground (second root of
    solve_state_steps), which lifts the ceilings to WCAG 12.2 / APCA Lc 65
    - blocked on: operator: decide the colour-law questions together, they are coupled: (1) may the selection field step
      away from the ground (lighter on a dark ground) when that is the smaller step (lifts the ceilings to WCAG 12.2 or
@@ -1889,46 +1893,46 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      el-openglo:W224
    - next: On yes: solve_state_steps allow_away=True by default (the code path exists, W220), rebuild, re-measure
      --max-floor and --options. On no: record the ruling in the docstring and drop the parameter.
-244. **W239** (blocked) On the first luthen VMI: measure launcher overhead and QoS class, confirm containerDisk,
+245. **W239** (blocked) On the first luthen VMI: measure launcher overhead and QoS class, confirm containerDisk,
    DRM/serial cmdline, el.probe carrier (W71e)
    - blocked on: luthen-observability:W126
    - next: When luthen W126 gives a working VM launch: boot the W235 image once and record launcher overhead, QoS class,
      containerDisk fit, DRM/serial cmdline and the el.probe carrier in guest-image.md.
-245. **W694** (blocked) The gate and the witness give a stage the NAMES of its DIRS without the content: a generated
+246. **W694** (blocked) The gate and the witness give a stage the NAMES of its DIRS without the content: a generated
    skeleton of empty stubs per directory
    - blocked on: W762
    - next: After the 5-stage re-write: witness the 5; if worklist/readme still fail on claims, read which claim and
      whether it is the known @CURRENCY or a new one. Then the census check, the full-set write (so closures_dirs.bzl is
      consistent), and the landing stack.
-246. **W64** (blocked) GRADE THE ARMS BY MUTATION: adopt paperkit's perturbation surface, starting with the temporal UI
+247. **W64** (blocked) GRADE THE ARMS BY MUTATION: adopt paperkit's perturbation surface, starting with the temporal UI
    rules
    - blocked on: W754
    - next: After W179: add ("marquee-live/timeline-text", ["scripts/opa_gate.py","marquee_live"],
      "scripts/check_marquee_live.py", "dflip:TIMELINE#5@4") to PROBES in scripts/check_discriminates.py; it must flip L2
      (expected "app: second - bold" perturbed).
-247. **W70** (blocked) Boot-stack integration harness through k8s throwaway VMs
+248. **W70** (blocked) Boot-stack integration harness through k8s throwaway VMs
    - blocked on: W71, luthen-observability:W127, luthen-observability:W94
    - next: Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted
      themes get in (make_deb? overlay ebuild W12?).
-248. **W136** (blocked) Sign the Firefox extension on AMO with the account owner's API keys
+249. **W136** (blocked) Sign the Firefox extension on AMO with the account owner's API keys
    - blocked on: W113
-249. **W137** (blocked) W41.4 CHROME WEB STORE LISTING: upload the W134 zips (dashboard, or the Web Store API for CI),
+250. **W137** (blocked) W41.4 CHROME WEB STORE LISTING: upload the W134 zips (dashboard, or the Web Store API for CI),
    one listing per variant (Chrome has no dynamic-theme API)
    - blocked on: W113
-250. **W192** (blocked) policy/bespoke.rego: deny an orphan and an empty population, with refusing and admitting tests,
+251. **W192** (blocked) policy/bespoke.rego: deny an orphan and an empty population, with refusing and admitting tests,
    gated by a warrant
    - blocked on: W191
    - next: policy/bespoke.rego + bespoke_test.rego; warrant under tooling citing opa_gate bespoke.
-251. **W195** (blocked) Containerised Android SDK build of the live wallpaper APK, then an emulator run in the k8s VM
+252. **W195** (blocked) Containerised Android SDK build of the live wallpaper APK, then an emulator run in the k8s VM
    - blocked on: W194, W70
    - next: Only after W194 passes (operator 2026-10-01: containerised is fine, JVM test first): an Android SDK + Gradle
      container builds the APK; the emulator (KVM) runs in the k8s throwaway VM, adb screencap into the same checks.
-252. **W224** (blocked) Decide whether a semantic sector admits its pale tints (does pink read as negative?) and state
+253. **W224** (blocked) Decide whether a semantic sector admits its pale tints (does pink read as negative?) and state
    "reads as the sector" in rego
    - blocked on: W225
    - next: On the ruling: encode "reads as the sector" in rego (a chroma floor per slot, or tints-only-where-needed as a
      rule over check_solver_roots facts) and make _candidates obey it; rebuild schemes.
-253. **W227** (blocked) Decide whether gcalc becomes a sha-pinned core dependency (so the shipped palette can run
+254. **W227** (blocked) Decide whether gcalc becomes a sha-pinned core dependency (so the shipped palette can run
    gcalc.solver) or stays a located sibling used only by witnesses
    - blocked on: operator: decide whether gcalc (~/github/gcalculus, now a stdlib-only pyproject named gcalculus)
      becomes a sha-pinned CORE dependency - the ebuild and deb would then fetch and package it - or stays a located
@@ -1937,10 +1941,10 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      the sys.path.insert in netlist_render/check_nodal/check_palette_graph, teach the ebuild and make_deb to carry it,
      rewrite the pyproject ABSENT note. On sibling: rewrite the ABSENT note with today reason (packaging, not "not a
      distribution") and close W221 on the witness shape (N3).
-254. **W240** (blocked) Run P3, P1, then P2 at 1 GiB with el.mem sampling; on OOM hand the operator the log with the 1.5
+255. **W240** (blocked) Run P3, P1, then P2 at 1 GiB with el.mem sampling; on OOM hand the operator the log with the 1.5
    GiB ask (W71h)
    - blocked on: W235, W239
-255. **W703** (blocked) Find the process that rewrites the generated colors, colorscheme and clock files in the gate
+256. **W703** (blocked) Find the process that rewrites the generated colors, colorscheme and clock files in the gate
    tree while a worklist stage runs
    - blocked on: W762
    - next: The two refused gates (kept accounts 20261018T230048 and T231701, invocations ffb534e6 and 183f183e) named
@@ -1949,123 +1953,123 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      producer. Add a mode to scripts/check_tree_writes.py (or a new check) that names the writer of a file during a
      window, then read it against a gate run. WITNESS: the writer is named and either fixed or made to write a private
      copy.
-256. **W706** (blocked) Warrant the 20 cards that cite a ruling in prose, from the transcript record (cap 7)
+257. **W706** (blocked) Warrant the 20 cards that cite a ruling in prose, from the transcript record (cap 7)
    - blocked on: mtools:W1499
    - next: Per card: take one quoted operator phrase from its text, find the record with mikemol-transcriptstruct
      --human REGEX on this repo transcript, then mikemol-paths-forward --warrant SYMBOL --transcript PATH --uuid UUID
      (the writer verifies the record is the operator, human-origin). Work 4 to 5 cards a tick, oldest first: W41 W43 W70
      W91 W116 W136 W154 W257 W283 W286 W287 W290 W291 W297 W298 W303 W304 W305 W306 W308. A card whose phrase cannot be
      found keeps its warning or drops the claim. WITNESS: nemik warrant debt falls to 7 or below.
-257. **W708** (blocked) Clear the stalled and invisible cards nemik flags: W678 (stalled), W206 and W214 (working,
+258. **W708** (blocked) Clear the stalled and invisible cards nemik flags: W678 (stalled), W206 and W214 (working,
    progress invisible)
    - blocked on: W762
    - next: W678: finish its last unmanifested leaves or return it to ready. W206 and W214: their commits keep landing
      but the card shows none of it, so atomize each into child cards that show each slice (the landed shas are in their
      evidence). WITNESS: nemik lists no stalled or progress-invisible Warning for el-openglo.
-258. **W709** (blocked) Claim or link the cards nemik says are unclaimed or unlinked: W179, W462, and the 3 cards with
+259. **W709** (blocked) Claim or link the cards nemik says are unclaimed or unlinked: W179, W462, and the 3 cards with
    no edge
    - blocked on: W762
    - next: W179 and W462 are blocked on paperkit with no paperkit card claiming them: cite the paperkit card, or send
      paperkit a letter naming the el-openglo card so it can mint one. For the 3 edge-less cards, add the enables edge to
      the card or goal that needs each, or drop it. WITNESS: nemik lists no unclaimed-block or unlinked-card row for
      el-openglo.
-259. **W714** (blocked) Express the landing chain as a waldo recipe: phases carry the land_template commands as acts and
+260. **W714** (blocked) Express the landing chain as a waldo recipe: phases carry the land_template commands as acts and
    the existing checks as done witnesses
    - blocked on: W762
    - next: with the gate queue empty: uv sync --extra tooling --extra research, confirm the venv bin has mikemol-waldo,
      read its --help for the recipe format, then write the landing recipe and lint it
-260. **W715** (blocked) Keep land_template as the thin caller of the recipe and carry its selftest arms over as recipe
+261. **W715** (blocked) Keep land_template as the thin caller of the recipe and carry its selftest arms over as recipe
    tests
    - blocked on: W762
    - next: After the recipe runs, make land_template the thin caller of it and carry its selftest arms over as recipe
      tests; WITNESS: land_template --selftest still passes and the recipe tests hold the same arms.
-261. **W716** (blocked) Decide in-process time-sliced versus helper process for glyph pages by measuring one page render
+262. **W716** (blocked) Decide in-process time-sliced versus helper process for glyph pages by measuring one page render
    cost under the Canvas route
    - blocked on: W762
    - next: After W512 fixes the rule, time one page render under the Canvas route and record the cost; decide in-process
      time-sliced versus helper process from the number. WITNESS: the cost and the decision are in this card evidence.
-262. **W717** (blocked) Implement the miss-first-then-page queue with a per-frame budget, in-flight dedup and a
+263. **W717** (blocked) Implement the miss-first-then-page queue with a per-frame budget, in-flight dedup and a
    queued-page cap
    - blocked on: W762
    - next: Implement the queue the W716 decision chose: the miss renders alone and first, the rest of its 256-codepoint
      page is queued and time-sliced to a per-frame budget, pages dedup while in flight, queued pages are capped.
-263. **W718** (blocked) Persist the glyph table as one unit per page so it survives plasmashell restarts
+264. **W718** (blocked) Persist the glyph table as one unit per page so it survives plasmashell restarts
    - blocked on: W762
    - next: Persist each rendered page as one unit keyed by (codepoint block, font, cell size, rule version) so the table
      survives plasmashell restarts; WITNESS: a restart loads the pages without re-rendering them.
-264. **W719** (blocked) Map each literal colour in the Air SVGZ to the nearest palette role, as a table measured by
+265. **W719** (blocked) Map each literal colour in the Air SVGZ to the nearest palette role, as a table measured by
    check_plasma_air
    - blocked on: W762
    - next: Map each of the 325 distinct literal colours to the nearest palette role: read the roles from the palette
      authority (make_preview.parse_scheme / make_schemes.GRID) and take the distance from cvd_gate rather than a new
      metric; emit it as check_plasma_air --roles, with a selftest arm and the n of m (colours mapped of 325).
-265. **W720** (blocked) Emit el-openglo-air-`<variant>` through the make_plasma machinery with the colors file from the
+266. **W720** (blocked) Emit el-openglo-air-`<variant>` through the make_plasma machinery with the colors file from the
    scheme
    - blocked on: W762
    - next: Emit el-openglo-air-`<variant>` by specialising make_plasma (no colours computed here), with the colors file
      taken from the scheme. WITNESS: the emitted flavour exists for each variant.
-266. **W721** (blocked) Register the Air emitter: ROLES emitter, ORDER, the publishing.md row and the warrant, gated by
+267. **W721** (blocked) Register the Air emitter: ROLES emitter, ORDER, the publishing.md row and the warrant, gated by
    check_plasma_air --theme following with 0 literals
    - blocked on: W762
    - next: Register the emitter (ROLES, ORDER, publishing.md row, warrant) and gate it: check_plasma_air --theme on the
      emitted flavour reports follows with 0 literals.
-267. **W722** (blocked) Replace the 8 import-availability probes marked noqa F401 with importlib.util.find_spec,
+268. **W722** (blocked) Replace the 8 import-availability probes marked noqa F401 with importlib.util.find_spec,
    behaviour-neutral
    - blocked on: W762
    - next: Replace each import x # noqa: F401 probe with importlib.util.find_spec("x") is not None; no new noqa.
      WITNESS: ruff check --ignore-noqa lists no F401 in these six files and each selftest still passes.
-268. **W723** (blocked) Narrow or restructure the 6 broad except Exception nets in the render and capture tools
+269. **W723** (blocked) Narrow or restructure the 6 broad except Exception nets in the render and capture tools
    (render_samples, cvd_gate, make_wallpaper, capture_baseline, extract_template, identify)
    - blocked on: W762
    - next: For each broad except Exception read the try body and name the exceptions it expects; where it is a
      deliberate net around a measurement return a withheld fact instead of swallowing; add a selftest arm that an
      unexpected exception propagates or is withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these six
      files.
-269. **W724** (blocked) Narrow or restructure the broad except Exception nets in the check_chrome, check_config,
+270. **W724** (blocked) Narrow or restructure the broad except Exception nets in the check_chrome, check_config,
    check_consumers, check_ebuild, check_monet and check_palette_chain checks
    - blocked on: W762
    - next: For each broad except Exception name the exceptions the try body expects, or return a withheld fact where it
      is a deliberate net around a measurement, with a selftest arm that an unexpected exception propagates or is
      withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these seven files.
-270. **W725** (blocked) Narrow or restructure the broad except Exception nets in check_plymouth_digits,
+271. **W725** (blocked) Narrow or restructure the broad except Exception nets in check_plymouth_digits,
    check_publishing, check_standards, check_symbol, check_template_parity, check_terminals, check_windows and opa_gate
    - blocked on: W762
    - next: For each broad except Exception name the exceptions the try body expects, or return a withheld fact where it
      is a deliberate net around a measurement, with a selftest arm that an unexpected exception propagates or is
      withheld. WITNESS: ruff check --ignore-noqa lists no BLE001 in these eight files.
-271. **W734** (blocked) Declare make_deb and deb_pack as an action in check_action_key with their input domain, so the
+272. **W734** (blocked) Declare make_deb and deb_pack as an action in check_action_key with their input domain, so the
    .deb is current or stale by key and not by push or clock
    - blocked on: W762
    - next: Declare the deb action in check_action_key with entry make_deb.py, its input domains, and a committed stamp
      output (catalog/deb.stamp); record its key in catalog/actions.json the way the three existing actions are. WITNESS:
      check_action_key --list names the deb action, opa_gate.py action_key admits, and editing a declared input makes it
      read stale.
-272. **W735** (blocked) Add the @DEB warrant: opa_gate.py deb rebuilds the .deb only when its action key is stale,
+273. **W735** (blocked) Add the @DEB warrant: opa_gate.py deb rebuilds the .deb only when its action key is stale,
    verifying staged equals packed with steps 0
    - blocked on: W762
    - next: Add the @DEB warrant citing opa_gate.py deb, producing its own inputs only when the W734 action key is stale
      (staged equals packed, steps 0); WITNESS: opa_gate.py deb admits and the warrant is discharged by the worklist
      gate.
-273. **W739** (blocked) Declare the --json record of each check as a surface in policy/contracts.rego, starting with the
+274. **W739** (blocked) Declare the --json record of each check as a surface in policy/contracts.rego, starting with the
    check whose record the most policies read
    - blocked on: W762
-274. **W743** (blocked) Typing debt is 37317 house findings; measure how many clear when the 2037 untyped defs are
+275. **W743** (blocked) Typing debt is 37317 house findings; measure how many clear when the 2037 untyped defs are
    annotated by a codemod judged by mypy
    - blocked on: W762
    - next: after W752 lands: run cli_observe over a small pytest target, then annotate --root . --seen seen.json as a
      dry run on segment_topology.py, record the before and after mypy counts
-275. **W754** (blocked) Answer nemik:W879: repin mikemol-paths-forward and the mtools pins so nemik:W516 withholding at
+276. **W754** (blocked) Answer nemik:W879: repin mikemol-paths-forward and the mtools pins so nemik:W516 withholding at
    the source reaches this repo
    - blocked on: W762
    - next: After the queued stacks land, resubmit the repin alone with nothing queued and build nothing in the main tree
      while it gates (scratch worktree only).
-276. **W756** (blocked) W75 gtk: make check_gtk.measure take a roster of css texts so a fixture can be denied, then
+277. **W756** (blocked) W75 gtk: make check_gtk.measure take a roster of css texts so a fixture can be denied, then
    @GTK-DENIES
    - blocked on: W762
    - next: scripts/check_gtk.py: measure(texts=None) reads a {variant: [gtk4, gtk3] css} fixture instead of make_gtk,
      --json takes one fixture file, catalog/fixtures/gtk/*.txt is denied with the policy rule id it names, @GTK-DENIES
      in catalog/worklist/warrants.bib, one selftest arm
-277. **W757** (blocked) W75 firefox: make check_firefox.measure take a manifest so a fixture can be denied, then
+278. **W757** (blocked) W75 firefox: make check_firefox.measure take a manifest so a fixture can be denied, then
    @FIREFOX-DENIES
    - blocked on: W762
    - next: check_firefox.measure renders every variant through make_firefox.render_all, lints each (_lint_run, web-ext)
@@ -2074,57 +2078,57 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      policy/firefox.rego to choose rule ids that facts() alone can fire, build measure_fixture({variant, manifest}) in a
      scratch worktree, then catalog/fixtures/firefox-manifests/*.txt (not a dir named firefox: check .gitignore first),
      @FIREFOX-DENIES, 2 selftest arms (write the fixture to a temp dir: closure observation sees imports, not opens).
-278. **W758** (blocked) W75 union: make check_union.measure take a sheet so a fixture can be denied, then @UNION-DENIES
+279. **W758** (blocked) W75 union: make check_union.measure take a sheet so a fixture can be denied, then @UNION-DENIES
    - blocked on: W762
    - next: scripts/check_union.py: measure takes a sheet, --json takes one fixture file, catalog/fixtures/union/*.txt is
      denied with the rule id it names, @UNION-DENIES in catalog/worklist/warrants.bib, one selftest arm
-279. **W116** (blocked) Original Kvantum theme drawn from the palette, replacing the KvFlat recolour (GPL-3.0), so the
+280. **W116** (blocked) Original Kvantum theme drawn from the palette, replacing the KvFlat recolour (GPL-3.0), so the
    whole desktop theme is Apache-2.0
    - blocked on: W120
    - next: Census what make_kvantum takes from KvFlat (SVG element ids Kvantum requires, kvconfig keys) vs what the
      palette supplies; that list is the drawing spec. Then retire the GPL-3.0 debian copyright stanza and the KvFlat
      third_party entry in check_license.
-280. **W123** (blocked) A Nixie tube display model, emitted from the core, after publishing
+281. **W123** (blocked) A Nixie tube display model, emitted from the core, after publishing
    - blocked on: W41
-281. **W124** (blocked) A neon tube display model, emitted from the core, after publishing
+282. **W124** (blocked) A neon tube display model, emitted from the core, after publishing
    - blocked on: W41
-282. **W125** (blocked) Census which vintage display technologies are modelled and which are not
+283. **W125** (blocked) Census which vintage display technologies are modelled and which are not
    - blocked on: W41
-283. **W127** (blocked) UV-fluorescent ink: make the passive displays emissive under UV
+284. **W127** (blocked) UV-fluorescent ink: make the passive displays emissive under UV
    - blocked on: W126, W128
-284. **W129** (blocked) SrS:Ce PHOSPHOR VARIANT (operator 2026-09-28): a blue-green palette variant derived from SrS:Ce
+285. **W129** (blocked) SrS:Ce PHOSPHOR VARIANT (operator 2026-09-28): a blue-green palette variant derived from SrS:Ce
    emission via W128
    - blocked on: W128
-285. **W130** (blocked) CaS:Eu PHOSPHOR VARIANT (operator 2026-09-28): a red palette variant derived from CaS:Eu
+286. **W130** (blocked) CaS:Eu PHOSPHOR VARIANT (operator 2026-09-28): a red palette variant derived from CaS:Eu
    emission via W128
    - blocked on: W128
-286. **W131** (blocked) WHITE PHOSPHOR VARIANT (operator 2026-09-28): ZnS:Cu,Cl co-doped with trace Mn gives white; a
+287. **W131** (blocked) WHITE PHOSPHOR VARIANT (operator 2026-09-28): ZnS:Cu,Cl co-doped with trace Mn gives white; a
    white variant derived from the blended emission via W128
    - blocked on: W128
-287. **W132** (blocked) DFT-DERIVED PHOSPHOR PARAMETERS (operator 2026-09-28): replace literature parameters
+288. **W132** (blocked) DFT-DERIVED PHOSPHOR PARAMETERS (operator 2026-09-28): replace literature parameters
    (defect/donor/acceptor levels, crystal field, Huang-Rhys S, phonon energy) with DFT defect calculations, as deeper
    parameters for the Voronoi/Delaunay colour model and the conductance model (shared g-calculus math, a sibling, not a
    dependency)
    - blocked on: W128
-288. **W515** (blocked) Reproduce the marquee memory burst under a MemoryMax cgroup: a long marquee harness run on the
+289. **W515** (blocked) Reproduce the marquee memory burst under a MemoryMax cgroup: a long marquee harness run on the
    RHI and software paths, sampling Shmem and swap, never on the live desktop
    - blocked on: luthen-observability:W163
    - next: The offscreen soak cleared the QML (no runaway, Shmem 0 without a compositor); a faithful Shmem repro needs
      the guest VM, which waits on luthen-observability:W163 (TTL reaper, behind the Gentoo base W41)
-289. **W542** (blocked) Operator: which boundaryDepth default for the segment display, 0.5 as today, 0.4 or 0.3?
+290. **W542** (blocked) Operator: which boundaryDepth default for the segment display, 0.5 as today, 0.4 or 0.3?
    - blocked on: W710
    - next: Waits on the operator. Contact sheet: the clock on EL-Openglo at 640x200 with boundaryDepth 0.5, 0.4, 0.3
      (scratchpad wip/depth/sheet-EL-Openglo.png, sent to the operator 2026-10-13). A change restyles the clock, the live
      wallpaper and the SDDM themes, so it is the operator taste call; the property, its gate (opa symmetry) and the
      slider (0 to 0.5) exist already. If the answer is not 0.5: change the one default in display_params, re-record the
      SegmentChar parity baseline, re-render the clock, live-wallpaper and sddm screens.
-290. **W705** (blocked) Clear the nemik Warnings on this queue: warrants for prose rulings, the ask cap, stalled and
+291. **W705** (blocked) Clear the nemik Warnings on this queue: warrants for prose rulings, the ask cap, stalled and
    unlinked cards, touches and witnesses
    - blocked on: W706, W708, W709
    - next: Work the Warning rows in rank order: attach warrants where the transcript record can be found, batch or
      withdraw asks to get under the cap, give W700 W702 W703 touches and witnesses, link or drop the unlinked cards.
      WITNESS: nemik-check --root ~/github lists no el-openglo Warning.
-291. **W753** (blocked) Adopt the ratchet series: this repo's gate emits its own ratchets with mikemol-ratchet-hook
+292. **W753** (blocked) Adopt the ratchet series: this repo's gate emits its own ratchets with mikemol-ratchet-hook
    - blocked on: W762
    - next: Repin the hooks wheel to mtools 5487b92e or later (plus mikemol-ratchet and mikemol-atomicwrite; if vendored,
      those rows come with mtools:W1946). Dry-run mikemol-ratchet-hook `<gate` script> --after '`<anchor` line>' --tool
@@ -2132,20 +2136,12 @@ counter 785 · heartbeat 2026-10-29T13:04:52Z · job `e9071907` · hash `v2:1587
      tree>', read the printed block, then --write. Worked cases: mtools .githooks/pre-commit and nemik
      tools/gate_staged.sh. Witness: count by (repo) (last_over_time(mikemol.ratchet.value[30m])) shows this repo after
      its next gate.
-292. **W781** (blocked) Forced-interleave witness for the render race: delay the subject load past the old 1200 ms grab,
+293. **W781** (blocked) Forced-interleave witness for the render race: delay the subject load past the old 1200 ms grab,
    show HARNESS reads 0 lit px every time and HARNESS_SETTLED passes every time (github-8f ruling, loop prompt line 27)
-   - blocked on: luthen-observability:W1750, mtools:W2145
+   - blocked on: luthen-observability:W1750
    - next: mtools answer: how a repo pinned at 754dcf97 gets bazel_admit.degrade, or BuildBuddy back
      (luthen-observability:W1750); do NOT edit .bazelrc to drop the BES lines (operator rule: the shared cache and event
      stream are unconditional)
-293. **W785** (blocked) Install the BES-degrade wrapper tools/bazel (mikemol-bazel-admit --install) with the repin so a
-   gate degrades while BES refuses
-   - blocked on: mtools:W2145
-   - next: after mtools:W2145 lands (a wrapper branch to MIKEMOL_REAL_ROOT/.venv/bin/mikemol-bazel-admit): repin all
-     mikemol-* specs to ad8793a0 or later (mikemol-repin --write, then uv sync --extra tooling --extra research), run
-     mikemol-bazel-admit --install . in the repo, and submit the pin move AND the new tools/bazel in ONE stack; the gate
-     runs the wrapper from that stack tree, finds the locally installed tool via MIKEMOL_REAL_ROOT and degrades. Do not
-     use W2103 freeze-from and do not edit .bazelrc.
 294. **W12** (blocked) Gentoo overlay under overlay/ + a live ebuild (git-r3, this repo) that runs the emitters and
    installs what make_deb installs, + check_ebuild.py witness
    - blocked on: W70

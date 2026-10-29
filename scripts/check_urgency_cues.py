@@ -775,7 +775,11 @@ def measure(only=None, stills_dir=None):
         }
     ML._emitted()  # once, before the pool
     todo = [v for v in variants() if only in (None, v)]
-    keep = stills_dir or tempfile.mkdtemp(prefix="urgency-cues-")
+    # ⚑ W784: the stills are KEPT only when the caller asked for them (--stills DIR). Otherwise they
+    # live in a directory this measure owns and removes before it returns: it was an mkdtemp nobody
+    # removed, one leaked directory (stills and frame series) per measurement.
+    owned = tempfile.TemporaryDirectory(prefix="urgency-cues-")
+    keep = stills_dir or owned.name
     os.makedirs(keep, exist_ok=True)
     jobs = [
         (
@@ -824,10 +828,14 @@ def measure(only=None, stills_dir=None):
         c["temporal"] = temporal
         c["voxel"] = voxel_facts(runs, ground, inks["normal"]["_grid"])
         c["pause"] = pause_facts(held.get(v))
-        c["stills"] = {
-            n: os.path.join(keep, f"urgency-{n}-{v}.png") for n, _ in URGENCIES
-        }
+        # the paths are only true while the directory is: a kept --stills dir, else none
+        c["stills"] = (
+            {n: os.path.join(keep, f"urgency-{n}-{v}.png") for n, _ in URGENCIES}
+            if stills_dir
+            else None
+        )
         cases.append(c)
+    owned.cleanup()
     return {
         "cases": cases,
         "withheld": withheld,

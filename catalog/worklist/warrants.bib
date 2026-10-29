@@ -1164,3 +1164,17 @@
   claim    = {The shard guard DENIES a known-bad warrants file end to end: a bib that runs the clock and wallpaper shard and has dropped the marquee warrant is refused by the measurement, the policy and the exit (S1, the marquee shard has no warrant running exactly it), so the guard is shown to fail and not only to admit (W778)},
   check    = {tool:opa_gate.py config_reach_shards catalog/fixtures/config_reach_shards/dropped-shard.txt --expect denied:S1}
 }
+
+@misc{RENDER-RACE,
+  section  = {tooling},
+  rests-on = {QML-TARGET},
+  claim    = {The render gate's grab race is FORCED and not only counted: with the subject Loader held inactive past the default harness's fixed 1200 ms grab, the default harness reads 0 lit pixels every time (the race is real), the settled harness reads the control's lit pixels every time (the gate that grabs from the subject's load survives a late load), and the control without the hold is lit (the instrument can see), so the render gate's pass under load rests on an interleaving shown deterministically and not on run counts (W781)},
+  check    = {tool:opa_gate.py render_race}
+}
+
+@misc{TEMP-LEAKS,
+  section  = {tooling},
+  rests-on = {EMITTERS},
+  claim    = {A generator removes the temp directories it creates on every exit path: run in its own subprocess with a private TMPDIR, importing make_deb, measuring the cursors and measuring one variant of the urgency cues leave nothing behind, where the old code left an el-openglo-lnf, an el-cursors and an urgency-cues directory each (the 12018 leaked directories that filled the host's zram until /tmp and /var/tmp went read-only); the urgency stills are kept only when --stills DIR asks (W784)},
+  check    = {tool:opa_gate.py temp_leaks}
+}

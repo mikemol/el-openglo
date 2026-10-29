@@ -212,6 +212,9 @@ DIRS = {
     ],
     "scripts/check_render_constants.py": [
     ],
+    "scripts/check_render_race.py": [
+        ".",
+    ],
     "scripts/check_role_theme.py": [
     ],
     "scripts/check_root_helpers.py": [
@@ -249,6 +252,8 @@ DIRS = {
     ],
     "scripts/check_taskswitch.py": [
         ".",
+    ],
+    "scripts/check_temp_leaks.py": [
     ],
     "scripts/check_template_parity.py": [
         "catalog/baselines",
@@ -3441,6 +3446,8 @@ STATS = {
     ],
     "scripts/check_render_constants.py": [
     ],
+    "scripts/check_render_race.py": [
+    ],
     "scripts/check_role_theme.py": [
     ],
     "scripts/check_root_helpers.py": [
@@ -3639,6 +3646,8 @@ STATS = {
     "scripts/check_symmetry.py": [
     ],
     "scripts/check_taskswitch.py": [
+    ],
+    "scripts/check_temp_leaks.py": [
     ],
     "scripts/check_template_parity.py": [
         "catalog/baselines/marquee-main.qml",

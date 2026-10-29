@@ -1514,3 +1514,11 @@
 2026-10-29T13:04:39Z  tick  W785 idle      unblock   "idle: 0 ready; mtools landed W2041, W2091, W1936, W2133, W2069 (the flake: touches prefix) but mtools:W2145 is still not among them; BuildBuddy still refuses connections; no nudges due; four-entry stack queued unchanged"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-29T13:42:42Z  tick  W770 idle      unblock   "idle: 0 ready; escalated W770 once (16 ticks blocked on mtools:W2120, locally mitigated by --stack), nudging that item stops; paperkit:W569 went working to blocked (my W760 and W762 wait on it, nothing to do here); mtools:W2145 not yet landed; BuildBuddy still refuses connections; four-entry stack queued unchanged"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-29T13:50:20Z  status W785 blocked>working writer    "blocked -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:02:00Z  prune W781 edge-pruned writer    "mtools:W2145"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:02:33Z  tick  W785 advanced  unblock   "W785 gating alone (key 1793282312285798165): the wrapper engaged inside the gate (bazel test //:precommit runs under mikemol-membudget hold 4096 in the admit -- form); new watchdog command is the repo-venv mikemol-watchdog; verdict pending; the four-entry code stack waits uncommitted behind it"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:18:28Z  tick  W785 idle      unblock   "idle: 0 ready; W785 repin gate still running alone (key 1793282312285798165, queue shows GATING); the four-entry code stack waits behind it; no nudge sent (luthen W1750 nudge is a repeat)"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:26:11Z  status W785 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:26:11Z  status W64  blocked>ready writer    "blocked -> ready"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:26:11Z  status W754 blocked>done writer    "blocked -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:26:12Z  status W781 blocked>working writer    "blocked -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-29T14:26:21Z  status W64  ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0

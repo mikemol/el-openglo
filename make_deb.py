@@ -481,16 +481,20 @@ def helper_source_mapping():
 # These carry NO new payload — they REFERENCE the components the deb already
 # installs (color scheme, plasma desktoptheme, aurorae decoration, wallpaper),
 # so selecting one flips them together. Built into a staging dir then mapped in.
+import atexit as _atexit
 import json as _json
+import tempfile as _tempfile
 
 # ⚑ A FRESH TEMP DIR PER RUN, NOT A FIXED /tmp PATH.  This was /tmp/eldeb/_lnf:
 # Portage's sandbox created it as root during the first emerge, and every later
 # run as the user died with EACCES — the third absolute path this packager
 # assumed (after the container output dir and BUILD itself). Seen only once the
 # ebuild witness staged from a clean clone.
-import tempfile as _tempfile
-
 LNF_STAGE = _tempfile.mkdtemp(prefix="el-openglo-lnf-")
+# ⚑ W784: THIS RAN AT IMPORT, SO EVERY PROCESS THAT IMPORTED make_deb LEFT A DIRECTORY BEHIND.
+# /var/tmp held 12018 el-openglo-lnf-* of them (github-42, 2026-10-29), which filled zram1 and made it
+# emergency_ro. build_lnf_packages removes and recreates the tree on use; this removes it on exit.
+_atexit.register(shutil.rmtree, LNF_STAGE, ignore_errors=True)
 
 
 def _decoration_theme(variant):

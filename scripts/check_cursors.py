@@ -175,20 +175,26 @@ def measure(root=None):
     import make_cursors as MC
     import make_inherit as INH
 
-    if root is None:
-        tmp = tempfile.mkdtemp(prefix="el-cursors-")
-        MC.render_all(MC.VARIANTS, tmp)
-        root = tmp
-    cases = []
-    for v in roster:
-        tdir = os.path.join(root, INH.cursor_theme_name(v))
-        cases.append(measure_theme(tdir, v))
-    return {
-        "probe_size": PROBE_SIZE,
-        "dominant_share": DOMINANT_SHARE,
-        "cases": cases,
-        "roster_drift": roster_drift(),
-    }
+    # ⚑ W784: the rendered themes live in a directory this measure owns, removed on EVERY exit path
+    # (it was an mkdtemp nobody removed: one leaked directory per measurement).
+    holder = tempfile.TemporaryDirectory(prefix="el-cursors-") if root is None else None
+    try:
+        if holder is not None:
+            MC.render_all(MC.VARIANTS, holder.name)
+            root = holder.name
+        cases = []
+        for v in roster:
+            tdir = os.path.join(root, INH.cursor_theme_name(v))
+            cases.append(measure_theme(tdir, v))
+        return {
+            "probe_size": PROBE_SIZE,
+            "dominant_share": DOMINANT_SHARE,
+            "cases": cases,
+            "roster_drift": roster_drift(),
+        }
+    finally:
+        if holder is not None:
+            holder.cleanup()
 
 
 def _selftest():
